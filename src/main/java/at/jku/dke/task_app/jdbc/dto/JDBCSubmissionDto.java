@@ -8,5 +8,5 @@ import jakarta.validation.constraints.Size;
  *
  * @param input The user input.
  */
-public record jdbcSubmissionDto(@NotNull @Size(max = 255) String input) {
+public record JDBCSubmissionDto(@NotNull @Size(max = 255) String input) {
 }

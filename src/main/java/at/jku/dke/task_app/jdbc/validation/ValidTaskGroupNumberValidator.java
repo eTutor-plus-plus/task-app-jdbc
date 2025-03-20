@@ -1,13 +1,13 @@
 package at.jku.dke.task_app.jdbc.validation;
 
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskGroupDto;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * Custom validator for numbers in {@link ModifyjdbcTaskGroupDto}.
+ * Custom validator for numbers in {@link ModifyJDBCTaskGroupDto}.
  */
-public class ValidTaskGroupNumberValidator implements ConstraintValidator<ValidTaskGroupNumber, ModifyjdbcTaskGroupDto> {
+public class ValidTaskGroupNumberValidator implements ConstraintValidator<ValidTaskGroupNumber, ModifyJDBCTaskGroupDto> {
     /**
      * Creates a new instance of class Valid task group number validator.
      */
@@ -15,7 +15,7 @@ public class ValidTaskGroupNumberValidator implements ConstraintValidator<ValidT
     }
 
     @Override
-    public boolean isValid(ModifyjdbcTaskGroupDto value, ConstraintValidatorContext context) {
+    public boolean isValid(ModifyJDBCTaskGroupDto value, ConstraintValidatorContext context) {
         return value.minNumber() < value.maxNumber();
     }
 }

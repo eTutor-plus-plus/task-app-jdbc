@@ -8,32 +8,32 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Represents a jdbc input.
+ * Represents a JDBC input.
  */
 @Entity
 @Table(name = "submission")
-public class jdbcSubmission extends BaseSubmission<jdbcTask> {
+public class JDBCSubmission extends BaseSubmission<JDBCTask> {
     @NotNull
     @Column(name = "submission", nullable = false)
     private String submission;
 
     /**
-     * Creates a new instance of class {@link jdbcSubmission}.
+     * Creates a new instance of class {@link JDBCSubmission}.
      */
-    public jdbcSubmission() {
+    public JDBCSubmission() {
     }
 
     /**
-     * Creates a new instance of class {@link jdbcSubmission}.
+     * Creates a new instance of class {@link JDBCSubmission}.
      *
      * @param submission The input.
      */
-    public jdbcSubmission(String submission) {
+    public JDBCSubmission(String submission) {
         this.submission = submission;
     }
 
     /**
-     * Creates a new instance of class {@link jdbcSubmission}.
+     * Creates a new instance of class {@link JDBCSubmission}.
      *
      * @param userId        The user id.
      * @param assignmentId  The assignment id.
@@ -43,7 +43,7 @@ public class jdbcSubmission extends BaseSubmission<jdbcTask> {
      * @param mode          The mode.
      * @param submission    The input.
      */
-    public jdbcSubmission(String userId, String assignmentId, jdbcTask task, String language, int feedbackLevel, SubmissionMode mode, String submission) {
+    public JDBCSubmission(String userId, String assignmentId, JDBCTask task, String language, int feedbackLevel, SubmissionMode mode, String submission) {
         super(userId, assignmentId, task, language, feedbackLevel, mode);
         this.submission = submission;
     }

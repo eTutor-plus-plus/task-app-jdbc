@@ -4,11 +4,15 @@ import at.jku.dke.etutor.task_app.dto.SubmissionMode;
 import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
 import at.jku.dke.task_app.jdbc.DatabaseSetupExtension;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTask;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskGroupRepository;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskRepository;
-import at.jku.dke.task_app.jdbc.dto.jdbcSubmissionDto;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
+import at.jku.dke.task_app.jdbc.evaluation.EvaluationService;
+
+import at.jku.dke.task_app.jdbc.evaluation.EvaluationService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +30,9 @@ class EvaluationServiceTest {
     @Autowired
     private EvaluationService evaluationService;
     @Autowired
-    private jdbcTaskGroupRepository taskGroupRepository;
+    private JDBCTaskGroupRepository taskGroupRepository;
     @Autowired
-    private jdbcTaskRepository taskRepository;
+    private JDBCTaskRepository taskRepository;
     private long taskId;
 
     @BeforeEach
@@ -36,16 +40,16 @@ class EvaluationServiceTest {
         taskRepository.deleteAll();
         taskGroupRepository.deleteAll();
 
-        var taskGroup = taskGroupRepository.save(new jdbcTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
-        var task = taskRepository.save(new jdbcTask(1L, BigDecimal.TEN, TaskStatus.APPROVED, taskGroup, 20));
+        var taskGroup = taskGroupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
+        var task = taskRepository.save(new JDBCTask(1L, BigDecimal.TEN, TaskStatus.APPROVED, taskGroup, 20));
         this.taskId = task.getId();
     }
 
     @Test
     void evaluateRun() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.RUN, 3, new jdbcSubmissionDto("20"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.RUN, 3, new JDBCSubmissionDto("20"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -62,8 +66,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateSubmitValid() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("20"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("20"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -80,8 +84,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateSubmitInvalidSyntax() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("20 jku"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("20 jku"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -98,8 +102,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateSubmitTooSmall() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("18"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("18"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -116,8 +120,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateDiagnoseValid() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.DIAGNOSE, 3, new jdbcSubmissionDto("20"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.DIAGNOSE, 3, new JDBCSubmissionDto("20"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -135,8 +139,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateDiagnoseInvalidSyntax() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.DIAGNOSE, 3, new jdbcSubmissionDto("20 test"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.DIAGNOSE, 3, new JDBCSubmissionDto("20 test"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -153,8 +157,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateDiagnoseTooBig() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.DIAGNOSE, 3, new jdbcSubmissionDto("25"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.DIAGNOSE, 3, new JDBCSubmissionDto("25"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -172,8 +176,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateDiagnoseTooSmall() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.DIAGNOSE, 3, new jdbcSubmissionDto("15"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.DIAGNOSE, 3, new JDBCSubmissionDto("15"));
 
         // Act
         var result = evaluationService.evaluate(dto);
@@ -192,8 +196,8 @@ class EvaluationServiceTest {
     @Test
     void evaluateDiagnoseNoFeedback() {
         // Arrange
-        SubmitSubmissionDto<jdbcSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
-            "en", SubmissionMode.DIAGNOSE, 0, new jdbcSubmissionDto("15"));
+        SubmitSubmissionDto<JDBCSubmissionDto> dto = new SubmitSubmissionDto<>("test-user", "test-assignment", taskId,
+            "en", SubmissionMode.DIAGNOSE, 0, new JDBCSubmissionDto("15"));
 
         // Act
         var result = evaluationService.evaluate(dto);

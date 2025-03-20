@@ -7,8 +7,8 @@ logging:
 # Data
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/etutor_binary_search
-    username: etutor_binary_search
+    url: JDBC:postgresql://localhost:5434/etutor_JDBC
+    username: etutor_JDBC
     password: secret
   jpa:
     show-sql: true

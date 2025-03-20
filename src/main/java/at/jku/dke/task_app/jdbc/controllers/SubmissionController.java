@@ -1,22 +1,23 @@
 package at.jku.dke.task_app.jdbc.controllers;
 
 import at.jku.dke.etutor.task_app.controllers.BaseSubmissionController;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcSubmission;
-import at.jku.dke.task_app.jdbc.dto.jdbcSubmissionDto;
-import at.jku.dke.task_app.jdbc.services.jdbcSubmissionService;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCSubmission;
+import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
+import at.jku.dke.task_app.jdbc.services.JDBCSubmissionService;
+
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller for managing {@link jdbcSubmission}s.
+ * Controller for managing {@link JDBCSubmission}s.
  */
 @RestController
-public class SubmissionController extends BaseSubmissionController<jdbcSubmissionDto> {
+public class SubmissionController extends BaseSubmissionController<JDBCSubmissionDto> {
     /**
      * Creates a new instance of class {@link SubmissionController}.
      *
      * @param submissionService The input service.
      */
-    public SubmissionController(jdbcSubmissionService submissionService) {
+    public SubmissionController(JDBCSubmissionService submissionService) {
         super(submissionService);
     }
 }

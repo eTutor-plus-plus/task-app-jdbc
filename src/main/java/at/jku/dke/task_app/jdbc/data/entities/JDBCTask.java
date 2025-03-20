@@ -10,45 +10,45 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * Represents a jdbc task.
+ * Represents a JDBC task.
  */
 @Entity
 @Table(name = "task")
-public class jdbcTask extends BaseTaskInGroup<jdbcTaskGroup> {
+public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
     @NotNull
     @Column(name = "solution", nullable = false)
     private Integer solution;
 
     /**
-     * Creates a new instance of class {@link jdbcTask}.
+     * Creates a new instance of class {@link JDBCTask}.
      */
-    public jdbcTask() {
+    public JDBCTask() {
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTask}.
+     * Creates a new instance of class {@link JDBCTask}.
      *
      * @param solution The solution.
      */
-    public jdbcTask(Integer solution) {
+    public JDBCTask(Integer solution) {
         this.solution = solution;
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTask}.
+     * Creates a new instance of class {@link JDBCTask}.
      *
      * @param maxPoints The maximum points.
      * @param status    The status.
      * @param taskGroup The task group.
      * @param solution  The solution.
      */
-    public jdbcTask(BigDecimal maxPoints, TaskStatus status, jdbcTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
         super(maxPoints, status, taskGroup);
         this.solution = solution;
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTask}.
+     * Creates a new instance of class {@link JDBCTask}.
      *
      * @param id        The identifier.
      * @param maxPoints The maximum points.
@@ -56,7 +56,7 @@ public class jdbcTask extends BaseTaskInGroup<jdbcTaskGroup> {
      * @param taskGroup The task group.
      * @param solution  The solution.
      */
-    public jdbcTask(Long id, BigDecimal maxPoints, TaskStatus status, jdbcTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
         super(id, maxPoints, status, taskGroup);
         this.solution = solution;
     }

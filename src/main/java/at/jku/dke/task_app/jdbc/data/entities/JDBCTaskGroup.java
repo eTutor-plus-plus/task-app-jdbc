@@ -8,14 +8,14 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Represents a jdbc task group.
+ * Represents a JDBC task group.
  * <p>
- * It is also possible to create tasks without task types. Tasks of type jdbc would not need a task group.
+ * It is also possible to create tasks without task types. Tasks of type JDBC would not need a task group.
  * Here a task group is only used for demonstration purposes.
  */
 @Entity
 @Table(name = "task_group")
-public class jdbcTaskGroup extends BaseTaskGroup {
+public class JDBCTaskGroup extends BaseTaskGroup {
     @NotNull
     @Column(name = "min_number", nullable = false)
     private Integer minNumber;
@@ -25,44 +25,44 @@ public class jdbcTaskGroup extends BaseTaskGroup {
     private Integer maxNumber;
 
     /**
-     * Creates a new instance of class {@link jdbcTaskGroup}.
+     * Creates a new instance of class {@link JDBCTaskGroup}.
      */
-    public jdbcTaskGroup() {
+    public JDBCTaskGroup() {
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTaskGroup}.
+     * Creates a new instance of class {@link JDBCTaskGroup}.
      *
      * @param minNumber The minimum number.
      * @param maxNumber The maximum number.
      */
-    public jdbcTaskGroup(Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(Integer minNumber, Integer maxNumber) {
         this.minNumber = minNumber;
         this.maxNumber = maxNumber;
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTaskGroup}.
+     * Creates a new instance of class {@link JDBCTaskGroup}.
      *
      * @param status    The status.
      * @param minNumber The minimum number.
      * @param maxNumber The maximum number.
      */
-    public jdbcTaskGroup(TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(TaskStatus status, Integer minNumber, Integer maxNumber) {
         super(status);
         this.minNumber = minNumber;
         this.maxNumber = maxNumber;
     }
 
     /**
-     * Creates a new instance of class {@link jdbcTaskGroup}.
+     * Creates a new instance of class {@link JDBCTaskGroup}.
      *
      * @param id        The id.
      * @param status    The status.
      * @param minNumber The minimum number.
      * @param maxNumber The maximum number.
      */
-    public jdbcTaskGroup(Long id, TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(Long id, TaskStatus status, Integer minNumber, Integer maxNumber) {
         super(id, status);
         this.minNumber = minNumber;
         this.maxNumber = maxNumber;

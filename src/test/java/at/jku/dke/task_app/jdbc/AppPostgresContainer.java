@@ -19,10 +19,10 @@ class AppPostgresContainer extends PostgreSQLContainer<AppPostgresContainer> {
     public static final DockerImageName IMAGE_NAME = DockerImageName.parse(IMAGE_VERSION);
 
     public static final String DATABASE_NAME = "test_db";
-    public static final String USERNAME = "etutor_jdbc_test_admin";
+    public static final String USERNAME = "etutor_JDBC_test_admin";
     public static final String PASSWORD = "strong-password";
-    public static final String ETUTOR_USERNAME = "etutor_jdbc_test";
-    public static final String ETUTOR_PASSWORD = "etutor_jdbc_pwd";
+    public static final String ETUTOR_USERNAME = "etutor_JDBC_test";
+    public static final String ETUTOR_PASSWORD = "etutor_JDBC_pwd";
 
     /**
      * The singleton instance of the test database container.

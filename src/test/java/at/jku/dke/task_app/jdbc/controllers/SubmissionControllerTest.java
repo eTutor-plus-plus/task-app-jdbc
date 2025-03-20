@@ -7,13 +7,13 @@ import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
 import at.jku.dke.task_app.jdbc.ClientSetupExtension;
 import at.jku.dke.task_app.jdbc.DatabaseSetupExtension;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcSubmission;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTask;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcSubmissionRepository;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskGroupRepository;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskRepository;
-import at.jku.dke.task_app.jdbc.dto.jdbcSubmissionDto;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCSubmission;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCSubmissionRepository;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,13 +41,13 @@ class SubmissionControllerTest {
     private int port;
 
     @Autowired
-    private jdbcTaskRepository repository;
+    private JDBCTaskRepository repository;
 
     @Autowired
-    private jdbcTaskGroupRepository groupRepository;
+    private JDBCTaskGroupRepository groupRepository;
 
     @Autowired
-    private jdbcSubmissionRepository submissionRepository;
+    private JDBCSubmissionRepository submissionRepository;
 
     private long taskId;
     private UUID ungraded;
@@ -57,14 +57,14 @@ class SubmissionControllerTest {
     void initDb() {
         this.repository.deleteAll();
 
-        var group = this.groupRepository.save(new jdbcTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
-        var task = this.repository.save(new jdbcTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5));
+        var group = this.groupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
+        var task = this.repository.save(new JDBCTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5));
         this.taskId = task.getId();
 
-        var submission = new jdbcSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5");
+        var submission = new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5");
         submission.setEvaluationResult(new GradingDto(BigDecimal.TWO, BigDecimal.TWO, "success", new ArrayList<>()));
         this.graded = this.submissionRepository.save(submission).getId();
-        this.ungraded = this.submissionRepository.save(new jdbcSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5")).getId();
+        this.ungraded = this.submissionRepository.save(new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5")).getId();
     }
 
     //#region --- SUBMIT ---
@@ -74,7 +74,7 @@ class SubmissionControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("2")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("2")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -98,7 +98,7 @@ class SubmissionControllerTest {
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .queryParams("persist", false)
             .contentType(ContentType.JSON)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -121,7 +121,7 @@ class SubmissionControllerTest {
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
             .queryParams("runInBackground", true)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -141,7 +141,7 @@ class SubmissionControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "it", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "it", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -156,7 +156,7 @@ class SubmissionControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId + 1, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId + 1, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -172,7 +172,7 @@ class SubmissionControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+            .body(new SubmitSubmissionDto<>("test-user", "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
             // WHEN
             .when()
             .post("/api/submission")
@@ -190,7 +190,7 @@ class SubmissionControllerTest {
                     .port(port)
                     .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
                     .contentType(ContentType.JSON)
-                    .body(new SubmitSubmissionDto<>("test-user-" + i, "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new jdbcSubmissionDto("5")))
+                    .body(new SubmitSubmissionDto<>("test-user-" + i, "test-id", this.taskId, "de", SubmissionMode.SUBMIT, 3, new JDBCSubmissionDto("5")))
                     // WHEN
                     .when()
                     .post("/api/submission")

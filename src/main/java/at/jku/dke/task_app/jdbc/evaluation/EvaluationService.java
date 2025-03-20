@@ -3,8 +3,8 @@ package at.jku.dke.task_app.jdbc.evaluation;
 import at.jku.dke.etutor.task_app.dto.CriterionDto;
 import at.jku.dke.etutor.task_app.dto.GradingDto;
 import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskRepository;
-import at.jku.dke.task_app.jdbc.dto.jdbcSubmissionDto;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import java.util.Locale;
 public class EvaluationService {
     private static final Logger LOG = LoggerFactory.getLogger(EvaluationService.class);
 
-    private final jdbcTaskRepository taskRepository;
+    private final JDBCTaskRepository taskRepository;
     private final MessageSource messageSource;
 
     /**
@@ -33,7 +33,7 @@ public class EvaluationService {
      * @param taskRepository The task repository.
      * @param messageSource  The message source.
      */
-    public EvaluationService(jdbcTaskRepository taskRepository, MessageSource messageSource) {
+    public EvaluationService(JDBCTaskRepository taskRepository, MessageSource messageSource) {
         this.taskRepository = taskRepository;
         this.messageSource = messageSource;
     }
@@ -45,7 +45,7 @@ public class EvaluationService {
      * @return The evaluation result.
      */
     @Transactional
-    public GradingDto evaluate(SubmitSubmissionDto<jdbcSubmissionDto> submission) {
+    public GradingDto evaluate(SubmitSubmissionDto<JDBCSubmissionDto> submission) {
         // find task
         var task = this.taskRepository.findById(submission.taskId()).orElseThrow(() -> new EntityNotFoundException("Task " + submission.taskId() + " does not exist."));
 
@@ -88,6 +88,9 @@ public class EvaluationService {
                 feedback = this.messageSource.getMessage(error == null && input.equals(task.getSolution()) ? "correct" : "incorrect", null, locale);
                 if (error == null) {
                     int diff = task.getSolution() - input;
+                    System.out.println("Diff: " + diff);
+                    System.out.println("Solution: " + task.getSolution());
+
                     if (diff == 0)
                         points = task.getMaxPoints();
                     if (submission.feedbackLevel() > 0)

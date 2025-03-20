@@ -1,6 +1,10 @@
 package at.jku.dke.task_app.jdbc.validation;
 
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskGroupDto;
+import org.junit.jupiter.api.Test;
+
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
+import at.jku.dke.task_app.jdbc.validation.ValidTaskGroupNumberValidator;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,10 +16,10 @@ class ValidTaskGroupNumberValidatorTest {
     void isValidCorrectOrder() {
         // Arrange
         ValidTaskGroupNumberValidator validTaskGroupNumberValidator = new ValidTaskGroupNumberValidator();
-        ModifyjdbcTaskGroupDto modifyjdbcTaskGroupDto = new ModifyjdbcTaskGroupDto(1, 2);
+        ModifyJDBCTaskGroupDto modifyJDBCTaskGroupDto = new ModifyJDBCTaskGroupDto(1, 2);
 
         // Act
-        boolean result = validTaskGroupNumberValidator.isValid(modifyjdbcTaskGroupDto, null);
+        boolean result = validTaskGroupNumberValidator.isValid(modifyJDBCTaskGroupDto, null);
 
         // Assert
         assertTrue(result);
@@ -25,10 +29,10 @@ class ValidTaskGroupNumberValidatorTest {
     void isValidSameValue() {
         // Arrange
         ValidTaskGroupNumberValidator validTaskGroupNumberValidator = new ValidTaskGroupNumberValidator();
-        ModifyjdbcTaskGroupDto modifyjdbcTaskGroupDto = new ModifyjdbcTaskGroupDto(2, 2);
+        ModifyJDBCTaskGroupDto modifyJDBCTaskGroupDto = new ModifyJDBCTaskGroupDto(2, 2);
 
         // Act
-        boolean result = validTaskGroupNumberValidator.isValid(modifyjdbcTaskGroupDto, null);
+        boolean result = validTaskGroupNumberValidator.isValid(modifyJDBCTaskGroupDto, null);
 
         // Assert
         assertFalse(result);
@@ -38,10 +42,10 @@ class ValidTaskGroupNumberValidatorTest {
     void isValidIncorrectOrder() {
         // Arrange
         ValidTaskGroupNumberValidator validTaskGroupNumberValidator = new ValidTaskGroupNumberValidator();
-        ModifyjdbcTaskGroupDto modifyjdbcTaskGroupDto = new ModifyjdbcTaskGroupDto(2, 1);
+        ModifyJDBCTaskGroupDto modifyJDBCTaskGroupDto = new ModifyJDBCTaskGroupDto(2, 1);
 
         // Act
-        boolean result = validTaskGroupNumberValidator.isValid(modifyjdbcTaskGroupDto, null);
+        boolean result = validTaskGroupNumberValidator.isValid(modifyJDBCTaskGroupDto, null);
 
         // Assert
         assertFalse(result);

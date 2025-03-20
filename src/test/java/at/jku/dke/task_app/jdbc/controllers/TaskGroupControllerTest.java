@@ -5,9 +5,11 @@ import at.jku.dke.etutor.task_app.dto.ModifyTaskGroupDto;
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
 import at.jku.dke.task_app.jdbc.ClientSetupExtension;
 import at.jku.dke.task_app.jdbc.DatabaseSetupExtension;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskGroupRepository;
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskGroupDto;
+import at.jku.dke.task_app.jdbc.controllers.TaskGroupController;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,14 +32,14 @@ class TaskGroupControllerTest {
     private int port;
 
     @Autowired
-    private jdbcTaskGroupRepository repository;
+    private JDBCTaskGroupRepository repository;
 
     private long taskGroupId;
 
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-        this.taskGroupId = this.repository.save(new jdbcTaskGroup(1L, TaskStatus.APPROVED, 1, 5)).getId();
+        this.taskGroupId = this.repository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 5)).getId();
     }
 
     //#region --- GET ---
@@ -97,7 +99,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -117,7 +119,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -148,7 +150,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -166,7 +168,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -185,7 +187,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId + 1)
@@ -201,7 +203,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -232,7 +234,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -342,7 +344,7 @@ class TaskGroupControllerTest {
     @Test
     void mapToDto() {
         // Arrange
-        var taskGroup = new jdbcTaskGroup(1, 5);
+        var taskGroup = new JDBCTaskGroup(1, 5);
 
         // Act
         var result = new TaskGroupController(null).mapToDto(taskGroup);

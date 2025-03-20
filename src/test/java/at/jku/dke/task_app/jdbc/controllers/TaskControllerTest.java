@@ -5,11 +5,13 @@ import at.jku.dke.etutor.task_app.dto.ModifyTaskDto;
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
 import at.jku.dke.task_app.jdbc.ClientSetupExtension;
 import at.jku.dke.task_app.jdbc.DatabaseSetupExtension;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTask;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskGroupRepository;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskRepository;
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskDto;
+import at.jku.dke.task_app.jdbc.controllers.TaskController;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,10 +34,10 @@ class TaskControllerTest {
     private int port;
 
     @Autowired
-    private jdbcTaskRepository repository;
+    private JDBCTaskRepository repository;
 
     @Autowired
-    private jdbcTaskGroupRepository groupRepository;
+    private JDBCTaskGroupRepository groupRepository;
 
     private long taskId;
     private long taskGroupId;
@@ -44,9 +46,9 @@ class TaskControllerTest {
     void initDb() {
         this.repository.deleteAll();
 
-        var group = this.groupRepository.save(new jdbcTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
+        var group = this.groupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
         this.taskGroupId = group.getId();
-        this.taskId = this.repository.save(new jdbcTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5)).getId();
+        this.taskId = this.repository.save(new JDBCTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5)).getId();
     }
 
     //#region --- GET ---
@@ -105,7 +107,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -125,7 +127,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "", TaskStatus.APPROVED, new ModifyjdbcTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -156,7 +158,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -174,7 +176,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -193,7 +195,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId + 1)
@@ -209,7 +211,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyjdbcTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -240,7 +242,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyjdbcTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -298,7 +300,7 @@ class TaskControllerTest {
     @Test
     void mapToDto() {
         // Arrange
-        var task = new jdbcTask(42);
+        var task = new JDBCTask(42);
 
         // Act
         var result = new TaskController(null).mapToDto(task);

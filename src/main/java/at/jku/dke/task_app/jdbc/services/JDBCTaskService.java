@@ -3,11 +3,12 @@ package at.jku.dke.task_app.jdbc.services;
 import at.jku.dke.etutor.task_app.dto.ModifyTaskDto;
 import at.jku.dke.etutor.task_app.dto.TaskModificationResponseDto;
 import at.jku.dke.etutor.task_app.services.BaseTaskInGroupService;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTask;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskGroupRepository;
-import at.jku.dke.task_app.jdbc.data.repositories.jdbcTaskRepository;
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskDto;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
+import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
+
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,41 +17,41 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Locale;
 
 /**
- * This class provides methods for managing {@link jdbcTask}s.
+ * This class provides methods for managing {@link JDBCTask}s.
  */
 @Service
-public class jdbcTaskService extends BaseTaskInGroupService<jdbcTask, jdbcTaskGroup, ModifyjdbcTaskDto> {
+public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGroup, ModifyJDBCTaskDto> {
 
     private final MessageSource messageSource;
 
     /**
-     * Creates a new instance of class {@link jdbcTaskService}.
+     * Creates a new instance of class {@link JDBCTaskService}.
      *
      * @param repository          The task repository.
      * @param taskGroupRepository The task group repository.
      * @param messageSource       The message source.
      */
-    public jdbcTaskService(jdbcTaskRepository repository, jdbcTaskGroupRepository taskGroupRepository, MessageSource messageSource) {
+    public JDBCTaskService(JDBCTaskRepository repository, JDBCTaskGroupRepository taskGroupRepository, MessageSource messageSource) {
         super(repository, taskGroupRepository);
         this.messageSource = messageSource;
     }
 
     @Override
-    protected jdbcTask createTask(long id, ModifyTaskDto<ModifyjdbcTaskDto> modifyTaskDto) {
-        if (!modifyTaskDto.taskType().equals("jdbc"))
+    protected JDBCTask createTask(long id, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
+        if (!modifyTaskDto.taskType().equals("JDBC"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
-        return new jdbcTask(modifyTaskDto.additionalData().solution());
+        return new JDBCTask(modifyTaskDto.additionalData().solution());
     }
 
     @Override
-    protected void updateTask(jdbcTask task, ModifyTaskDto<ModifyjdbcTaskDto> modifyTaskDto) {
-        if (!modifyTaskDto.taskType().equals("jdbc"))
+    protected void updateTask(JDBCTask task, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
+        if (!modifyTaskDto.taskType().equals("JDBC"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
         task.setSolution(modifyTaskDto.additionalData().solution());
     }
 
     @Override
-    protected TaskModificationResponseDto mapToReturnData(jdbcTask task, boolean create) {
+    protected TaskModificationResponseDto mapToReturnData(JDBCTask task, boolean create) {
         return new TaskModificationResponseDto(
             this.messageSource.getMessage("defaultTaskDescription", null, Locale.GERMAN),
             this.messageSource.getMessage("defaultTaskDescription", null, Locale.ENGLISH)

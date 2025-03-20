@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * This class represents a data transfer object for modifying a jdbc task.
+ * DTO for {@link at.jku.dke.task_app.jdbc.data.entities.JDBCTask}
  *
  * @param solution The solution.
  */
-public record ModifyjdbcTaskDto(@NotNull Integer solution) implements Serializable {
+public record JDBCTaskDto(@NotNull Integer solution) implements Serializable {
 }

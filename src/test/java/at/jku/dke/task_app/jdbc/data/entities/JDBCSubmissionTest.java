@@ -2,9 +2,13 @@ package at.jku.dke.task_app.jdbc.data.entities;
 
 import org.junit.jupiter.api.Test;
 
+import at.jku.dke.task_app.jdbc.data.entities.JDBCSubmission;
+
+import at.jku.dke.task_app.jdbc.data.entities.JDBCSubmission;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class jdbcSubmissionTest {
+class JDBCSubmissionTest {
 
     @Test
     void testConstructor() {
@@ -12,7 +16,7 @@ class jdbcSubmissionTest {
         var expected = "test";
 
         // Act
-        var submission = new jdbcSubmission(expected);
+        var submission = new JDBCSubmission(expected);
         var actual = submission.getSubmission();
 
         // Assert
@@ -22,7 +26,7 @@ class jdbcSubmissionTest {
     @Test
     void testGetSetSubmission() {
         // Arrange
-        var submission = new jdbcSubmission();
+        var submission = new JDBCSubmission();
         var expected = "test";
 
         // Act

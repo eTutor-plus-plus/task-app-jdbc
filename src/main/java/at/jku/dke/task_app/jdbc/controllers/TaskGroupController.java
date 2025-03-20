@@ -2,11 +2,11 @@ package at.jku.dke.task_app.jdbc.controllers;
 
 import at.jku.dke.etutor.task_app.auth.AuthConstants;
 import at.jku.dke.etutor.task_app.controllers.BaseTaskGroupController;
-import at.jku.dke.task_app.jdbc.data.entities.jdbcTaskGroup;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+import at.jku.dke.task_app.jdbc.dto.JDBCTaskGroupDto;
 import at.jku.dke.task_app.jdbc.dto.MinMaxDto;
-import at.jku.dke.task_app.jdbc.dto.ModifyjdbcTaskGroupDto;
-import at.jku.dke.task_app.jdbc.dto.jdbcTaskGroupDto;
-import at.jku.dke.task_app.jdbc.services.jdbcTaskGroupService;
+import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
+import at.jku.dke.task_app.jdbc.services.JDBCTaskGroupService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +17,23 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Random;
 
 /**
- * Controller for managing {@link jdbcTaskGroup}s.
+ * Controller for managing {@link JDBCTaskGroup}s.
  */
 @RestController
-public class TaskGroupController extends BaseTaskGroupController<jdbcTaskGroup, jdbcTaskGroupDto, ModifyjdbcTaskGroupDto> {
+public class TaskGroupController extends BaseTaskGroupController<JDBCTaskGroup, JDBCTaskGroupDto, ModifyJDBCTaskGroupDto> {
 
     /**
      * Creates a new instance of class {@link TaskGroupController}.
      *
      * @param taskGroupService The task group service.
      */
-    public TaskGroupController(jdbcTaskGroupService taskGroupService) {
+    public TaskGroupController(JDBCTaskGroupService taskGroupService) {
         super(taskGroupService);
     }
 
     @Override
-    protected jdbcTaskGroupDto mapToDto(jdbcTaskGroup taskGroup) {
-        return new jdbcTaskGroupDto(taskGroup.getMinNumber(), taskGroup.getMaxNumber());
+    protected JDBCTaskGroupDto mapToDto(JDBCTaskGroup taskGroup) {
+        return new JDBCTaskGroupDto(taskGroup.getMinNumber(), taskGroup.getMaxNumber());
     }
 
     /**

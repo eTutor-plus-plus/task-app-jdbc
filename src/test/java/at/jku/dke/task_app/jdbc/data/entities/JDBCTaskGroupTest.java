@@ -1,11 +1,15 @@
 package at.jku.dke.task_app.jdbc.data.entities;
 
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class jdbcTaskGroupTest {
+class JDBCTaskGroupTest {
 
     @Test
     void testConstructor1() {
@@ -14,9 +18,9 @@ class jdbcTaskGroupTest {
         final int expectedMaxNumber = 42;
 
         // Act
-        jdbcTaskGroup jdbcTaskGroup = new jdbcTaskGroup(expectedMinNumber, expectedMaxNumber);
-        int actualMinNumber = jdbcTaskGroup.getMinNumber();
-        int actualMaxNumber = jdbcTaskGroup.getMaxNumber();
+        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(expectedMinNumber, expectedMaxNumber);
+        int actualMinNumber = JDBCTaskGroup.getMinNumber();
+        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
 
         // Assert
         assertEquals(expectedMinNumber, actualMinNumber);
@@ -31,10 +35,10 @@ class jdbcTaskGroupTest {
         final int expectedMaxNumber = 42;
 
         // Act
-        jdbcTaskGroup jdbcTaskGroup = new jdbcTaskGroup(status, expectedMinNumber, expectedMaxNumber);
-        TaskStatus actualStatus = jdbcTaskGroup.getStatus();
-        int actualMinNumber = jdbcTaskGroup.getMinNumber();
-        int actualMaxNumber = jdbcTaskGroup.getMaxNumber();
+        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(status, expectedMinNumber, expectedMaxNumber);
+        TaskStatus actualStatus = JDBCTaskGroup.getStatus();
+        int actualMinNumber = JDBCTaskGroup.getMinNumber();
+        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
 
         // Assert
         assertEquals(status, actualStatus);
@@ -51,11 +55,11 @@ class jdbcTaskGroupTest {
         final int expectedMaxNumber = 42;
 
         // Act
-        jdbcTaskGroup jdbcTaskGroup = new jdbcTaskGroup(expectedId, status, expectedMinNumber, expectedMaxNumber);
-        long actualId = jdbcTaskGroup.getId();
-        TaskStatus actualStatus = jdbcTaskGroup.getStatus();
-        int actualMinNumber = jdbcTaskGroup.getMinNumber();
-        int actualMaxNumber = jdbcTaskGroup.getMaxNumber();
+        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(expectedId, status, expectedMinNumber, expectedMaxNumber);
+        long actualId = JDBCTaskGroup.getId();
+        TaskStatus actualStatus = JDBCTaskGroup.getStatus();
+        int actualMinNumber = JDBCTaskGroup.getMinNumber();
+        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
 
         // Assert
         assertEquals(expectedId, actualId);
@@ -67,12 +71,12 @@ class jdbcTaskGroupTest {
     @Test
     void testGetSetMinNumber() {
         // Arrange
-        jdbcTaskGroup jdbcTaskGroup = new jdbcTaskGroup();
+        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup();
         final int expected = 21;
 
         // Act
-        jdbcTaskGroup.setMinNumber(expected);
-        int actual = jdbcTaskGroup.getMinNumber();
+        JDBCTaskGroup.setMinNumber(expected);
+        int actual = JDBCTaskGroup.getMinNumber();
 
         // Assert
         assertEquals(expected, actual);
@@ -81,12 +85,12 @@ class jdbcTaskGroupTest {
     @Test
     void testGetSetMaxNumber() {
         // Arrange
-        jdbcTaskGroup jdbcTaskGroup = new jdbcTaskGroup();
+        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup();
         final int expected = 21;
 
         // Act
-        jdbcTaskGroup.setMaxNumber(expected);
-        int actual = jdbcTaskGroup.getMaxNumber();
+        JDBCTaskGroup.setMaxNumber(expected);
+        int actual = JDBCTaskGroup.getMaxNumber();
 
         // Assert
         assertEquals(expected, actual);
