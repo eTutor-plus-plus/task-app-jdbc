@@ -35,14 +35,14 @@ public class JDBCTaskGroupService extends BaseTaskGroupService<JDBCTaskGroup, Mo
 
     @Override
     protected JDBCTaskGroup createTaskGroup(long id, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
-        if (!modifyTaskGroupDto.taskGroupType().equals("JDBC"))
+        if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
         return new JDBCTaskGroup(modifyTaskGroupDto.additionalData().minNumber(), modifyTaskGroupDto.additionalData().maxNumber());
     }
 
     @Override
     protected void updateTaskGroup(JDBCTaskGroup taskGroup, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
-        if (!modifyTaskGroupDto.taskGroupType().equals("JDBC"))
+        if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
         taskGroup.setMinNumber(modifyTaskGroupDto.additionalData().minNumber());
         taskGroup.setMaxNumber(modifyTaskGroupDto.additionalData().maxNumber());
