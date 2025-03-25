@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
     @NotNull
     @Column(name = "solution", nullable = false)
-    private Integer solution;
+    private String solution;
 
     /**
      * Creates a new instance of class {@link JDBCTask}.
@@ -30,7 +30,7 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      *
      * @param solution The solution.
      */
-    public JDBCTask(Integer solution) {
+    public JDBCTask(String solution) {
         this.solution = solution;
     }
 
@@ -42,7 +42,7 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param taskGroup The task group.
      * @param solution  The solution.
      */
-    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution) {
         super(maxPoints, status, taskGroup);
         this.solution = solution;
     }
@@ -56,7 +56,7 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param taskGroup The task group.
      * @param solution  The solution.
      */
-    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution) {
         super(id, maxPoints, status, taskGroup);
         this.solution = solution;
     }
@@ -66,7 +66,7 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      *
      * @return The solution.
      */
-    public Integer getSolution() {
+    public String getSolution() {
         return solution;
     }
 
@@ -75,7 +75,7 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      *
      * @param solution The solution.
      */
-    public void setSolution(Integer solution) {
+    public void setSolution(String solution) {
         this.solution = solution;
     }
 }

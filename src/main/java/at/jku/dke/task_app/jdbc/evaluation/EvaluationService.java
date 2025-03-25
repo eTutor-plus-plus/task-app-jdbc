@@ -56,7 +56,20 @@ public class EvaluationService {
         List<CriterionDto> criteria = new ArrayList<>();
         String feedback;
 
-        // parse input
+        //Unparsed
+        String inputString = "";
+        try {
+            inputString = submission.submission().input();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            //error = ex;
+        }
+        System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
+        System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
+        System.out.println("GroupSetting: " + task.getTaskGroup().getMaxNumber());
+        System.out.println("Mode: " + submission.mode());
+
+        // parse input (BS)
         Integer input = null;
         NumberFormatException error = null;
         try {
@@ -84,10 +97,23 @@ public class EvaluationService {
             case RUN:
                 feedback = this.messageSource.getMessage("input", new Object[]{submission.submission().input()}, locale);
                 break;
+
+
+            //I WORK ON THIS ->
             case DIAGNOSE:
                 feedback = this.messageSource.getMessage(error == null && input.equals(task.getSolution()) ? "correct" : "incorrect", null, locale);
+                //System.out.print(error.getMessage());
                 if (error == null) {
-                    int diff = task.getSolution() - input;
+
+                    //Playground
+                    //System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
+                    //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
+
+
+
+                    //Code
+                    //int diff = task.getSolution() - input;
+                    int diff = 1111;
                     System.out.println("Diff: " + diff);
                     System.out.println("Solution: " + task.getSolution());
 
@@ -101,6 +127,8 @@ public class EvaluationService {
                             this.messageSource.getMessage(diff < 0 ? "criterium.value.less" : (diff > 0 ? "criterium.value.greater" : "criterium.value.equals"), null, locale)));
                 }
                 break;
+
+
             case SUBMIT:
                 if (error == null && input.equals(task.getSolution())) {
                     feedback = this.messageSource.getMessage("correct", null, locale);

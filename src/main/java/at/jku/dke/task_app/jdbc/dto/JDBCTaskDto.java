@@ -9,5 +9,5 @@ import java.io.Serializable;
  *
  * @param solution The solution.
  */
-public record JDBCTaskDto(@NotNull Integer solution) implements Serializable {
+public record JDBCTaskDto(@NotNull String solution) implements Serializable {
 }

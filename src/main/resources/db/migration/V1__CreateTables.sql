@@ -19,7 +19,7 @@ CREATE TABLE task
     max_points    NUMERIC(7, 2) NOT NULL,
     status        TASK_STATUS   NOT NULL,
     task_group_id BIGINT        NOT NULL,
-    solution      INTEGER       NOT NULL, -- custom column
+    solution      TEXT       NOT NULL, -- custom column
     CONSTRAINT task_pk PRIMARY KEY (id),
     CONSTRAINT task_task_group_fk FOREIGN KEY (task_group_id) REFERENCES task_group (id)
         ON DELETE CASCADE

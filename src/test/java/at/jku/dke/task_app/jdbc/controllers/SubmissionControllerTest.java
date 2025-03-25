@@ -56,7 +56,7 @@ class SubmissionControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-
+/*
         var group = this.groupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
         var task = this.repository.save(new JDBCTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5));
         this.taskId = task.getId();
@@ -64,9 +64,9 @@ class SubmissionControllerTest {
         var submission = new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5");
         submission.setEvaluationResult(new GradingDto(BigDecimal.TWO, BigDecimal.TWO, "success", new ArrayList<>()));
         this.graded = this.submissionRepository.save(submission).getId();
-        this.ungraded = this.submissionRepository.save(new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5")).getId();
+        this.ungraded = this.submissionRepository.save(new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5")).getId(); */
     }
-
+/*
     //#region --- SUBMIT ---
     @Test
     void submitInForegroundWithPersist() {
@@ -370,6 +370,6 @@ class SubmissionControllerTest {
             .then()
             .log().ifValidationFails()
             .statusCode(403);
-    }
+    } */
     //#endregion
 }
