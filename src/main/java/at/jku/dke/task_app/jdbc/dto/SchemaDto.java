@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Contains a minimum and a maximum number.
  *
- * @param min The minimum number.
- * @param max The maximum number.
+ * @param schema The database schema for a task.
  */
-public record MinMaxDto(@NotNull int min, @NotNull int max) {
+public record SchemaDto(@NotNull String schema) {
 }

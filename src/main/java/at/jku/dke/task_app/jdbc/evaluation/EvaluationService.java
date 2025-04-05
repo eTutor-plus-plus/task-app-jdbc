@@ -49,6 +49,7 @@ public class EvaluationService {
         // find task
         var task = this.taskRepository.findById(submission.taskId()).orElseThrow(() -> new EntityNotFoundException("Task " + submission.taskId() + " does not exist."));
 
+
         // evaluate input
         LOG.info("Evaluating input for task {} with mode {} and feedback-level {}", submission.taskId(), submission.mode(), submission.feedbackLevel());
         Locale locale = Locale.of(submission.language());
@@ -65,11 +66,28 @@ public class EvaluationService {
             //error = ex;
         }
         System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
-        System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
-        System.out.println("GroupSetting: " + task.getTaskGroup().getMaxNumber());
+        //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
+        System.out.println("GroupSetting: " + task.getTaskGroup().getSchema());
         System.out.println("Mode: " + submission.mode());
 
+        //***  TEST DATA ***///
+        //String studentInput = Solutions.studentInput;
+        //String studentInput = Solutions.studentInputNoExceptionHandling;
+        String studentInput = Solutions.studentInputWrongSyntax;
+        //String studentInput = Solutions.studentInputAutocommitNotDisabled;
+
+        String taskSolution = Solutions.taskSolution;
+        String dbSchema = Solutions.dbSchema;
+        Result testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution);
+        if (testResult == null) {
+            throw new RuntimeException("Assessment failed – result is null");
+        }
+        System.out.println(testResult.toString());
+        //***  END TEST DATA ***///
+
+
         // parse input (BS)
+
         Integer input = null;
         NumberFormatException error = null;
         try {
@@ -78,12 +96,19 @@ public class EvaluationService {
             error = ex;
         }
 
-        if (error != null) {
+        Boolean syntaxResult = testResult.getSyntaxResult();
+        String errorMsg = (testResult.getSyntaxError() != null && !testResult.getSyntaxError().isEmpty())
+            ? testResult.getSyntaxError()
+            : "Error Message not defined";
+        if (syntaxResult == false) {
             criteria.add(new CriterionDto(
                 this.messageSource.getMessage("criterium.syntax", null, locale),
                 null,
                 false,
-                error.getMessage()));
+                this.messageSource.getMessage("criterium.syntax.invalid", null, locale) + ": " + errorMsg));
+            feedback = messageSource.getMessage("incorrect", null, locale);
+            return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
+
         } else {
             criteria.add(new CriterionDto(
                 this.messageSource.getMessage("criterium.syntax", null, locale),
@@ -101,41 +126,101 @@ public class EvaluationService {
 
             //I WORK ON THIS ->
             case DIAGNOSE:
-                feedback = this.messageSource.getMessage(error == null && input.equals(task.getSolution()) ? "correct" : "incorrect", null, locale);
-                //System.out.print(error.getMessage());
-                if (error == null) {
+                /*
+                // === Add syntax result ===
+                criteria.add(new CriterionDto(
+                    messageSource.getMessage("criterium.syntax", null, locale),
+                    null,
+                    Boolean.TRUE.equals(testResult.getSyntaxResult()),
+                    Boolean.TRUE.equals(testResult.getSyntaxResult())
+                        ? messageSource.getMessage("criterium.syntax.valid", null, locale)
+                        : (testResult.getSyntaxError() != null && !testResult.getSyntaxError().isEmpty()
+                        ? testResult.getSyntaxError()
+                        : messageSource.getMessage("criterium.syntax.invalid", null, locale))
+                ));
+                */
+                // === Add technical criteria from testResult ===
+                criteria.add(new CriterionDto(
+                    messageSource.getMessage("criterium.autocommit", null, locale),
+                    null,
+                    Boolean.TRUE.equals(testResult.getAutoCommitResult()),
+                    messageSource.getMessage(
+                        Boolean.TRUE.equals(testResult.getAutoCommitResult())
+                            ? "criterium.autocommit.valid"
+                            : "criterium.autocommit.invalid",
+                        null,
+                        locale
+                    )
+                ));
 
-                    //Playground
-                    //System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
-                    //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
+                criteria.add(new CriterionDto(
+                    messageSource.getMessage("criterium.output", null, locale),
+                    null,
+                    Boolean.TRUE.equals(testResult.getOutputComparisionResult()),
+                    messageSource.getMessage(
+                        Boolean.TRUE.equals(testResult.getOutputComparisionResult())
+                            ? "criterium.output.valid"
+                            : "criterium.output.invalid",
+                        null,
+                        locale
+                    )
+                ));
+
+                criteria.add(new CriterionDto(
+                    messageSource.getMessage("criterium.database", null, locale),
+                    null,
+                    Boolean.TRUE.equals(testResult.getDatabaseResult()),
+                    messageSource.getMessage(
+                        Boolean.TRUE.equals(testResult.getDatabaseResult())
+                            ? "criterium.database.valid"
+                            : "criterium.database.invalid",
+                        null,
+                        locale
+                    )
+                ));
+
+                criteria.add(new CriterionDto(
+                    messageSource.getMessage("criterium.exception", null, locale),
+                    null,
+                    Boolean.TRUE.equals(testResult.getExceptionResult()),
+                    messageSource.getMessage(
+                        Boolean.TRUE.equals(testResult.getExceptionResult())
+                            ? "criterium.exception.valid"
+                            : "criterium.exception.invalid",
+                        null,
+                        locale
+                    )
+                ));
+
+                // === Overall feedback ===
+                boolean allPassed = Boolean.TRUE.equals(testResult.getSyntaxResult())
+                    && Boolean.TRUE.equals(testResult.getAutoCommitResult())
+                    && Boolean.TRUE.equals(testResult.getOutputComparisionResult())
+                    && Boolean.TRUE.equals(testResult.getDatabaseResult())
+                    && Boolean.TRUE.equals(testResult.getExceptionResult());
+
+                feedback = messageSource.getMessage(allPassed ? "correct" : "incorrect", null, locale);
+
+                feedback += "\n" + testResult.getStudentQueryResult();
 
 
 
-                    //Code
-                    //int diff = task.getSolution() - input;
-                    int diff = 1111;
-                    System.out.println("Diff: " + diff);
-                    System.out.println("Solution: " + task.getSolution());
-
-                    if (diff == 0)
-                        points = task.getMaxPoints();
-                    if (submission.feedbackLevel() > 0)
-                        criteria.add(new CriterionDto(
-                            this.messageSource.getMessage("criterium.value", null, locale),
-                            points,
-                            diff == 0,
-                            this.messageSource.getMessage(diff < 0 ? "criterium.value.less" : (diff > 0 ? "criterium.value.greater" : "criterium.value.equals"), null, locale)));
+                // === Optional: assign full points if all checks passed ===
+                if (allPassed) {
+                    points = task.getMaxPoints();
                 }
+
                 break;
 
 
+            /*
             case SUBMIT:
                 if (error == null && input.equals(task.getSolution())) {
                     feedback = this.messageSource.getMessage("correct", null, locale);
                     points = task.getMaxPoints();
                 } else
                     feedback = this.messageSource.getMessage("incorrect", null, locale);
-                break;
+                break;*/
             default:
                 throw new IllegalStateException("Unexpected value: " + submission.mode());
         }

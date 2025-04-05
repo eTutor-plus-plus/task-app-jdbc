@@ -37,21 +37,21 @@ public class JDBCTaskGroupService extends BaseTaskGroupService<JDBCTaskGroup, Mo
     protected JDBCTaskGroup createTaskGroup(long id, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
         if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
-        return new JDBCTaskGroup(modifyTaskGroupDto.additionalData().minNumber(), modifyTaskGroupDto.additionalData().maxNumber());
+        return new JDBCTaskGroup(modifyTaskGroupDto.additionalData().schema());
     }
 
     @Override
     protected void updateTaskGroup(JDBCTaskGroup taskGroup, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
         if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
-        taskGroup.setMinNumber(modifyTaskGroupDto.additionalData().minNumber());
-        taskGroup.setMaxNumber(modifyTaskGroupDto.additionalData().maxNumber());
+        taskGroup.setSchema(modifyTaskGroupDto.additionalData().schema());
     }
 
     @Override
     protected TaskGroupModificationResponseDto mapToReturnData(JDBCTaskGroup taskGroup, boolean create) {
         return new TaskGroupModificationResponseDto(
-            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.GERMAN),
-            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.ENGLISH));
+            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getSchema()}, Locale.GERMAN),
+            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getSchema()}, Locale.ENGLISH)
+        );
     }
 }

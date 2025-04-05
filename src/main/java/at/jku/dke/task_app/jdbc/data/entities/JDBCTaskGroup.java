@@ -17,12 +17,8 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "task_group")
 public class JDBCTaskGroup extends BaseTaskGroup {
     @NotNull
-    @Column(name = "min_number", nullable = false)
-    private Integer minNumber;
-
-    @NotNull
-    @Column(name = "max_number", nullable = false)
-    private Integer maxNumber;
+    @Column(name = "schema", nullable = false)
+    private String schema;
 
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
@@ -33,25 +29,21 @@ public class JDBCTaskGroup extends BaseTaskGroup {
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
      *
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param schema The database schema for a task.
      */
-    public JDBCTaskGroup(Integer minNumber, Integer maxNumber) {
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+    public JDBCTaskGroup(String schema) {
+        this.schema = schema;
     }
 
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
      *
      * @param status    The status.
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param schema The database schema for a task.
      */
-    public JDBCTaskGroup(TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(TaskStatus status, String schema) {
         super(status);
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+        this.schema = schema;
     }
 
     /**
@@ -59,48 +51,28 @@ public class JDBCTaskGroup extends BaseTaskGroup {
      *
      * @param id        The id.
      * @param status    The status.
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param schema The database schema for a task.
      */
-    public JDBCTaskGroup(Long id, TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(Long id, TaskStatus status, String schema) {
         super(id, status);
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+        this.schema = schema;
     }
 
     /**
      * Gets the minimum number.
      *
-     * @return The minimum number.
+     * @return The database schema.
      */
-    public Integer getMinNumber() {
-        return minNumber;
+    public String getSchema() {
+        return schema;
     }
 
     /**
      * Sets the minimum number.
      *
-     * @param minNumber The minimum number.
+     * @param schema The database schema for a task.
      */
-    public void setMinNumber(Integer minNumber) {
-        this.minNumber = minNumber;
-    }
-
-    /**
-     * Gets the maximum number.
-     *
-     * @return The maximum number.
-     */
-    public Integer getMaxNumber() {
-        return maxNumber;
-    }
-
-    /**
-     * Sets the maximum number.
-     *
-     * @param maxNumber The maximum number.
-     */
-    public void setMaxNumber(Integer maxNumber) {
-        this.maxNumber = maxNumber;
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 }

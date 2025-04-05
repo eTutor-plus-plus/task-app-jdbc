@@ -4,7 +4,7 @@ import at.jku.dke.etutor.task_app.auth.AuthConstants;
 import at.jku.dke.etutor.task_app.controllers.BaseTaskGroupController;
 import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
 import at.jku.dke.task_app.jdbc.dto.JDBCTaskGroupDto;
-import at.jku.dke.task_app.jdbc.dto.MinMaxDto;
+import at.jku.dke.task_app.jdbc.dto.SchemaDto;
 import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskGroupDto;
 import at.jku.dke.task_app.jdbc.services.JDBCTaskGroupService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,7 +33,7 @@ public class TaskGroupController extends BaseTaskGroupController<JDBCTaskGroup, 
 
     @Override
     protected JDBCTaskGroupDto mapToDto(JDBCTaskGroup taskGroup) {
-        return new JDBCTaskGroupDto(taskGroup.getMinNumber(), taskGroup.getMaxNumber());
+        return new JDBCTaskGroupDto(taskGroup.getSchema());
     }
 
     /**
@@ -43,13 +43,22 @@ public class TaskGroupController extends BaseTaskGroupController<JDBCTaskGroup, 
      *
      * @return Two random numbers.
      */
+    /*
     @GetMapping(value = "/random", produces = {MediaType.APPLICATION_JSON_VALUE})
     @PreAuthorize(AuthConstants.CRUD_AUTHORITY)
     @SecurityRequirement(name = AuthConstants.API_KEY_REQUIREMENT)
-    public ResponseEntity<MinMaxDto> getRandomNumbers() {
-        var rand = new Random();
+    public ResponseEntity<SchemaDto> getRandomNumbers() {
         var min = rand.nextInt(100);
-        return ResponseEntity.ok(new MinMaxDto(min,  rand.nextInt(min + 1, 1000)));
+        return ResponseEntity.ok(new SchemaDto(min,  rand.nextInt(min + 1, 1000)));
+    }*/
+    @GetMapping(value = "/random", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PreAuthorize(AuthConstants.CRUD_AUTHORITY)
+    @SecurityRequirement(name = AuthConstants.API_KEY_REQUIREMENT)
+    public ResponseEntity<SchemaDto> getRandomSchemaName() {
+        var rand = new Random();
+        var schema = "schema_" + rand.nextInt(1000);
+        return ResponseEntity.ok(new SchemaDto(schema));
     }
+
 
 }

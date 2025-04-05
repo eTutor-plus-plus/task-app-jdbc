@@ -8,8 +8,7 @@ CREATE TABLE task_group
 (
     id         BIGINT      NOT NULL,
     status     TASK_STATUS NOT NULL,
-    min_number INTEGER     NOT NULL, -- custom column
-    max_number INTEGER     NOT NULL, -- custom column
+    schema     TEXT        NOT NULL,
     CONSTRAINT task_group_pk PRIMARY KEY (id)
 );
 
@@ -36,7 +35,7 @@ CREATE TABLE submission
     mode              submission_mode NOT NULL,
     feedback_level    INT             NOT NULL,
     evaluation_result JSONB,
-    submission        VARCHAR(255), -- custom column
+    submission        text, -- custom column
     CONSTRAINT submission_pk PRIMARY KEY (id),
     CONSTRAINT submission_task_fk FOREIGN KEY (task_id) REFERENCES task (id)
         ON DELETE CASCADE

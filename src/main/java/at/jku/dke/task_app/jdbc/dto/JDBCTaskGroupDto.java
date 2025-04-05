@@ -7,8 +7,7 @@ import java.io.Serializable;
 /**
  * DTO for {@link at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup}
  *
- * @param minNumber The minimum number.
- * @param maxNumber The maximum number.
+ * @param schema The database schema for a task.
  */
-public record JDBCTaskGroupDto(@NotNull Integer minNumber, @NotNull Integer maxNumber) implements Serializable {
+public record JDBCTaskGroupDto(@NotNull String schema) implements Serializable {
 }

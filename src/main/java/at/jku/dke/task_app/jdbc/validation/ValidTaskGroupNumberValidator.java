@@ -16,6 +16,7 @@ public class ValidTaskGroupNumberValidator implements ConstraintValidator<ValidT
 
     @Override
     public boolean isValid(ModifyJDBCTaskGroupDto value, ConstraintValidatorContext context) {
-        return value.minNumber() < value.maxNumber();
+        //Implement validation for scheme
+        return value.schema().getClass().getSimpleName().equals("String");
     }
 }
