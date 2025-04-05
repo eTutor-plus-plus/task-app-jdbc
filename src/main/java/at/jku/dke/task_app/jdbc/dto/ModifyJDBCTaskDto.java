@@ -9,5 +9,8 @@ import java.io.Serializable;
  *
  * @param solution The solution.
  */
-public record ModifyJDBCTaskDto(@NotNull String solution) implements Serializable {
+public record ModifyJDBCTaskDto(
+    @NotNull String solution,
+    @NotNull String tables
+) implements Serializable {
 }

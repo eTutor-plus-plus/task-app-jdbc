@@ -154,54 +154,51 @@ public class AssessmentFunctions {
      * @param dbUrl the JDBC URL of the H2 database
      * @return the formatted database content
      */
-    public String getCurrentDbState(String dbUrl) {
-        // StringBuilder to store the state of the database
+    public String getCurrentDbState(String dbUrl, String[] tablesToCheck) {
         StringBuilder sb = new StringBuilder();
 
         try (Connection con = DriverManager.getConnection(dbUrl, "sa", "")) {
-            // Get the database metadata to retrieve details about the database
             DatabaseMetaData metaData = con.getMetaData();
 
-            // Query the database for all tables in the "PUBLIC" schema
-            try (ResultSet tables = metaData.getTables(null, "PUBLIC", "%", new String[] { "TABLE" })) {
-                // Iterate over each table in the result set
-                while (tables.next()) {
-                    // Get the table name
-                    String tableName = tables.getString("TABLE_NAME");
-                    sb.append("Table: ").append(tableName).append("\n");
+            for (String tableName : tablesToCheck) {
+                sb.append("Table: ").append(tableName).append("\n");
 
-                    // For each table, query all rows of the table using a SELECT statement
-                    try (Statement stmt = con.createStatement();
-                         ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " ORDER BY 1")) {
+                // Check if the table actually exists
+                try (ResultSet tableExists = metaData.getTables(null, "PUBLIC", tableName.toUpperCase(), new String[]{"TABLE"})) {
+                    if (!tableExists.next()) {
+                        sb.append("Table ").append(tableName).append(" does not exist.\n\n");
+                        continue;
+                    }
+                }
 
-                        // Get the metadata of the result set (columns)
-                        ResultSetMetaData rsMeta = rs.getMetaData();
-                        int columnCount = rsMeta.getColumnCount();
+                try (Statement stmt = con.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " ORDER BY 1")) {
 
-                        // Append the column names to the StringBuilder
+                    ResultSetMetaData rsMeta = rs.getMetaData();
+                    int columnCount = rsMeta.getColumnCount();
+
+                    // Column headers
+                    for (int i = 1; i <= columnCount; i++) {
+                        sb.append(rsMeta.getColumnName(i)).append(", ");
+                    }
+                    sb.append("\n");
+
+                    // Rows
+                    while (rs.next()) {
                         for (int i = 1; i <= columnCount; i++) {
-                            sb.append(rsMeta.getColumnName(i)).append(", ");
+                            sb.append(rs.getObject(i)).append(", ");
                         }
                         sb.append("\n");
-
-                        // Iterate over the rows of the table and append the data
-                        while (rs.next()) {
-                            // For each row, append each column's data
-                            for (int i = 1; i <= columnCount; i++) {
-                                sb.append(rs.getObject(i)).append(", ");
-                            }
-                            sb.append("\n");
-                        }
-                        sb.append("\n"); // Add a newline after each table's data
                     }
+                    sb.append("\n");
+                } catch (SQLException e) {
+                    sb.append("Error reading table ").append(tableName).append(": ").append(e.getMessage()).append("\n\n");
                 }
             }
         } catch (SQLException e) {
-            // If any SQL exception occurs, print the stack trace
             e.printStackTrace();
         }
 
-        // Return the accumulated string representing the current database state
         return sb.toString();
     }
 
@@ -224,74 +221,81 @@ public class AssessmentFunctions {
         return normalizedStudent.equals(normalizedSolution);
     }
 
-     public String dbUrlToToString(String url) {
+    public String dbUrlToToString(String url, String[] tablesToCheck) {
         StringBuilder sb = new StringBuilder();
 
         try (Connection con = DriverManager.getConnection(url, "sa", "")) {
             DatabaseMetaData metaData = con.getMetaData();
 
-            try (ResultSet tables = metaData.getTables(null, "PUBLIC", "%", new String[] { "TABLE" })) {
-                while (tables.next()) {
-                    String tableName = tables.getString("TABLE_NAME");
-                    sb.append("\n");
-                    sb.append("-----------------------------------\n");
-                    sb.append("Table: ").append(tableName).append("\n");
-                    sb.append("-----------------------------------\n");
+            for (String tableName : tablesToCheck) {
+                sb.append("\n");
+                sb.append("-----------------------------------\n");
+                sb.append("Table: ").append(tableName).append("\n");
+                sb.append("-----------------------------------\n");
 
-                    try (Statement stmt = con.createStatement();
-                            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName)) {
+                // Existenz der Tabelle prüfen
+                try (ResultSet tableExists = metaData.getTables(null, "PUBLIC", tableName.toUpperCase(), new String[] { "TABLE" })) {
+                    if (!tableExists.next()) {
+                        sb.append("Table ").append(tableName).append(" does not exist.\n\n");
+                        continue;
+                    }
+                }
 
-                        ResultSetMetaData meta = rs.getMetaData();
-                        int columnCount = meta.getColumnCount();
+                try (Statement stmt = con.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName)) {
 
-                        // Puffern der Daten zur Breitenberechnung
-                        List<String[]> rows = new ArrayList<>();
-                        int[] columnWidths = new int[columnCount];
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int columnCount = meta.getColumnCount();
 
-                        // Spaltennamen verarbeiten
+                    // Puffern der Daten zur Breitenberechnung
+                    List<String[]> rows = new ArrayList<>();
+                    int[] columnWidths = new int[columnCount];
+
+                    // Spaltennamen verarbeiten
+                    for (int i = 1; i <= columnCount; i++) {
+                        String colName = meta.getColumnName(i);
+                        columnWidths[i - 1] = colName.length();
+                    }
+
+                    while (rs.next()) {
+                        String[] row = new String[columnCount];
                         for (int i = 1; i <= columnCount; i++) {
-                            String colName = meta.getColumnName(i);
-                            columnWidths[i - 1] = colName.length();
+                            String val = rs.getObject(i) != null ? rs.getObject(i).toString() : "NULL";
+                            row[i - 1] = val;
+                            columnWidths[i - 1] = Math.max(columnWidths[i - 1], val.length());
                         }
+                        rows.add(row);
+                    }
 
-                        while (rs.next()) {
-                            String[] row = new String[columnCount];
-                            for (int i = 1; i <= columnCount; i++) {
-                                String val = rs.getObject(i) != null ? rs.getObject(i).toString() : "NULL";
-                                row[i - 1] = val;
-                                columnWidths[i - 1] = Math.max(columnWidths[i - 1], val.length());
-                            }
-                            rows.add(row);
-                        }
+                    // Header
+                    for (int i = 0; i < columnCount; i++) {
+                        sb.append(String.format("%-" + columnWidths[i] + "s", meta.getColumnName(i + 1)));
+                        if (i < columnCount - 1)
+                            sb.append(" | ");
+                    }
+                    sb.append("\n");
 
-                        // Header
+                    // Trennlinie
+                    for (int i = 0; i < columnCount; i++) {
+                        sb.append("-".repeat(columnWidths[i]));
+                        if (i < columnCount - 1)
+                            sb.append("-+-");
+                    }
+                    sb.append("\n");
+
+                    // Zeileninhalt
+                    for (String[] row : rows) {
                         for (int i = 0; i < columnCount; i++) {
-                            sb.append(String.format("%-" + columnWidths[i] + "s", meta.getColumnName(i + 1)));
+                            sb.append(String.format("%-" + columnWidths[i] + "s", row[i]));
                             if (i < columnCount - 1)
                                 sb.append(" | ");
                         }
                         sb.append("\n");
-
-                        // Trennlinie
-                        for (int i = 0; i < columnCount; i++) {
-                            sb.append("-".repeat(columnWidths[i]));
-                            if (i < columnCount - 1)
-                                sb.append("-+-");
-                        }
-                        sb.append("\n");
-
-                        // Zeileninhalt
-                        for (String[] row : rows) {
-                            for (int i = 0; i < columnCount; i++) {
-                                sb.append(String.format("%-" + columnWidths[i] + "s", row[i]));
-                                if (i < columnCount - 1)
-                                    sb.append(" | ");
-                            }
-                            sb.append("\n");
-                        }
-
-                        sb.append("\n");
                     }
+
+                    sb.append("\n");
+                } catch (SQLException e) {
+                    sb.append("Error reading table ").append(tableName).append(": ").append(e.getMessage()).append("\n\n");
                 }
             }
         } catch (SQLException e) {
@@ -300,5 +304,6 @@ public class AssessmentFunctions {
 
         return sb.toString();
     }
+
 
 }

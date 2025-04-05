@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,19 +67,20 @@ public class EvaluationService {
             //error = ex;
         }
         System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
+        String[] tables = Arrays.stream(task.getTables().split(",")).map(String::trim).toArray(String[]::new);
         //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
         System.out.println("GroupSetting: " + task.getTaskGroup().getSchema());
         System.out.println("Mode: " + submission.mode());
 
         //***  TEST DATA ***///
-        //String studentInput = Solutions.studentInput;
+        String studentInput = Solutions.studentInput;
         //String studentInput = Solutions.studentInputNoExceptionHandling;
-        String studentInput = Solutions.studentInputWrongSyntax;
+        //String studentInput = Solutions.studentInputWrongSyntax;
         //String studentInput = Solutions.studentInputAutocommitNotDisabled;
 
         String taskSolution = Solutions.taskSolution;
         String dbSchema = Solutions.dbSchema;
-        Result testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution);
+        Result testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables);
         if (testResult == null) {
             throw new RuntimeException("Assessment failed – result is null");
         }

@@ -40,15 +40,22 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
     protected JDBCTask createTask(long id, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
         if (!modifyTaskDto.taskType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
-        return new JDBCTask(modifyTaskDto.additionalData().solution());
+
+        var data = modifyTaskDto.additionalData();
+        return new JDBCTask(data.solution(), data.tables());
     }
+
 
     @Override
     protected void updateTask(JDBCTask task, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
         if (!modifyTaskDto.taskType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
-        task.setSolution(modifyTaskDto.additionalData().solution());
+
+        var data = modifyTaskDto.additionalData();
+        task.setSolution(data.solution());
+        task.setTables(data.tables());
     }
+
 
     @Override
     protected TaskModificationResponseDto mapToReturnData(JDBCTask task, boolean create) {

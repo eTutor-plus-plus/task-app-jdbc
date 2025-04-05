@@ -15,9 +15,14 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "task")
 public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
+
     @NotNull
     @Column(name = "solution", nullable = false)
     private String solution;
+
+    @NotNull
+    @Column(name = "tables", nullable = false)
+    private String tables;
 
     /**
      * Creates a new instance of class {@link JDBCTask}.
@@ -29,9 +34,11 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * Creates a new instance of class {@link JDBCTask}.
      *
      * @param solution The solution.
+     * @param tables   The table list.
      */
-    public JDBCTask(String solution) {
+    public JDBCTask(String solution, String tables) {
         this.solution = solution;
+        this.tables = tables;
     }
 
     /**
@@ -41,10 +48,12 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param status    The status.
      * @param taskGroup The task group.
      * @param solution  The solution.
+     * @param tables    The table list.
      */
-    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution) {
+    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables) {
         super(maxPoints, status, taskGroup);
         this.solution = solution;
+        this.tables = tables;
     }
 
     /**
@@ -55,10 +64,12 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param status    The status.
      * @param taskGroup The task group.
      * @param solution  The solution.
+     * @param tables    The table list.
      */
-    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution) {
+    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables) {
         super(id, maxPoints, status, taskGroup);
         this.solution = solution;
+        this.tables = tables;
     }
 
     /**
@@ -77,5 +88,23 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      */
     public void setSolution(String solution) {
         this.solution = solution;
+    }
+
+    /**
+     * Gets the tables.
+     *
+     * @return The tables.
+     */
+    public String getTables() {
+        return tables;
+    }
+
+    /**
+     * Sets the tables.
+     *
+     * @param tables The tables.
+     */
+    public void setTables(String tables) {
+        this.tables = tables;
     }
 }

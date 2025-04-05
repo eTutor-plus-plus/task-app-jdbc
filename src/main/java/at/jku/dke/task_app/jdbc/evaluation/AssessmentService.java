@@ -29,7 +29,7 @@ public class AssessmentService {
      * @param taskSolution The reference solution for comparison
      * @return A Result object containing evaluation results, including syntax, output, database state, and exception handling
      */
-    public static Result assessTask(String studentInput, String dbSchema, String taskSolution) {
+    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables) {
         long startTimestamp = System.currentTimeMillis();
         Result evalResult = new Result();
         AssessmentFunctions assessment = new AssessmentFunctions();
@@ -79,10 +79,10 @@ public class AssessmentService {
                 "at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses
             );
             System.out.println("Student: " + studentOutput);
-            String studentDbState = assessment.getCurrentDbState("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
-            String studentDbContent = assessment.dbUrlToToString("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
+            String studentDbState = assessment.getCurrentDbState("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
+            String studentDbContent = assessment.dbUrlToToString("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
             evalResult.setStudentQueryResult(studentDbContent);
-            
+
             // 6. Execute solution code and compare outputs
             resetDatabase("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle", dbSchema);
             String solutionOutput = CodeRunner.runCode(
@@ -99,7 +99,7 @@ public class AssessmentService {
             solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
-            String solutionDbState = assessment.getCurrentDbState("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
+            String solutionDbState = assessment.getCurrentDbState("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
 
             boolean dbResult = assessment.compareDbStates(studentDbState, solutionDbState);
             evalResult.setDatabaseResult(dbResult);
