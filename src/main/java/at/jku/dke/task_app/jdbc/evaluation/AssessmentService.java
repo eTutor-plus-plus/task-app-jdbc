@@ -33,6 +33,8 @@ public class AssessmentService {
         long startTimestamp = System.currentTimeMillis();
         Result evalResult = new Result();
         AssessmentFunctions assessment = new AssessmentFunctions();
+        String studentDbUrl = "jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle";
+        String solutionDbUrl = "jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle";
 
         // 1. Syntax Check
         if (!assessment.checkSyntax(studentInput, evalResult)) {
@@ -53,57 +55,111 @@ public class AssessmentService {
             String integratedStudent = template
                 .replace("/*<StudentInput> */", studentInput)
                 .replace("public class Template", "public class TemplateStudent")
-                .replace("/*<DB_URL>*/", "jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
+                .replace("/*<DB_URL>*/", studentDbUrl);
 
             String integratedSolution = template
                 .replace("/*<StudentInput> */", taskSolution)
                 .replace("public class Template", "public class TemplateSolution")
-                .replace("/*<DB_URL>*/", "jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
+                .replace("/*<DB_URL>*/", solutionDbUrl);
 
             // 3. Compile student and solution code in memory
             Map<String, byte[]> compiledStudentClasses = compileJavaInMemory("at.jku.dke.task_app.jdbc.TemplateStudent", integratedStudent);
             Map<String, byte[]> compiledSolutionClasses = compileJavaInMemory("at.jku.dke.task_app.jdbc.TemplateSolution", integratedSolution);
 
             // 4. Check for disabled autocommit in student's code
-            String cleanedInput = studentInput
-                .replaceAll("(?s)/\\*.*?\\*/", "")
-                .replaceAll("(?m)^\\s*//.*$", "");
+            // Remove comments and whitespaces
+                        String cleaned = studentInput
+                            .replaceAll("(?s)/\\*.*?\\*/", "")
+                            .replaceAll("(?m)^\\s*//.*$", "")
+                            .replaceAll("\\s+", " ");
 
-            boolean disabledAutoCommit = cleanedInput.matches("(?s).*\\.setAutoCommit\\(\\s*false\\s*\\)\\s*;.*");
+            // Find position of setAutoCommit(false)
+            int autoCommitIndex = cleaned.indexOf(".setAutoCommit(false);");
+
+            // Find database operations before disabling autocommit
+            boolean hasWriteBefore = false;
+            if (autoCommitIndex > 0) {
+                String before = cleaned.substring(0, autoCommitIndex).toLowerCase();
+                hasWriteBefore = before.contains("executeupdate") || before.contains("insert") || before.contains("update") || before.contains("delete");
+            }
+            boolean disabledAutoCommit = autoCommitIndex != -1 && !hasWriteBefore;
+
             evalResult.setAutoCommitResult(disabledAutoCommit);
             evalResult.setAutoCommitMessage(disabledAutoCommit ? "Autocommit disabled" : "Autocommit enabled");
 
             // 5. Execute student code and capture the output
-            resetDatabase("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle", dbSchema);
+            resetDatabase(studentDbUrl, dbSchema);
             String studentOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses
             );
-            System.out.println("Student: " + studentOutput);
-            String studentDbState = assessment.getCurrentDbState("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
-            String studentDbContent = assessment.dbUrlToToString("jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
-            evalResult.setStudentQueryResult(studentDbContent);
+            //System.out.println("Student: " + studentOutput);
+            //String studentDbState = assessment.getCurrentDbState(studentDbUrl, tables);
+            //String studentDbContent = assessment.dbUrlToToString(studentDbUrl, tables);
+            //evalResult.setStudentQueryResult(studentDbContent);
+
+            List<TableDump> studentDbTables = assessment.getDatabaseContent(studentDbUrl, tables);
+            evalResult.setStudentQueryResult(studentDbTables);
 
             // 6. Execute solution code and compare outputs
-            resetDatabase("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle", dbSchema);
+            resetDatabase(solutionDbUrl, dbSchema);
             String solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
             System.out.println("Solution: " + solutionOutput);
             boolean outputRes = assessment.checkOutput(studentOutput, solutionOutput);
 
+            evalResult.setStudentOutput(studentOutput);
+
             evalResult.setOutputComparisionResult(outputRes);
             evalResult.setOutputComparisionMessage(outputRes ? "Output correct" : "Output incorrect");
 
+            // Split lines
+            List<String> studentLines = Arrays.stream(studentOutput.split("\\R")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+            List<String> solutionLines = Arrays.stream(solutionOutput.split("\\R")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+
+            List<String> missing = new ArrayList<>(solutionLines);
+            missing.removeAll(studentLines);
+
+            List<String> extra = new ArrayList<>(studentLines);
+            extra.removeAll(solutionLines);
+
+            evalResult.setMissingOutputs(missing);
+            evalResult.setSuperfluousOutputs(extra);
+
+
             // 7. Compare database states between student and solution
-            resetDatabase("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle", dbSchema);
+            resetDatabase(solutionDbUrl, dbSchema);
             solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
-            String solutionDbState = assessment.getCurrentDbState("jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle", tables);
+            //String solutionDbState = assessment.getCurrentDbState(solutionDbUrl, tables);
+            //assessment.analyzeTupleDifferences(studentDbState, solutionDbState, evalResult);
 
-            boolean dbResult = assessment.compareDbStates(studentDbState, solutionDbState);
+            //boolean dbResult = assessment.compareDbStates(studentDbState, solutionDbState);
+            //evalResult.setDatabaseResult(dbResult);
+            //evalResult.setDatabaseMessage(dbResult ? "Database content correct" : "Incorrect Database Content");
+
+            assessment.analyzeTupleDifferences(studentDbUrl, solutionDbUrl, evalResult, tables);
+
+            //assessment.analyzeTupleDifferences(studentDbState, solutionDbState, evalResult);
+
+            boolean dbResult = evalResult.getMissingTuples().isEmpty() && evalResult.getSuperfluousTuples().isEmpty();
             evalResult.setDatabaseResult(dbResult);
-            evalResult.setDatabaseMessage(dbResult ? "Database content correct" : "Incorrect Database Content");
+
+            if (dbResult) {
+                evalResult.setDatabaseMessage("Database content correct");
+            } else {
+                int missingCount = evalResult.getMissingTuples().size();
+                int extraCount = evalResult.getSuperfluousTuples().size();
+                evalResult.setDatabaseMessage("Incorrect Database Content: "
+                    + missingCount + " missing, "
+                    + extraCount + " extra tuples.\n" +
+                    "Missing: " + evalResult.getMissingTuples() + "\n" +
+                    "Extra: " + evalResult.getSuperfluousTuples());
+            }
+
+
+
             // 8. Exception Handling Test
             String integratedStudentFaulty = template
                 .replace("/*<StudentInput> */", studentInput)
@@ -131,7 +187,7 @@ public class AssessmentService {
                 evalResult.setExceptionMessage("Exceptions caught by template");
             } else if (faultyOutput.contains("java.net.UnknownHostException") || faultyOutput.contains("java.sql.SQLException")) {
                 evalResult.setExceptionResult(false);
-                evalResult.setExceptionMessage("Exceptions were not caught by student");
+                evalResult.setExceptionMessage("java.sql.SQLException thrown");
             } else if (faultyOutput.strip().isEmpty()) {
                 evalResult.setExceptionResult(false);
                 evalResult.setExceptionMessage("Unclear");

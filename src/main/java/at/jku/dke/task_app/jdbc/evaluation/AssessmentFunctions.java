@@ -1,12 +1,8 @@
 package at.jku.dke.task_app.jdbc.evaluation;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -110,7 +106,7 @@ public class AssessmentFunctions {
                     }
                     String test = "";
                     test += diagnostics.getDiagnostics().getFirst().getLineNumber();
-                    System.out.println("Line number: " + test);
+                    //System.out.println("Line number: " + test);
 
                     // Update the result with the error details
                     result.setSyntaxResult(false);
@@ -211,6 +207,7 @@ public class AssessmentFunctions {
      * @param solutionQueryResult the database dump after solution execution
      * @return true if both states match, false otherwise
      */
+
     public boolean compareDbStates(String studentQueryResult, String solutionQueryResult) {
         // Normalize the student's query result by removing timestamps formatted as 'yyyy-MM-dd HH:mm:ss.SSS'
         String normalizedStudent = studentQueryResult.replaceAll("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d", "");
@@ -221,7 +218,7 @@ public class AssessmentFunctions {
         return normalizedStudent.equals(normalizedSolution);
     }
 
-    public String dbUrlToToString(String url, String[] tablesToCheck) {
+    /*public String dbUrlToToString(String url, String[] tablesToCheck) {
         StringBuilder sb = new StringBuilder();
 
         try (Connection con = DriverManager.getConnection(url, "sa", "")) {
@@ -303,7 +300,102 @@ public class AssessmentFunctions {
         }
 
         return sb.toString();
+    }*/
+
+    public void analyzeTupleDifferences(String studentDbUrl, String solutionDbUrl, Result result, String[] tables) {
+        List<List<String>> studentTuples = getDatabaseContentAsTuples(studentDbUrl, tables);
+        List<List<String>> solutionTuples = getDatabaseContentAsTuples(solutionDbUrl, tables);
+
+        List<List<String>> missing = new ArrayList<>(solutionTuples);
+        missing.removeAll(studentTuples);
+
+        List<List<String>> superfluous = new ArrayList<>(studentTuples);
+        superfluous.removeAll(solutionTuples);
+
+        result.setMissingTuples(missing);
+        result.setSuperfluousTuples(superfluous);
+
+        StringBuilder msg = new StringBuilder();
+        if (!missing.isEmpty())
+            msg.append("Missing tuples (").append(missing.size()).append(")");
+        if (!superfluous.isEmpty())
+            msg.append(" Superfluous tuples (").append(superfluous.size()).append(")");
+
+        result.setDatabaseMessage(msg.toString().trim());
     }
+
+    public List<List<String>> getDatabaseContentAsTuples(String dbUrl, String[] tablesToCheck) {
+        List<List<String>> tuples = new ArrayList<>();
+
+        try (Connection con = DriverManager.getConnection(dbUrl, "sa", "")) {
+            for (String tableName : tablesToCheck) {
+                try (Statement stmt = con.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " ORDER BY 1")) {
+
+                    ResultSetMetaData rsMeta = rs.getMetaData();
+                    int columnCount = rsMeta.getColumnCount();
+
+                    while (rs.next()) {
+                        List<String> row = new ArrayList<>();
+                        for (int i = 1; i <= columnCount; i++) {
+                            Object val = rs.getObject(i);
+                            row.add(val != null ? val.toString() : "NULL");
+                        }
+                        tuples.add(row);
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return tuples;
+    }
+
+
+    public List<TableDump> getDatabaseContent(String dbUrl, String[] tables) {
+        List<TableDump> result = new ArrayList<>();
+
+        try (Connection con = DriverManager.getConnection(dbUrl, "sa", "")) {
+            for (String tableName : tables) {
+                List<String> columns = new ArrayList<>();
+                List<List<String>> rows = new ArrayList<>();
+
+                try (Statement stmt = con.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " ORDER BY 1")) {
+
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int colCount = meta.getColumnCount();
+
+                    for (int i = 1; i <= colCount; i++)
+                        columns.add(meta.getColumnName(i));
+
+                    while (rs.next()) {
+                        List<String> row = new ArrayList<>();
+                        for (int i = 1; i <= colCount; i++) {
+                            Object val = rs.getObject(i);
+                            row.add(val != null ? val.toString() : "NULL");
+                        }
+                        rows.add(row);
+                    }
+                    result.add(new TableDump(tableName, columns, rows));
+                } catch (SQLException e) {
+                    result.add(new TableDump(tableName, List.of(), List.of(List.of("Error: " + e.getMessage()))));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("DB read error: " + e.getMessage(), e);
+        }
+
+        return result;
+    }
+
+
+
+
 
 
 }

@@ -33,7 +33,11 @@ public class TaskGroupController extends BaseTaskGroupController<JDBCTaskGroup, 
 
     @Override
     protected JDBCTaskGroupDto mapToDto(JDBCTaskGroup taskGroup) {
-        return new JDBCTaskGroupDto(taskGroup.getSchema());
+        return new JDBCTaskGroupDto(
+            taskGroup.getCreateStatements(),
+            taskGroup.getInsertStatementsDiagnose(),
+            taskGroup.getInsertStatementsSubmission()
+        );
     }
 
     /**

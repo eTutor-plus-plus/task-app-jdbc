@@ -5,18 +5,21 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * Custom validator for numbers in {@link ModifyJDBCTaskGroupDto}.
+ * Custom validator for fields in {@link ModifyJDBCTaskGroupDto}.
  */
 public class ValidTaskGroupNumberValidator implements ConstraintValidator<ValidTaskGroupNumber, ModifyJDBCTaskGroupDto> {
-    /**
-     * Creates a new instance of class Valid task group number validator.
-     */
-    public ValidTaskGroupNumberValidator() {
-    }
 
     @Override
     public boolean isValid(ModifyJDBCTaskGroupDto value, ConstraintValidatorContext context) {
-        //Implement validation for scheme
-        return value.schema().getClass().getSimpleName().equals("String");
+        if (value == null)
+            return false;
+
+        return isNotEmpty(value.createStatements())
+            && isNotEmpty(value.insertStatementsDiagnose())
+            && isNotEmpty(value.insertStatementsSubmission());
+    }
+
+    private boolean isNotEmpty(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 }

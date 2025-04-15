@@ -11,6 +11,11 @@ import java.io.Serializable;
  */
 public record ModifyJDBCTaskDto(
     @NotNull String solution,
-    @NotNull String tables
+    @NotNull String tables,
+    @NotNull int wrongOutputPenalty,
+    @NotNull int exceptionHandlingPenalty,
+    @NotNull int wrongDbContentPenalty,
+    @NotNull boolean checkAutocommit,
+    Integer autocommitPenalty
 ) implements Serializable {
 }

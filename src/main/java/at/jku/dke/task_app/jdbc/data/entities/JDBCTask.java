@@ -24,6 +24,21 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
     @Column(name = "tables", nullable = false)
     private String tables;
 
+    @Column(name = "wrong_output_penalty")
+    private Integer wrongOutputPenalty;
+
+    @Column(name = "exception_handling_penalty")
+    private Integer exceptionHandlingPenalty;
+
+    @Column(name = "wrong_db_content_penalty")
+    private Integer wrongDbContentPenalty;
+
+    @Column(name = "check_autocommit")
+    private boolean checkAutocommit;
+
+    @Column(name = "autocommit_penalty")
+    private Integer autocommitPenalty;
+
     /**
      * Creates a new instance of class {@link JDBCTask}.
      */
@@ -72,39 +87,59 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
         this.tables = tables;
     }
 
-    /**
-     * Gets the solution.
-     *
-     * @return The solution.
-     */
     public String getSolution() {
         return solution;
     }
 
-    /**
-     * Sets the solution.
-     *
-     * @param solution The solution.
-     */
     public void setSolution(String solution) {
         this.solution = solution;
     }
 
-    /**
-     * Gets the tables.
-     *
-     * @return The tables.
-     */
     public String getTables() {
         return tables;
     }
 
-    /**
-     * Sets the tables.
-     *
-     * @param tables The tables.
-     */
     public void setTables(String tables) {
         this.tables = tables;
+    }
+
+    public Integer getWrongOutputPenalty() {
+        return wrongOutputPenalty;
+    }
+
+    public void setWrongOutputPenalty(Integer wrongOutputPenalty) {
+        this.wrongOutputPenalty = wrongOutputPenalty;
+    }
+
+    public Integer getExceptionHandlingPenalty() {
+        return exceptionHandlingPenalty;
+    }
+
+    public void setExceptionHandlingPenalty(Integer exceptionHandlingPenalty) {
+        this.exceptionHandlingPenalty = exceptionHandlingPenalty;
+    }
+
+    public Integer getWrongDbContentPenalty() {
+        return wrongDbContentPenalty;
+    }
+
+    public void setWrongDbContentPenalty(Integer wrongDbContentPenalty) {
+        this.wrongDbContentPenalty = wrongDbContentPenalty;
+    }
+
+    public boolean isCheckAutocommit() {
+        return checkAutocommit;
+    }
+
+    public void setCheckAutocommit(boolean checkAutocommit) {
+        this.checkAutocommit = checkAutocommit;
+    }
+
+    public Integer getAutocommitPenalty() {
+        return autocommitPenalty;
+    }
+
+    public void setAutocommitPenalty(Integer autocommitPenalty) {
+        this.autocommitPenalty = autocommitPenalty;
     }
 }

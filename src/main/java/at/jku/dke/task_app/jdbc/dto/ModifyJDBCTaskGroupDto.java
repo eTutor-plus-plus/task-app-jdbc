@@ -12,5 +12,8 @@ import at.jku.dke.task_app.jdbc.validation.ValidTaskGroupNumber;
  * @param schema The database schema for a task.
  */
 @ValidTaskGroupNumber
-public record ModifyJDBCTaskGroupDto(@NotNull String schema) implements Serializable {
-}
+public record ModifyJDBCTaskGroupDto(
+    @NotNull String createStatements,
+    @NotNull String insertStatementsDiagnose,
+    @NotNull String insertStatementsSubmission
+) implements Serializable {}

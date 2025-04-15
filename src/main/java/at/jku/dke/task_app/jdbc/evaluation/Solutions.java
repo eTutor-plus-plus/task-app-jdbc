@@ -181,6 +181,84 @@ public class Solutions {
             "        }\n" +
             "    }\n";
 
+    public static String studentInputTooManyDbRows = "try (Connection con = ds.getConnection()) {\n" +
+        "    con.setAutoCommit(false);\n" +
+        "    int book = 1;\n" +
+        "    int user = 99;\n" +
+        "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
+        "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
+        "        selectStmt.setInt(1, book);\n" +
+        "        ResultSet rs = selectStmt.executeQuery();\n" +
+        "        if (!rs.next()) {\n" +
+        "            Out.println(\"The book is not available!\");\n" +
+        "        } else {\n" +
+        "            Out.println(\"Book is available!\");\n" +
+        "            String insert = \"INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\";\n" +
+        "            try (\n" +
+        "                PreparedStatement insertStmt1 = con.prepareStatement(insert);\n" +
+        "                PreparedStatement insertStmt2 = con.prepareStatement(insert);\n" +
+        "                PreparedStatement insertStmt3 = con.prepareStatement(insert);\n" +
+        "                PreparedStatement updateStmt = con.prepareStatement(\"UPDATE books SET status = 'borrowed' WHERE book_id = ?\")\n" +
+        "            ) {\n" +
+        "                insertStmt1.setInt(1, user);\n" +
+        "                insertStmt1.setInt(2, book);\n" +
+        "                insertStmt1.executeUpdate();\n" +
+        "\n" +
+        "                insertStmt2.setInt(1, 100);\n" +
+        "                insertStmt2.setInt(2, 2);\n" +
+        "                insertStmt2.executeUpdate();\n" +
+        "\n" +
+        "                insertStmt3.setInt(1, 101);\n" +
+        "                insertStmt3.setInt(2, 1);\n" +
+        "                insertStmt3.executeUpdate(); // too much\n" +
+        "\n" +
+        "                updateStmt.setInt(1, book);\n" +
+        "                updateStmt.executeUpdate();\n" +
+        "                con.commit();\n" +
+        "                Out.println(\"Loan recorded with extra entry!\");\n" +
+        "            } catch (SQLException ex) {\n" +
+        "                Out.println(\"INSERT/UPDATE ERROR: \" + ex.getMessage());\n" +
+        "                con.rollback();\n" +
+        "            }\n" +
+        "        }\n" +
+        "    }\n" +
+        "} catch (SQLException ex) {\n" +
+        "    Out.println(\"DB ERROR: \" + ex.getMessage());\n" +
+        "}";
+
+    public static String studentInputTooFewDbRows = "try (Connection con = ds.getConnection()) {\n" +
+        "    con.setAutoCommit(false);\n" +
+        "    int book = 1;\n" +
+        "    int user = 99;\n" +
+        "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
+        "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
+        "        selectStmt.setInt(1, book);\n" +
+        "        ResultSet rs = selectStmt.executeQuery();\n" +
+        "        if (!rs.next()) {\n" +
+        "            Out.println(\"The book is not available!\");\n" +
+        "        } else {\n" +
+        "            Out.println(\"Book is available!\");\n" +
+        "            String update = \"UPDATE books SET status = 'borrowed' WHERE book_id = ?\";\n" +
+        "            try (\n" +
+        "                PreparedStatement updateStmt = con.prepareStatement(update)\n" +
+        "            ) {\n" +
+        "                // MISSING: Insert into loans table\n" +
+        "                updateStmt.setInt(1, book);\n" +
+        "                updateStmt.executeUpdate();\n" +
+        "                con.commit();\n" +
+        "                Out.println(\"Only book updated, loan not recorded!\");\n" +
+        "            } catch (SQLException ex) {\n" +
+        "                Out.println(\"UPDATE ERROR: \" + ex.getMessage());\n" +
+        "                con.rollback();\n" +
+        "            }\n" +
+        "        }\n" +
+        "    }\n" +
+        "} catch (SQLException ex) {\n" +
+        "    Out.println(\"DB ERROR: \" + ex.getMessage());\n" +
+        "}";
+
+
+
     public static String taskSolution = "try (Connection con = ds.getConnection()) {\n" +
             "    con.setAutoCommit(false);\n" +
             "    int book = 1;\n" +

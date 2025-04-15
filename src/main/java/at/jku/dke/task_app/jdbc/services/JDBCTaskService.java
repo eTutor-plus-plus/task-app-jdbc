@@ -42,9 +42,16 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
 
         var data = modifyTaskDto.additionalData();
-        return new JDBCTask(data.solution(), data.tables());
-    }
+        var task = new JDBCTask(data.solution(), data.tables());
 
+        task.setWrongOutputPenalty(data.wrongOutputPenalty());
+        task.setExceptionHandlingPenalty(data.exceptionHandlingPenalty());
+        task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
+        task.setCheckAutocommit(data.checkAutocommit());
+        task.setAutocommitPenalty(data.autocommitPenalty());
+
+        return task;
+    }
 
     @Override
     protected void updateTask(JDBCTask task, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
@@ -52,10 +59,15 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
 
         var data = modifyTaskDto.additionalData();
+
         task.setSolution(data.solution());
         task.setTables(data.tables());
+        task.setWrongOutputPenalty(data.wrongOutputPenalty());
+        task.setExceptionHandlingPenalty(data.exceptionHandlingPenalty());
+        task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
+        task.setCheckAutocommit(data.checkAutocommit());
+        task.setAutocommitPenalty(data.autocommitPenalty());
     }
-
 
     @Override
     protected TaskModificationResponseDto mapToReturnData(JDBCTask task, boolean create) {

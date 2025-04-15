@@ -1,5 +1,7 @@
 package at.jku.dke.task_app.jdbc.evaluation;
 
+import java.util.List;
+
 public class Result {
     private Boolean syntaxResult;
     private String syntaxMessage;
@@ -12,8 +14,12 @@ public class Result {
     private String databaseMessage;
     private Boolean exceptionResult;
     private String exceptionMessage;
-    private String studentQueryResult;
-
+    private List<TableDump> studentQueryResult;
+    private List<List<String>> missingTuples;
+    private List<List<String>> superfluousTuples;
+    private String studentOutput;
+    private List<String> missingOutputs;
+    private List<String> superfluousOutputs;
 
     public Result() {
     }
@@ -22,7 +28,7 @@ public class Result {
                   Boolean autoCommitResult, String autoCommitMessage,
                   Boolean outputComparisionResult, String outputComparisionMessage,
                   Boolean databaseResult, String databaseMessage,
-                  Boolean exceptionResult, String exceptionMessage) {
+                  Boolean exceptionResult, String exceptionMessage, String studentOutput, String solutionOutput) {
         this.syntaxResult = syntaxResult;
         this.syntaxMessage = syntaxMessage;
         this.syntaxError = syntaxError;
@@ -34,6 +40,9 @@ public class Result {
         this.databaseMessage = databaseMessage;
         this.exceptionResult = exceptionResult;
         this.exceptionMessage = exceptionMessage;
+        this.studentOutput = studentOutput;
+        this.missingOutputs = missingOutputs;
+        this.superfluousOutputs = superfluousOutputs;
     }
 
     public Boolean getSyntaxResult() {
@@ -124,13 +133,54 @@ public class Result {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public String getStudentQueryResult() {
+    public List<TableDump> getStudentQueryResult() {
         return studentQueryResult;
     }
-    
-    public void setStudentQueryResult(String studentQueryResult) {
+
+    public void setStudentQueryResult(List<TableDump> studentQueryResult) {
         this.studentQueryResult = studentQueryResult;
     }
+
+    public List<List<String>> getMissingTuples() {
+        return missingTuples;
+    }
+
+    public void setMissingTuples(List<List<String>> missingTuples) {
+        this.missingTuples = missingTuples;
+    }
+
+    public List<List<String>> getSuperfluousTuples() {
+        return superfluousTuples;
+    }
+
+    public void setSuperfluousTuples(List<List<String>> superfluousTuples) {
+        this.superfluousTuples = superfluousTuples;
+    }
+
+    public String getStudentOutput() {
+        return studentOutput;
+    }
+
+    public void setStudentOutput(String studentOutput) {this.studentOutput = studentOutput;}
+
+    public List<String> getMissingOutputs() {
+        return missingOutputs;
+    }
+
+    public void setMissingOutputs(List<String> missingOutputs) {
+        this.missingOutputs = missingOutputs;
+    }
+
+    public List<String> getSuperfluousOutputs() {
+        return superfluousOutputs;
+    }
+
+    public void setSuperfluousOutputs(List<String> superfluousOutputs) {
+        this.superfluousOutputs = superfluousOutputs;
+    }
+
+
+
 
     @Override
     public String toString() {
@@ -145,8 +195,8 @@ public class Result {
                 "  Database content: " + databaseMessage + "\n" +
                 // ", exceptionResult=" + exceptionResult + "\n" +
                 "  Exceptionhandling: " + exceptionMessage + "\n" +
-                "  Student Query Result:\n" + studentQueryResult + "\n" 
+                "  Student Query Result:\n" + studentQueryResult + "\n"
                 ;
     }
-    
+
 }

@@ -9,5 +9,9 @@ import java.io.Serializable;
  *
  * @param schema The database schema for a task.
  */
-public record JDBCTaskGroupDto(@NotNull String schema) implements Serializable {
-}
+public record JDBCTaskGroupDto(
+    @NotNull String createStatements,
+    @NotNull String insertStatementsDiagnose,
+    @NotNull String insertStatementsSubmission
+) implements Serializable {}
+

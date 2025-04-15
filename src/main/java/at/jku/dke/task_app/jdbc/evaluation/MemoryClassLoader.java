@@ -15,7 +15,7 @@ public class MemoryClassLoader extends ClassLoader {
     /**
      * Constructor that accepts a map of compiled class bytecode.
      *
-     * @param classes A map where the key is the class name (e.g., "com.example.MyClass") and the value is the compiled bytecode.
+     * @param classes A map where the key is the class name (e.g., "com.example.sampleClass") and the value is the compiled bytecode.
      */
     public MemoryClassLoader(Map<String, byte[]> classes) {
         // Calling the parent class (ClassLoader) constructor and passing the default class loader (for fallback purposes)

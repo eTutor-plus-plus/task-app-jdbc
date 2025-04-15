@@ -51,7 +51,7 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
         super(URI.create("mem:///" + className.replace('.', '/') + kind.extension), kind);
         this.outputStream = new ByteArrayOutputStream();  // Initialize the output stream for bytecode
         this.sourceCode = null;  // No source code for bytecode representation
-        this.kind = kind;  // Mark the file type
+        this.kind = kind;  // file type
     }
 
     /**

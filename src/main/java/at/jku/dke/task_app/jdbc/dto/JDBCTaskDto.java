@@ -11,6 +11,10 @@ import java.io.Serializable;
  */
 public record JDBCTaskDto(
     @NotNull String solution,
-    @NotNull String tables
-) implements Serializable {
-}
+    @NotNull String tables,
+    @NotNull int wrongOutputPenalty,
+    @NotNull int exceptionHandlingPenalty,
+    @NotNull int wrongDbContentPenalty,
+    @NotNull boolean checkAutocommit,
+    Integer autocommitPenalty
+) implements Serializable {}

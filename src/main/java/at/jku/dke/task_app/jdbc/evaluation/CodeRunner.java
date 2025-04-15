@@ -1,42 +1,48 @@
 package at.jku.dke.task_app.jdbc.evaluation;
 
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.*;
 
-/**
- * Utility class that dynamically loads and executes compiled Java classes.
- * It looks for classes inside the target/generated-classes/ directory,
- * instantiates them, and calls the templateMethod() method.
- */
 public class CodeRunner {
 
+    private static final long TIME_LIMIT_SECONDS = 5; // Time limit (seconds)
+
     /**
-     * Dynamically loads a class from compiled bytecode stored in memory, creates an instance of the class,
-     * and invokes its 'templateMethod' to execute the code.
+     * Executes the code with a time limit
      *
-     * @param className The fully qualified name of the class to load.
-     * @param compiledClasses A map containing the compiled class bytecode, where the key is the class name
-     *                        and the value is the bytecode as a byte array.
-     * @return The result of invoking 'templateMethod', expected to be a 'String'.
-     * @throws Exception If any error occurs during class loading, instantiation, method invocation, or reflection.
+     * @param className Name of the class to be executed.
+     * @param compiledClasses Bytecode of the compiled classes.
+     * @return Result of templateMethod() or an error message.
      */
-    public static String runCode(String className, Map<String, byte[]> compiledClasses) throws Exception {
-        // Create a new instance of MemoryClassLoader using the provided map of compiled classes (bytecode)
+    public static String runCode(String className, Map<String, byte[]> compiledClasses) {
         MemoryClassLoader classLoader = new MemoryClassLoader(compiledClasses);
+        String result = "";
 
-        // Load the class dynamically using the class name. The class is fetched from memory
-        Class<?> clazz = classLoader.loadClass(className);
+        try {
+            Class<?> clazz = classLoader.loadClass(className);
+            Object instance = clazz.getDeclaredConstructor().newInstance();
+            Method templateMethod = clazz.getMethod("templateMethod");
 
-        // Create a new instance of the loaded class using reflection
-        Object instance = clazz.getDeclaredConstructor().newInstance();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> future = executor.submit(() -> {
+                return (String) templateMethod.invoke(instance);
+            });
 
-        // Get the 'templateMethod' from the class using reflection
-        Method templateMethod = clazz.getMethod("templateMethod");
+            // Wait for the result with a time limit
+            result = future.get(TIME_LIMIT_SECONDS, TimeUnit.SECONDS);
 
-        // Invoke the 'templateMethod' on the created instance and return the result as a String
-        return (String) templateMethod.invoke(instance);
+        } catch (TimeoutException e) {
+            System.err.println("Execution took too long (Timeout).");
+        } catch (ExecutionException e) {
+            System.err.println("Error during code execution: " + e.getCause());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Execution was interrupted.");
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+
+        return result;
     }
-
 }
