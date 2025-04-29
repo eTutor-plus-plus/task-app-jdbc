@@ -4,20 +4,20 @@ import java.util.List;
 
 public class Result {
     private Boolean syntaxResult;
-    private String syntaxMessage;
-    private String syntaxError;
+    private String syntaxMessage = "";
+    private String syntaxError = "";
     private Boolean autoCommitResult;
-    private String autoCommitMessage;
+    private String autoCommitMessage = "";
     private Boolean outputComparisionResult;
-    private String outputComparisionMessage;
+    private String outputComparisionMessage = "";
     private Boolean databaseResult;
-    private String databaseMessage;
+    private String databaseMessage = "";
     private Boolean exceptionResult;
-    private String exceptionMessage;
+    private String exceptionMessage = "";
     private List<TableDump> studentQueryResult;
     private List<List<String>> missingTuples;
     private List<List<String>> superfluousTuples;
-    private String studentOutput;
+    private String studentOutput = "";
     private List<String> missingOutputs;
     private List<String> superfluousOutputs;
 
@@ -28,7 +28,7 @@ public class Result {
                   Boolean autoCommitResult, String autoCommitMessage,
                   Boolean outputComparisionResult, String outputComparisionMessage,
                   Boolean databaseResult, String databaseMessage,
-                  Boolean exceptionResult, String exceptionMessage, String studentOutput, String solutionOutput) {
+                  Boolean exceptionResult, String exceptionMessage, String studentOutput, List<String> superfluousOutputs, List<String> missingOutputs) {
         this.syntaxResult = syntaxResult;
         this.syntaxMessage = syntaxMessage;
         this.syntaxError = syntaxError;
@@ -185,15 +185,10 @@ public class Result {
     @Override
     public String toString() {
         return "Result :\n\n" +
-                // "syntaxResult=" + syntaxResult + "\n" +
                 "  Sytnax: " + syntaxMessage + "\n" +
-                // ", autoCommitResult=" + autoCommitResult + "\n" +
                 "  Autocommit: " + autoCommitMessage + "\n" +
-                // ", outputComparisionResult=" + outputComparisionResult + "\n" +
                 "  Output: " + outputComparisionMessage + "\n" +
-                // ", databaseResult=" + databaseResult + "\n" +
                 "  Database content: " + databaseMessage + "\n" +
-                // ", exceptionResult=" + exceptionResult + "\n" +
                 "  Exceptionhandling: " + exceptionMessage + "\n" +
                 "  Student Query Result:\n" + studentQueryResult + "\n"
                 ;

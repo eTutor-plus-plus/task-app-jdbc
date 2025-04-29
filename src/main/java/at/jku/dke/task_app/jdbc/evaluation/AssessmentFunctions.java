@@ -106,7 +106,6 @@ public class AssessmentFunctions {
                     }
                     String test = "";
                     test += diagnostics.getDiagnostics().getFirst().getLineNumber();
-                    //System.out.println("Line number: " + test);
 
                     // Update the result with the error details
                     result.setSyntaxResult(false);
@@ -217,90 +216,6 @@ public class AssessmentFunctions {
         // Compare the normalized strings (ignoring timestamp differences)
         return normalizedStudent.equals(normalizedSolution);
     }
-
-    /*public String dbUrlToToString(String url, String[] tablesToCheck) {
-        StringBuilder sb = new StringBuilder();
-
-        try (Connection con = DriverManager.getConnection(url, "sa", "")) {
-            DatabaseMetaData metaData = con.getMetaData();
-
-            for (String tableName : tablesToCheck) {
-                sb.append("\n");
-                sb.append("-----------------------------------\n");
-                sb.append("Table: ").append(tableName).append("\n");
-                sb.append("-----------------------------------\n");
-
-                // Existenz der Tabelle prüfen
-                try (ResultSet tableExists = metaData.getTables(null, "PUBLIC", tableName.toUpperCase(), new String[] { "TABLE" })) {
-                    if (!tableExists.next()) {
-                        sb.append("Table ").append(tableName).append(" does not exist.\n\n");
-                        continue;
-                    }
-                }
-
-                try (Statement stmt = con.createStatement();
-                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName)) {
-
-                    ResultSetMetaData meta = rs.getMetaData();
-                    int columnCount = meta.getColumnCount();
-
-                    // Puffern der Daten zur Breitenberechnung
-                    List<String[]> rows = new ArrayList<>();
-                    int[] columnWidths = new int[columnCount];
-
-                    // Spaltennamen verarbeiten
-                    for (int i = 1; i <= columnCount; i++) {
-                        String colName = meta.getColumnName(i);
-                        columnWidths[i - 1] = colName.length();
-                    }
-
-                    while (rs.next()) {
-                        String[] row = new String[columnCount];
-                        for (int i = 1; i <= columnCount; i++) {
-                            String val = rs.getObject(i) != null ? rs.getObject(i).toString() : "NULL";
-                            row[i - 1] = val;
-                            columnWidths[i - 1] = Math.max(columnWidths[i - 1], val.length());
-                        }
-                        rows.add(row);
-                    }
-
-                    // Header
-                    for (int i = 0; i < columnCount; i++) {
-                        sb.append(String.format("%-" + columnWidths[i] + "s", meta.getColumnName(i + 1)));
-                        if (i < columnCount - 1)
-                            sb.append(" | ");
-                    }
-                    sb.append("\n");
-
-                    // Trennlinie
-                    for (int i = 0; i < columnCount; i++) {
-                        sb.append("-".repeat(columnWidths[i]));
-                        if (i < columnCount - 1)
-                            sb.append("-+-");
-                    }
-                    sb.append("\n");
-
-                    // Zeileninhalt
-                    for (String[] row : rows) {
-                        for (int i = 0; i < columnCount; i++) {
-                            sb.append(String.format("%-" + columnWidths[i] + "s", row[i]));
-                            if (i < columnCount - 1)
-                                sb.append(" | ");
-                        }
-                        sb.append("\n");
-                    }
-
-                    sb.append("\n");
-                } catch (SQLException e) {
-                    sb.append("Error reading table ").append(tableName).append(": ").append(e.getMessage()).append("\n\n");
-                }
-            }
-        } catch (SQLException e) {
-            return "Error reading the database content: " + e.getMessage();
-        }
-
-        return sb.toString();
-    }*/
 
     public void analyzeTupleDifferences(String studentDbUrl, String solutionDbUrl, Result result, String[] tables) {
         List<List<String>> studentTuples = getDatabaseContentAsTuples(studentDbUrl, tables);

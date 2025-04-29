@@ -14,14 +14,8 @@ import java.util.Map;
  * the compilation process in memory.
  */
 public class MemoryJavaFile extends SimpleJavaFileObject {
-
-    // The source code as a string (used when the file represents source code)
     private final String sourceCode;
-
-    // The byte output stream used to store the compiled bytecode (used when the file represents compiled classes)
     private final ByteArrayOutputStream outputStream;
-
-    // The kind of the file (either source code or bytecode)
     private final Kind kind;
 
     /**
@@ -32,11 +26,11 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
      * @param sourceCode The Java source code to be compiled
      */
     public MemoryJavaFile(String className, String sourceCode) {
-        // Create a unique URI for this file
+        //Unique URI to avoid interplay between the student's solutions
         super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
-        this.sourceCode = sourceCode;  // Store the source code
-        this.outputStream = null;  // No output stream needed for source code
-        this.kind = Kind.SOURCE;  // Mark this file as source code
+        this.sourceCode = sourceCode;
+        this.outputStream = null;
+        this.kind = Kind.SOURCE;
     }
 
     /**
@@ -49,9 +43,9 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
     public MemoryJavaFile(String className, Kind kind) {
         // Create a unique URI for this file
         super(URI.create("mem:///" + className.replace('.', '/') + kind.extension), kind);
-        this.outputStream = new ByteArrayOutputStream();  // Initialize the output stream for bytecode
-        this.sourceCode = null;  // No source code for bytecode representation
-        this.kind = kind;  // file type
+        this.outputStream = new ByteArrayOutputStream();
+        this.sourceCode = null;
+        this.kind = kind;
     }
 
     /**
@@ -78,7 +72,7 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
     @Override
     public OutputStream openOutputStream() {
         if (outputStream == null) throw new IllegalStateException("Output stream is not available for source files.");
-        return outputStream;  // Return the byte output stream if it's a bytecode file
+        return outputStream;
     }
 
     /**
@@ -88,7 +82,7 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
      * @return The bytecode as a byte array, or null if it's a source file
      */
     public byte[] getCompiledBytes() {
-        return outputStream != null ? outputStream.toByteArray() : null;  // Return bytecode if available
+        return outputStream != null ? outputStream.toByteArray() : null;
     }
 
     /**
@@ -135,7 +129,7 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
             for (Map.Entry<String, MemoryJavaFile> entry : compiledClasses.entrySet()) {
                 byteMap.put(entry.getKey(), entry.getValue().getCompiledBytes());  // Store compiled bytecode
             }
-            return byteMap;  // Return the map of bytecode
+            return byteMap;
         }
     }
 }

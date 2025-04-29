@@ -2,6 +2,7 @@ package at.jku.dke.task_app.jdbc.evaluation;
 
 import at.jku.dke.etutor.task_app.dto.CriterionDto;
 import at.jku.dke.etutor.task_app.dto.GradingDto;
+import at.jku.dke.etutor.task_app.dto.SubmissionMode;
 import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
 import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
 import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
@@ -74,11 +75,11 @@ public class EvaluationService {
             //error = ex;
         }
 
-        System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
+        //System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
         String[] tables = Arrays.stream(task.getTables().split(",")).map(String::trim).toArray(String[]::new);
         //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
         //System.out.println("GroupSetting: " + task.getTaskGroup().getSchema());
-        System.out.println("Mode: " + submission.mode());
+        //System.out.println("Mode: " + submission.mode());
 
         //***  TEST DATA ***///
         String studentInput = Solutions.studentInput;
@@ -92,26 +93,41 @@ public class EvaluationService {
 
         // evaluate and grade
         switch (submission.mode()) {
+
             case RUN: {
-                // Nur Syntaxcheck im RUN-Modus
-                testResult = new Result();
-                boolean success = new AssessmentFunctions().checkSyntax(studentInput, testResult);
+                String createStatements = task.getTaskGroup().getCreateStatements();
+                String insertStatements = task.getTaskGroup().getInsertStatementsDiagnose();
+                String dbSchema = createStatements + ";" + insertStatements;
+
+                testResult = AssessmentService.assessTask(studentInput,dbSchema , "", tables, false);
+                // Syntaxcheck vor Ausführung
+                //testResult = new Result();
+                boolean syntaxOk = new AssessmentFunctions().checkSyntax(studentInput, testResult);
 
                 criteria.add(new CriterionDto(
                     messageSource.getMessage("criterium.syntax", null, locale),
                     null,
-                    success,
+                    syntaxOk,
                     messageSource.getMessage(
-                        success ? "criterium.syntax.valid" : "criterium.syntax.invalid",
+                        syntaxOk ? "criterium.syntax.valid" : "criterium.syntax.invalid",
                         null,
                         locale
-                    ) + (testResult.getSyntaxError() != null ? ": " + testResult.getSyntaxError() : "")
+                    ) + (syntaxOk ? "" : ": " + testResult.getSyntaxError())
                 ));
+                if (!syntaxOk) {
+                    feedback = messageSource.getMessage("incorrect", null, locale);
+                    return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
+                }
+                feedback = "";
+                if (feedbackLevel >= 2) {
+                    feedback += "<br/><br/><strong>Output:</strong><br/>";
+                    feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
+                }
 
-                feedback = messageSource.getMessage(success ? "correct" : "incorrect", null, locale);
-
-                if (success)
-                    points = task.getMaxPoints();
+                if (feedbackLevel >= 3) {
+                    feedback += "<br/><strong>Database State:</strong>";
+                    feedback += renderTableDumps(testResult.getStudentQueryResult());
+                }
 
                 break;
             }
@@ -139,36 +155,13 @@ public class EvaluationService {
                 // Vorbereitung
                 String taskSolution = Solutions.taskSolution;
                 String createStatements = task.getTaskGroup().getCreateStatements();
+
                 String insertStatements = submission.mode().toString().equals("DIAGNOSE")
                     ? task.getTaskGroup().getInsertStatementsDiagnose()
                     : task.getTaskGroup().getInsertStatementsSubmission();
                 String dbSchema = createStatements + ";" + insertStatements;
 
-                testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables);
-
-                //Calculte Points
-                points = task.getMaxPoints();
-
-                if (!Boolean.TRUE.equals(testResult.getSyntaxResult())) {
-                    points = BigDecimal.ZERO;
-                } else {
-                    if (task.isCheckAutocommit() && !Boolean.TRUE.equals(testResult.getAutoCommitResult()))
-                        points = points.subtract(BigDecimal.valueOf(penaltyAutocommit));
-
-                    if (!Boolean.TRUE.equals(testResult.getOutputComparisionResult()))
-                        points = points.subtract(BigDecimal.valueOf(penaltyOutput)
-                            .multiply(BigDecimal.valueOf(testResult.getMissingOutputs().size() + testResult.getSuperfluousOutputs().size())));
-
-                    if (!Boolean.TRUE.equals(testResult.getDatabaseResult()))
-                        points = points.subtract(BigDecimal.valueOf(penaltyDatabase)
-                            .multiply(BigDecimal.valueOf(testResult.getMissingTuples().size() + testResult.getSuperfluousTuples().size())));
-
-                    if (!Boolean.TRUE.equals(testResult.getExceptionResult()))
-                        points = points.subtract(BigDecimal.valueOf(penaltyException));
-
-                    if (points.compareTo(BigDecimal.ZERO) < 0)
-                        points = BigDecimal.ZERO;
-                }
+                testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables, true);
 
                 if (testResult == null) throw new RuntimeException("Assessment failed – result is null");
 
@@ -197,8 +190,35 @@ public class EvaluationService {
                     feedback += "<br/><strong>Database State:</strong>";
                     feedback += renderTableDumps(testResult.getStudentQueryResult());
                 }
+                //Calculte Points
+
+                if (submission.mode() == SubmissionMode.SUBMIT){
+                    points = task.getMaxPoints();
+
+                    if (!Boolean.TRUE.equals(testResult.getSyntaxResult())) {
+                        points = BigDecimal.ZERO;
+                    } else {
+                        if (task.isCheckAutocommit() && !Boolean.TRUE.equals(testResult.getAutoCommitResult()))
+                            points = points.subtract(BigDecimal.valueOf(penaltyAutocommit));
+
+                        if (!Boolean.TRUE.equals(testResult.getOutputComparisionResult()))
+                            points = points.subtract(BigDecimal.valueOf(penaltyOutput)
+                                .multiply(BigDecimal.valueOf(testResult.getMissingOutputs().size() + testResult.getSuperfluousOutputs().size())));
+
+                        if (!Boolean.TRUE.equals(testResult.getDatabaseResult()))
+                            points = points.subtract(BigDecimal.valueOf(penaltyDatabase)
+                                .multiply(BigDecimal.valueOf(testResult.getMissingTuples().size() + testResult.getSuperfluousTuples().size())));
+
+                        if (!Boolean.TRUE.equals(testResult.getExceptionResult()))
+                            points = points.subtract(BigDecimal.valueOf(penaltyException));
+
+                        if (points.compareTo(BigDecimal.ZERO) < 0)
+                            points = BigDecimal.ZERO;
+                    }
+                }
 
                 if (allPassed) points = task.getMaxPoints();
+
                 break;
             }
 
@@ -317,54 +337,10 @@ public class EvaluationService {
         return html.toString();
     }
 
-    /*
-    private String studentQueryResultToHtml(String queryResult) {
-        StringBuilder html = new StringBuilder();
-
-        String[] lines = queryResult.split("\n");
-        boolean inTable = false;
-        boolean headerParsed = false;
-
-        for (String line : lines) {
-            line = line.trim();
-
-            if (line.startsWith("Table:")) {
-                if (inTable) html.append("</tbody></table>");
-                html.append("<br/>").append(line).append("<br/>");
-                html.append("<table border='1' style='margin:8px 0;'>");
-                headerParsed = false;
-                inTable = true;
-                continue;
-            }
-
-            if (line.isEmpty() || line.startsWith("---")) {
-                continue;
-            }
-
-            String[] parts = line.split("\\|");
-            if (parts.length == 0) continue;
-
-            html.append("<tr>");
-            for (String part : parts) {
-                html.append(headerParsed ? "<td>" : "<th>")
-                    .append(part.trim())
-                    .append(headerParsed ? "</td>" : "</th>");
-            }
-            html.append("</tr>");
-
-            if (!headerParsed) {
-                headerParsed = true;
-                html.append("<tbody>");
-            }
-        }
-        if (inTable) html.append("</tbody></table>");
-
-        return html.toString();
-    }
-*/
     private String renderTableDumps(List<TableDump> dumps) {
         StringBuilder html = new StringBuilder();
 
+        if (dumps == null) return "<p>No tables found</p>";
         for (TableDump dump : dumps) {
             html.append("<br/><b>Table: ").append(dump.tableName()).append("</b><br/>");
             html.append("<table border='1' style='border-collapse: collapse;'>");
@@ -383,7 +359,7 @@ public class EvaluationService {
                 html.append("</tr>");
             }
 
-            html.append("</table><br/>");
+            html.append("</table>");
         }
 
         return html.toString();

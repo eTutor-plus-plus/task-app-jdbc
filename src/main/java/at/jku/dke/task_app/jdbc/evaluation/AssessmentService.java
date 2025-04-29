@@ -29,24 +29,25 @@ public class AssessmentService {
      * @param taskSolution The reference solution for comparison
      * @return A Result object containing evaluation results, including syntax, output, database state, and exception handling
      */
-    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables) {
-        long startTimestamp = System.currentTimeMillis();
+    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables, boolean analyze){
+        //long startTimestamp = System.currentTimeMillis();
+        DriverManager.setLoginTimeout(5);
         Result evalResult = new Result();
         AssessmentFunctions assessment = new AssessmentFunctions();
-        String studentDbUrl = "jdbc:h2:mem:student_db;DB_CLOSE_DELAY=-1;MODE=Oracle";
-        String solutionDbUrl = "jdbc:h2:mem:solution_db;DB_CLOSE_DELAY=-1;MODE=Oracle";
+        String dbId = UUID.randomUUID().toString().replace("-", "_");
+        String studentDbUrl = "jdbc:h2:mem:student_" + dbId + ";DB_CLOSE_DELAY=-1;MODE=Oracle";
+        String solutionDbUrl = "jdbc:h2:mem:solution_" + dbId + ";DB_CLOSE_DELAY=-1;MODE=Oracle";
 
         // 1. Syntax Check
         if (!assessment.checkSyntax(studentInput, evalResult)) {
             System.out.println(evalResult.getSyntaxError());
-            System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
+            //System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
             return evalResult;
         }
 
         evalResult.setSyntaxResult(true);
         evalResult.setSyntaxMessage("Syntax Correct");
         try {
-
             // 2. Compile and integrate student and solution code into templates
             ClassLoader classLoader = AssessmentService.class.getClassLoader();
             InputStream stream = classLoader.getResourceAsStream("Template.java");
@@ -66,12 +67,21 @@ public class AssessmentService {
             Map<String, byte[]> compiledStudentClasses = compileJavaInMemory("at.jku.dke.task_app.jdbc.TemplateStudent", integratedStudent);
             Map<String, byte[]> compiledSolutionClasses = compileJavaInMemory("at.jku.dke.task_app.jdbc.TemplateSolution", integratedSolution);
 
+            if (!analyze) {
+                // Nur Syntax prüfen und ausführen. Keine Bewertung
+                resetDatabase(studentDbUrl, dbSchema);
+                String studentOutput = CodeRunner.runCode("at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses);
+                evalResult.setStudentOutput(studentOutput);
+                evalResult.setStudentQueryResult(assessment.getDatabaseContent(studentDbUrl, tables));
+                return evalResult;
+            }
+
             // 4. Check for disabled autocommit in student's code
             // Remove comments and whitespaces
-                        String cleaned = studentInput
-                            .replaceAll("(?s)/\\*.*?\\*/", "")
-                            .replaceAll("(?m)^\\s*//.*$", "")
-                            .replaceAll("\\s+", " ");
+            String cleaned = studentInput
+                .replaceAll("(?s)/\\*.*?\\*/", "")
+                .replaceAll("(?m)^\\s*//.*$", "")
+                .replaceAll("\\s+", " ");
 
             // Find position of setAutoCommit(false)
             int autoCommitIndex = cleaned.indexOf(".setAutoCommit(false);");
@@ -80,7 +90,7 @@ public class AssessmentService {
             boolean hasWriteBefore = false;
             if (autoCommitIndex > 0) {
                 String before = cleaned.substring(0, autoCommitIndex).toLowerCase();
-                hasWriteBefore = before.contains("executeupdate") || before.contains("insert") || before.contains("update") || before.contains("delete");
+                hasWriteBefore = before.contains("insert") || before.contains("update") || before.contains("delete");
             }
             boolean disabledAutoCommit = autoCommitIndex != -1 && !hasWriteBefore;
 
@@ -105,7 +115,7 @@ public class AssessmentService {
             String solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
-            System.out.println("Solution: " + solutionOutput);
+            //System.out.println("Solution: " + solutionOutput);
             boolean outputRes = assessment.checkOutput(studentOutput, solutionOutput);
 
             evalResult.setStudentOutput(studentOutput);
@@ -158,14 +168,12 @@ public class AssessmentService {
                     "Extra: " + evalResult.getSuperfluousTuples());
             }
 
-
-
             // 8. Exception Handling Test
+
             String integratedStudentFaulty = template
                 .replace("/*<StudentInput> */", studentInput)
                 .replace("public class Template", "public class TemplateStudentFaulty")
-                .replace("/*<DB_URL>*/", "jdbc:h2:tcp://nonexistentdb:4040/mem:test");
-
+                .replace("/*<DB_URL>*/", "jdbc:h2:tcp://10.255.255.1:4040/mem:test");
 
             Map<String, byte[]> compiledFaultyClasses = compileJavaInMemory(
                 "at.jku.dke.task_app.jdbc.TemplateStudentFaulty",
@@ -177,6 +185,7 @@ public class AssessmentService {
             );
 
             System.out.println("Exception Test Output:\n" + faultyOutput);
+
 
             // 9. Get exception handling result
             if (faultyOutput.contains("DB ERROR")) {
@@ -196,7 +205,7 @@ public class AssessmentService {
                 evalResult.setExceptionMessage("Unrecognized");
             }
 
-            System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
+            //System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
             return evalResult;
         } catch (Exception e) {
             e.printStackTrace();
