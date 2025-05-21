@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A custom implementation of 'JavaFileObject' that represents a file in memory.
+ * Custom implementation of 'JavaFileObject' that represents a file in memory.
  * This class is used for storing Java source code as well as bytecode during
  * the compilation process in memory.
  */
@@ -79,7 +79,7 @@ public class MemoryJavaFile extends SimpleJavaFileObject {
      * Returns the compiled bytecode as a byte array.
      * This method is only meaningful for bytecode files.
      *
-     * @return The bytecode as a byte array, or null if it's a source file
+     * @return The bytecode as a byte array or null if it's a source file
      */
     public byte[] getCompiledBytes() {
         return outputStream != null ? outputStream.toByteArray() : null;

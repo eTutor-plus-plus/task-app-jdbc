@@ -32,7 +32,8 @@ public class TaskController extends BaseTaskController<JDBCTask, JDBCTaskDto, Mo
             task.getExceptionHandlingPenalty(),
             task.getWrongDbContentPenalty(),
             task.isCheckAutocommit(),
-            task.getAutocommitPenalty()
+            task.getAutocommitPenalty(),
+            task.getVariables()
         );
     }
 

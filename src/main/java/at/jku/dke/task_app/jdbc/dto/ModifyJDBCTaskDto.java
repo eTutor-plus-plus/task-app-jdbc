@@ -16,6 +16,7 @@ public record ModifyJDBCTaskDto(
     @NotNull int exceptionHandlingPenalty,
     @NotNull int wrongDbContentPenalty,
     @NotNull boolean checkAutocommit,
-    Integer autocommitPenalty
+    Integer autocommitPenalty,
+    String variables
 ) implements Serializable {
 }

@@ -7,7 +7,6 @@ import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
 import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
 import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -16,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Service that evaluates submissions.
@@ -30,7 +27,7 @@ public class EvaluationService {
     private final MessageSource messageSource;
 
     /**
-     * Creates a new instance of class {@link EvaluationService}.
+     * Creates a new instance of class EvaluationService
      *
      * @param taskRepository The task repository.
      * @param messageSource  The message source.
@@ -41,68 +38,88 @@ public class EvaluationService {
     }
 
     /**
-     * Evaluates a input.
+     * Evaluates an input.
      *
      * @param submission The input to evaluate.
      * @return The evaluation result.
      */
     @Transactional
     public GradingDto evaluate(SubmitSubmissionDto<JDBCSubmissionDto> submission) {
-        // find task
+        // Find task
         var task = this.taskRepository.findById(submission.taskId()).orElseThrow(() -> new EntityNotFoundException("Task " + submission.taskId() + " does not exist."));
 
-
-        // evaluate input
+        // Evaluate input
         LOG.info("Evaluating input for task {} with mode {} and feedback-level {}", submission.taskId(), submission.mode(), submission.feedbackLevel());
         Locale locale = Locale.of(submission.language());
         BigDecimal points = BigDecimal.ZERO;
         List<CriterionDto> criteria = new ArrayList<>();
         String feedback = "";
-        Boolean allPassed = false;
+        boolean allPassed = false;
         int feedbackLevel = submission.feedbackLevel();
 
+        //Penalties
         int penaltyAutocommit = task.getAutocommitPenalty() != null ? task.getAutocommitPenalty() : 0;
         int penaltyOutput = task.getWrongOutputPenalty() != null ? task.getWrongOutputPenalty() : 0;
         int penaltyException = task.getExceptionHandlingPenalty() != null ? task.getExceptionHandlingPenalty() : 0;
         int penaltyDatabase = task.getWrongDbContentPenalty() != null ? task.getWrongDbContentPenalty() : 0;
 
-        //Unparsed
+        //Deductions
+        String deductionAutocommit = "0";
+        String deductionOutput = "0";
+        String deductionException = "0";
+        String deductionDatabase = "0";
+
+        //Variables
+        String variables = task.getVariables() != null ? task.getVariables() : "";
+
         String inputString = "";
         try {
             inputString = submission.submission().input();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            //error = ex;
         }
-
-        //System.out.println("Input: " + inputString + ", " + inputString.getClass().getSimpleName());
         String[] tables = Arrays.stream(task.getTables().split(",")).map(String::trim).toArray(String[]::new);
-        //System.out.println("Solution: " + task.getSolution() + ", " + task.getSolution().getClass().getSimpleName() );
-        //System.out.println("GroupSetting: " + task.getTaskGroup().getSchema());
-        //System.out.println("Mode: " + submission.mode());
 
         //***  TEST DATA ***///
-        String studentInput = Solutions.studentInput;
-        //String studentInput = Solutions.studentInputNoExceptionHandling;
-        //String studentInput = Solutions.studentInputWrongSyntax;
-        //String studentInput = Solutions.studentInputAutocommitNotDisabled;
-        //String studentInput = Solutions.studentInputTooFewDbRows;
-        //String studentInput = Solutions.studentInputTooManyDbRows;
+        String studentInput = "";
+        switch (inputString){
+            case "1":
+                studentInput = Solutions.studentInput;
+                break;
+            case "2":
+                studentInput = Solutions.studentInputNoExceptionHandling;
+                break;
+            case "3":
+                studentInput = Solutions.studentInputWrongSyntax;
+                break;
+            case "4":
+                studentInput = Solutions.studentInputAutocommitNotDisabled;
+                break;
+            case "5":
+                studentInput = Solutions.studentInputTooFewDbRows;
+                break;
+            case "6":
+                studentInput = Solutions.studentInputTooManyDbRows;
+                break;
+            default:
+                studentInput = Solutions.studentInput;
+                break;
+        }
+
 
         Result testResult = null;
 
-        // evaluate and grade
+        // Evaluate and Grade
         switch (submission.mode()) {
-
+            //RUN Mode => Only syntax check
             case RUN: {
                 String createStatements = task.getTaskGroup().getCreateStatements();
                 String insertStatements = task.getTaskGroup().getInsertStatementsDiagnose();
                 String dbSchema = createStatements + ";" + insertStatements;
 
-                testResult = AssessmentService.assessTask(studentInput,dbSchema , "", tables, false);
-                // Syntaxcheck vor Ausführung
-                //testResult = new Result();
-                boolean syntaxOk = new AssessmentFunctions().checkSyntax(studentInput, testResult);
+                testResult = AssessmentService.assessTask(studentInput,dbSchema , "", tables, variables, false);
+                assert testResult != null;
+                boolean syntaxOk = Boolean.TRUE.equals(testResult.getSyntaxResult());
 
                 criteria.add(new CriterionDto(
                     messageSource.getMessage("criterium.syntax", null, locale),
@@ -119,14 +136,23 @@ public class EvaluationService {
                     return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
                 }
                 feedback = "";
-                if (feedbackLevel >= 2) {
-                    feedback += "<br/><br/><strong>Output:</strong><br/>";
-                    feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
-                }
-
+                //Database content before executing Students' code
                 if (feedbackLevel >= 3) {
-                    feedback += "<br/><strong>Database State:</strong>";
+                    feedback += "<br/><br/><details><summary><strong>" + messageSource.getMessage("text.databasebefore", new Object[]{}, locale) + "</strong></summary>";
+                    feedback += renderTableDumps(testResult.getDatabaseBefore());
+                    feedback += "</details><br/><hr>";
+                }
+                //Output
+                if (feedbackLevel >= 2) {
+                    feedback += "<br/><strong>" + messageSource.getMessage("text.output", new Object[]{}, locale) + "</strong><br/><br/>";
+                    feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
+                    feedback += "<br/>";
+                }
+                //Database State
+                if (feedbackLevel >= 3) {
+                    feedback += "<hr><br/><details><summary style='cursor: pointer;'><strong>" + messageSource.getMessage("text.databaseafter", new Object[]{}, locale) + "</strong></summary>";
                     feedback += renderTableDumps(testResult.getStudentQueryResult());
+                    feedback += "</details><br/>";
                 }
 
                 break;
@@ -135,7 +161,7 @@ public class EvaluationService {
             case DIAGNOSE, SUBMIT: {
                 // Syntaxcheck vor Ausführung
                 testResult = new Result();
-                boolean syntaxOk = new AssessmentFunctions().checkSyntax(studentInput, testResult);
+                boolean syntaxOk = new AssessmentFunctions().checkSyntax(studentInput, variables, testResult);
 
                 criteria.add(new CriterionDto(
                     messageSource.getMessage("criterium.syntax", null, locale),
@@ -161,63 +187,85 @@ public class EvaluationService {
                     : task.getTaskGroup().getInsertStatementsSubmission();
                 String dbSchema = createStatements + ";" + insertStatements;
 
-                testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables, true);
+                testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables, variables, true);
 
                 if (testResult == null) throw new RuntimeException("Assessment failed – result is null");
 
                 // Ergebnisbewertung nach Feedbacklevel
                 if (feedbackLevel >= 1) {
                     if(task.isCheckAutocommit()) criteria.add(makeCriterion("criterium.autocommit", testResult.getAutoCommitResult(), testResult.getAutoCommitMessage(), locale, feedbackLevel, testResult));
-                    criteria.add(makeCriterion("criterium.output", testResult.getOutputComparisionResult(), testResult.getOutputComparisionMessage(), locale, feedbackLevel, testResult));
+                    criteria.add(makeCriterion("criterium.output", testResult.getOutputComparisonResult(), testResult.getOutputComparisonMessage(), locale, feedbackLevel, testResult));
                     criteria.add(makeCriterion("criterium.database", testResult.getDatabaseResult(), testResult.getDatabaseMessage(), locale, feedbackLevel, testResult));
                     criteria.add(makeCriterion("criterium.exception", testResult.getExceptionResult(), testResult.getExceptionMessage(), locale, feedbackLevel, testResult));
                 }
 
                 allPassed = Boolean.TRUE.equals(testResult.getSyntaxResult())
                     && (task.isCheckAutocommit() ? Boolean.TRUE.equals(testResult.getAutoCommitResult()) : Boolean.TRUE)
-                    && Boolean.TRUE.equals(testResult.getOutputComparisionResult())
+                    && Boolean.TRUE.equals(testResult.getOutputComparisonResult())
                     && Boolean.TRUE.equals(testResult.getDatabaseResult())
                     && Boolean.TRUE.equals(testResult.getExceptionResult());
 
                 feedback = messageSource.getMessage(allPassed ? "correct" : "incorrect", null, locale);
 
-                //if (feedbackLevel >= 3) feedback += "\n" + testResult.getStudentQueryResult();
-                if (feedbackLevel >= 2) {
-                    feedback += "<br/><br/><strong>Output:</strong><br/>";
-                    feedback += testResult.getStudentOutput().replaceAll("\n", "<br/>");
-                }
+                //Database content before executing Students' code
                 if (feedbackLevel >= 3) {
-                    feedback += "<br/><strong>Database State:</strong>";
-                    feedback += renderTableDumps(testResult.getStudentQueryResult());
+                    feedback += "<br/><br/><details><summary><strong>" + messageSource.getMessage("text.databasebefore", new Object[]{}, locale) + "</strong></summary>";
+                    feedback += renderTableDumps(testResult.getDatabaseBefore());
+                    feedback += "</details><br/><hr>";
                 }
-                //Calculte Points
+                //Output
+                if (feedbackLevel >= 2) {
+                    feedback += "<br/><strong>" + messageSource.getMessage("text.output", new Object[]{}, locale) + "</strong><br/><br/>";
+                    feedback += testResult.getStudentOutput().replaceAll("\n", "<br/>");
+                    feedback += "<br/>";
+                }
+                //Database State
+                if (feedbackLevel >= 3) {
+                    feedback += "<hr><br/><details><summary style='cursor: pointer;'><strong>" + messageSource.getMessage("text.databaseafter", new Object[]{}, locale) + "</strong></summary>";
+                    feedback += renderTableDumps(testResult.getStudentQueryResult());
+                    feedback += "</details><br/>";
+                }
+                //Calculate Points
 
-                if (submission.mode() == SubmissionMode.SUBMIT){
+                if (submission.mode() == SubmissionMode.SUBMIT || submission.mode() == SubmissionMode.DIAGNOSE) {
                     points = task.getMaxPoints();
 
                     if (!Boolean.TRUE.equals(testResult.getSyntaxResult())) {
                         points = BigDecimal.ZERO;
                     } else {
-                        if (task.isCheckAutocommit() && !Boolean.TRUE.equals(testResult.getAutoCommitResult()))
-                            points = points.subtract(BigDecimal.valueOf(penaltyAutocommit));
+                        if (task.isCheckAutocommit() && !Boolean.TRUE.equals(testResult.getAutoCommitResult())) {
+                            BigDecimal deductionPoints = BigDecimal.valueOf(penaltyAutocommit);
+                            deductionAutocommit = messageSource.getMessage("deduction.autocommit", new Object[]{deductionPoints}, locale);
+                            points = points.subtract(deductionPoints);
+                        }
 
-                        if (!Boolean.TRUE.equals(testResult.getOutputComparisionResult()))
-                            points = points.subtract(BigDecimal.valueOf(penaltyOutput)
-                                .multiply(BigDecimal.valueOf(testResult.getMissingOutputs().size() + testResult.getSuperfluousOutputs().size())));
+                        if (!Boolean.TRUE.equals(testResult.getOutputComparisonResult())) {
+                            BigDecimal deductionPoints = BigDecimal.valueOf(penaltyOutput);
+                            deductionOutput = messageSource.getMessage("deduction.output", new Object[]{deductionPoints}, locale);
+                            points = points.subtract(deductionPoints);
+                        }
 
-                        if (!Boolean.TRUE.equals(testResult.getDatabaseResult()))
-                            points = points.subtract(BigDecimal.valueOf(penaltyDatabase)
-                                .multiply(BigDecimal.valueOf(testResult.getMissingTuples().size() + testResult.getSuperfluousTuples().size())));
+                        if (!Boolean.TRUE.equals(testResult.getDatabaseResult())) {
+                            Set<String> affectedTables = new HashSet<>();
+                            if (testResult.getMissingTuples() != null)
+                                testResult.getMissingTuples().forEach(tuple -> affectedTables.add(tuple.getFirst()));
+                            if (testResult.getSuperfluousTuples() != null)
+                                testResult.getSuperfluousTuples().forEach(tuple -> affectedTables.add(tuple.getFirst()));
 
-                        if (!Boolean.TRUE.equals(testResult.getExceptionResult()))
-                            points = points.subtract(BigDecimal.valueOf(penaltyException));
+                            int tablePenaltyCount = Math.max(1, affectedTables.size());
+                            BigDecimal deductionPoints = BigDecimal.valueOf(penaltyDatabase)
+                                .multiply(BigDecimal.valueOf(tablePenaltyCount));
+                            deductionDatabase = messageSource.getMessage("deduction.database", new Object[]{deductionPoints, tablePenaltyCount}, locale);
+                            points = points.subtract(deductionPoints);
+                        }
 
-                        if (points.compareTo(BigDecimal.ZERO) < 0)
-                            points = BigDecimal.ZERO;
+                        if (!Boolean.TRUE.equals(testResult.getExceptionResult())) {
+                            BigDecimal deductionPoints = BigDecimal.valueOf(penaltyException);
+                            deductionException = messageSource.getMessage("deduction.exception", new Object[]{deductionPoints}, locale);
+                            points = points.subtract(deductionPoints);
+                        }
                     }
                 }
-
-                if (allPassed) points = task.getMaxPoints();
 
                 break;
             }
@@ -226,6 +274,37 @@ public class EvaluationService {
         }
 
 
+        if (feedbackLevel >= 3 && submission.mode() == SubmissionMode.SUBMIT) {
+            feedback += "<hr><br/><strong>" + messageSource.getMessage("deduction.heading", null, locale) + "</strong>";
+
+            boolean anyDeduction = false;
+            StringBuilder table = new StringBuilder("<table>");
+
+            if (!"0".equals(deductionAutocommit)) {
+                table.append("<tr><td>Autocommit: </td><td>").append(deductionAutocommit).append("</td></tr>");
+                anyDeduction = true;
+            }
+            if (!"0".equals(deductionOutput)) {
+                table.append("<tr><td>Output: </td><td>").append(deductionOutput).append("</td></tr>");
+                anyDeduction = true;
+            }
+            if (!"0".equals(deductionDatabase)) {
+                table.append("<tr><td>Database: </td><td>").append(deductionDatabase).append("</td></tr>");
+                anyDeduction = true;
+            }
+            if (!"0".equals(deductionException)) {
+                table.append("<tr><td>Exception handling: </td><td>").append(deductionException).append("</td></tr>");
+                anyDeduction = true;
+            }
+
+            table.append("</table>");
+
+            if (anyDeduction) {
+                feedback += table.toString();
+            } else {
+                feedback += "<p>None</p><br/>";
+            }
+        }
 
         return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
     }
@@ -248,7 +327,7 @@ public class EvaluationService {
                 if (level == 2) {
                     message = "";
                     if (!missing.isEmpty()) {
-                        message += message = messageSource.getMessage("criterium.database.missingCount", new Object[]{missing.size()}, locale);
+                        message += messageSource.getMessage("criterium.database.missingCount", new Object[]{missing.size()}, locale);
                     }
                     message += "";
                     if (!extra.isEmpty()) {

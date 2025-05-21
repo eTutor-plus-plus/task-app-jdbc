@@ -1,7 +1,6 @@
 package at.jku.dke.task_app.jdbc.dto;
 
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serializable;
 
 /**
@@ -16,5 +15,6 @@ public record JDBCTaskDto(
     @NotNull int exceptionHandlingPenalty,
     @NotNull int wrongDbContentPenalty,
     @NotNull boolean checkAutocommit,
-    Integer autocommitPenalty
-) implements Serializable {}
+    Integer autocommitPenalty,
+    String variables
+    ) implements Serializable {}

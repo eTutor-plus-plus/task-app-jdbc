@@ -39,6 +39,9 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
     @Column(name = "autocommit_penalty")
     private Integer autocommitPenalty;
 
+    @Column(name = "variables")
+    private String variables;
+
     /**
      * Creates a new instance of class {@link JDBCTask}.
      */
@@ -64,11 +67,13 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param taskGroup The task group.
      * @param solution  The solution.
      * @param tables    The table list.
+     * @param variables Optional variables for the task.
      */
-    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables) {
+    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
         super(maxPoints, status, taskGroup);
         this.solution = solution;
         this.tables = tables;
+        this.variables = variables;
     }
 
     /**
@@ -80,11 +85,13 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param taskGroup The task group.
      * @param solution  The solution.
      * @param tables    The table list.
+     * @param variables Optional variables for the task.
      */
-    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables) {
+    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
         super(id, maxPoints, status, taskGroup);
         this.solution = solution;
         this.tables = tables;
+        this.variables = variables;
     }
 
     public String getSolution() {
@@ -142,4 +149,8 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
     public void setAutocommitPenalty(Integer autocommitPenalty) {
         this.autocommitPenalty = autocommitPenalty;
     }
+
+    public String getVariables() {return variables;}
+
+    public void setVariables(String variables) {this.variables = variables;}
 }

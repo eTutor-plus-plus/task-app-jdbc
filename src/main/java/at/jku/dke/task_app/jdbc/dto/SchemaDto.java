@@ -3,7 +3,7 @@ package at.jku.dke.task_app.jdbc.dto;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Contains a minimum and a maximum number.
+ * Contains the Database schema of the task.
  *
  * @param schema The database schema for a task.
  */

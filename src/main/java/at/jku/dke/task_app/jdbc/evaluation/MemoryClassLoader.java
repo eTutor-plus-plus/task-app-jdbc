@@ -9,23 +9,23 @@ import java.util.Map;
  */
 public class MemoryClassLoader extends ClassLoader {
 
-    // Map that holds the class name (key) and the corresponding class bytecode (value)
+    // Map that holds the class name (key) and the corresponding class bytecode
     private final Map<String, byte[]> classes;
 
     /**
      * Constructor that accepts a map of compiled class bytecode.
      *
-     * @param classes A map where the key is the class name (e.g., "com.example.sampleClass") and the value is the compiled bytecode.
+     * @param classes A map where the key is the class name (e.g., "com.michael.TestClass") and the value is the compiled bytecode.
      */
     public MemoryClassLoader(Map<String, byte[]> classes) {
-        // Calling the parent class (ClassLoader) constructor and passing the default class loader (for fallback purposes)
+        // Calling the parent class (ClassLoader) constructor and passing the default class loader
         super(CodeRunner.class.getClassLoader());
         this.classes = classes;
     }
 
     /**
      * This method is called to find and load a class.
-     * If the class is found in the 'classes' map, it is defined from memory; otherwise, it delegates the search to the parent class loader.
+     * If the class is found in the 'classes' map, it is defined from memory. If not, it delegates the search to the parent class loader.
      *
      * @param name The name of the class to be loaded (e.g., "com.michael.TestClass").
      * @return The Class object for the requested class.

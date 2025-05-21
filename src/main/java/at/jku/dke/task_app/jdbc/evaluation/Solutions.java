@@ -10,8 +10,6 @@ public class Solutions {
     // Correct Input
     public static String studentInput = "try (Connection con = ds.getConnection()) {\n" +
             "    con.setAutoCommit(false);\n" +
-            "    int book = 1;\n" +
-            "    int user = 99;\n" +
             "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
             "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
             "        selectStmt.setInt(1, book);\n" +
@@ -55,8 +53,6 @@ public class Solutions {
     // Autocommit is not disabled
     public static String studentInputAutocommitNotDisabled = "try (Connection con = ds.getConnection()) {\n" +
             "    //con.setAutoCommit(false);\n" +
-            "    int book = 1;\n" +
-            "    int user = 99;\n" +
             "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
             "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
             "        selectStmt.setInt(1, book);\n" +
@@ -100,8 +96,6 @@ public class Solutions {
     // No Exception Handling for Connection con = ds.getConnection()
     public static String studentInputNoExceptionHandling = "    Connection con = ds.getConnection();\n" +
             "    con.setAutoCommit(false);\n" +
-            "    int book = 1;\n" +
-            "    int user = 99;\n" +
             "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
             "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
             "        selectStmt.setInt(1, book);\n" +
@@ -139,11 +133,10 @@ public class Solutions {
             "        }\n" +
             "    }\n";
 
-    // Missing ; after ds.getConnection()
-    public static String studentInputWrongSyntax = "    Connection con = ds.getConnection();\n" +
+    // Missing ; after ResultSet rs = selectStmt.executeQuery()
+    public static String studentInputWrongSyntax =
+            "    Connection con = ds.getConnection();\n" +
             "    con.setAutoCommit(false);\n" +
-            "    int book = 1;\n" +
-            "    int user = 99;\n" +
             "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
             "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
             "        selectStmt.setInt(1, book);\n" +
@@ -183,8 +176,6 @@ public class Solutions {
 
     public static String studentInputTooManyDbRows = "try (Connection con = ds.getConnection()) {\n" +
         "    con.setAutoCommit(false);\n" +
-        "    int book = 1;\n" +
-        "    int user = 99;\n" +
         "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
         "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
         "        selectStmt.setInt(1, book);\n" +
@@ -228,8 +219,6 @@ public class Solutions {
 
     public static String studentInputTooFewDbRows = "try (Connection con = ds.getConnection()) {\n" +
         "    con.setAutoCommit(false);\n" +
-        "    int book = 1;\n" +
-        "    int user = 99;\n" +
         "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
         "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
         "        selectStmt.setInt(1, book);\n" +
@@ -261,8 +250,6 @@ public class Solutions {
 
     public static String taskSolution = "try (Connection con = ds.getConnection()) {\n" +
             "    con.setAutoCommit(false);\n" +
-            "    int book = 1;\n" +
-            "    int user = 99;\n" +
             "    String select = \"SELECT * FROM books WHERE book_id = ? AND status = 'available'\";\n" +
             "    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n" +
             "        selectStmt.setInt(1, book);\n" +

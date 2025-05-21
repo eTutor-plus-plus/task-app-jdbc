@@ -1,0 +1,161 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MemoryClassLoader</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+</div>
+
+<h1>Coverage Summary for Class: MemoryClassLoader (at.jku.dke.task_app.jdbc.evaluation)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MemoryClassLoader</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+&nbsp;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;/**
+&nbsp; * Custom class loader that loads classes from a map of byte arrays.
+&nbsp; * This class is used to load classes that have been compiled dynamically and stored in memory.
+&nbsp; * It extends the default &#39;ClassLoader&#39; and overrides the &#39;findClass&#39; method to locate classes in the provided map.
+&nbsp; */
+&nbsp;public class MemoryClassLoader extends ClassLoader {
+&nbsp;
+&nbsp;    // Map that holds the class name (key) and the corresponding class bytecode
+&nbsp;    private final Map&lt;String, byte[]&gt; classes;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructor that accepts a map of compiled class bytecode.
+&nbsp;     *
+&nbsp;     * @param classes A map where the key is the class name (e.g., &quot;com.michael.TestClass&quot;) and the value is the compiled bytecode.
+&nbsp;     */
+&nbsp;    public MemoryClassLoader(Map&lt;String, byte[]&gt; classes) {
+&nbsp;        // Calling the parent class (ClassLoader) constructor and passing the default class loader
+<b class="fc">&nbsp;        super(CodeRunner.class.getClassLoader());</b>
+<b class="fc">&nbsp;        this.classes = classes;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is called to find and load a class.
+&nbsp;     * If the class is found in the &#39;classes&#39; map, it is defined from memory. If not, it delegates the search to the parent class loader.
+&nbsp;     *
+&nbsp;     * @param name The name of the class to be loaded (e.g., &quot;com.michael.TestClass&quot;).
+&nbsp;     * @return The Class object for the requested class.
+&nbsp;     * @throws ClassNotFoundException If the class could not be found.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+&nbsp;        // Try to get the bytecode for the class from the provided map
+<b class="fc">&nbsp;        byte[] bytes = classes.get(name);</b>
+&nbsp;
+&nbsp;        // If the class is not found in the map, delegate the class loading to the parent class loader
+<b class="pc">&nbsp;        if (bytes == null) return super.findClass(name);</b>
+&nbsp;
+&nbsp;        // Define the class from the bytecode and return the Class object
+<b class="fc">&nbsp;        return defineClass(name, bytes, 0, bytes.length);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-20 07:50</div>
+</div>
+</body>
+</html>

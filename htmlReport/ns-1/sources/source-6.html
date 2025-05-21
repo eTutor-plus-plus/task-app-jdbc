@@ -1,0 +1,293 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MemoryJavaFile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+</div>
+
+<h1>Coverage Summary for Class: MemoryJavaFile (at.jku.dke.task_app.jdbc.evaluation)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MemoryJavaFile</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (3/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92,3%
+  </span>
+  <span class="absValue">
+    (12/13)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MemoryJavaFile$FileManagerMap</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    62,5%
+  </span>
+  <span class="absValue">
+    (5/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95,5%
+  </span>
+  <span class="absValue">
+    (21/22)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+&nbsp;
+&nbsp;import javax.tools.JavaFileObject;
+&nbsp;import javax.tools.SimpleJavaFileObject;
+&nbsp;import java.io.ByteArrayOutputStream;
+&nbsp;import java.io.OutputStream;
+&nbsp;import java.net.URI;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;/**
+&nbsp; * Custom implementation of &#39;JavaFileObject&#39; that represents a file in memory.
+&nbsp; * This class is used for storing Java source code as well as bytecode during
+&nbsp; * the compilation process in memory.
+&nbsp; */
+&nbsp;public class MemoryJavaFile extends SimpleJavaFileObject {
+&nbsp;    private final String sourceCode;
+&nbsp;    private final ByteArrayOutputStream outputStream;
+&nbsp;    private final Kind kind;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructor for source code representation.
+&nbsp;     * This constructor is used when the file represents Java source code.
+&nbsp;     *
+&nbsp;     * @param className  The name of the class
+&nbsp;     * @param sourceCode The Java source code to be compiled
+&nbsp;     */
+&nbsp;    public MemoryJavaFile(String className, String sourceCode) {
+&nbsp;        //Unique URI to avoid interplay between the student&#39;s solutions
+<b class="fc">&nbsp;        super(URI.create(&quot;string:///&quot; + className.replace(&#39;.&#39;, &#39;/&#39;) + Kind.SOURCE.extension), Kind.SOURCE);</b>
+<b class="fc">&nbsp;        this.sourceCode = sourceCode;</b>
+<b class="fc">&nbsp;        this.outputStream = null;</b>
+<b class="fc">&nbsp;        this.kind = Kind.SOURCE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructor for bytecode representation.
+&nbsp;     * This constructor is used when the file represents compiled bytecode.
+&nbsp;     *
+&nbsp;     * @param className The fully qualified name of the class
+&nbsp;     * @param kind      The type of file (either source or bytecode)
+&nbsp;     */
+&nbsp;    public MemoryJavaFile(String className, Kind kind) {
+&nbsp;        // Create a unique URI for this file
+<b class="fc">&nbsp;        super(URI.create(&quot;mem:///&quot; + className.replace(&#39;.&#39;, &#39;/&#39;) + kind.extension), kind);</b>
+<b class="fc">&nbsp;        this.outputStream = new ByteArrayOutputStream();</b>
+<b class="fc">&nbsp;        this.sourceCode = null;</b>
+<b class="fc">&nbsp;        this.kind = kind;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the source code content for the file.
+&nbsp;     * This method is only supported for source code files and throws an exception for bytecode files.
+&nbsp;     *
+&nbsp;     * @param ignoreEncodingErrors Ignored in this implementation
+&nbsp;     * @return The source code as a string
+&nbsp;     * @throws UnsupportedOperationException If called on a bytecode file
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+<b class="pc">&nbsp;        if (kind == Kind.SOURCE) return sourceCode;  // Return source code if it&#39;s a source file</b>
+<b class="nc">&nbsp;        throw new UnsupportedOperationException(&quot;getCharContent() not supported for compiled class files&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns an output stream to write the compiled bytecode.
+&nbsp;     * This method is only supported for bytecode files and throws an exception for source code files.
+&nbsp;     *
+&nbsp;     * @return The output stream for bytecode
+&nbsp;     * @throws IllegalStateException If called on a source file
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public OutputStream openOutputStream() {
+<b class="pc">&nbsp;        if (outputStream == null) throw new IllegalStateException(&quot;Output stream is not available for source files.&quot;);</b>
+<b class="fc">&nbsp;        return outputStream;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the compiled bytecode as a byte array.
+&nbsp;     * This method is only meaningful for bytecode files.
+&nbsp;     *
+&nbsp;     * @return The bytecode as a byte array or null if it&#39;s a source file
+&nbsp;     */
+&nbsp;    public byte[] getCompiledBytes() {
+<b class="pc">&nbsp;        return outputStream != null ? outputStream.toByteArray() : null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Helper class to manage the in-memory Java file objects during compilation.
+&nbsp;     * This extends &#39;ForwardingJavaFileManager&#39; to intercept and store compiled class files in memory.
+&nbsp;     */
+&nbsp;    public static class FileManagerMap extends javax.tools.ForwardingJavaFileManager&lt;javax.tools.JavaFileManager&gt; {
+&nbsp;
+&nbsp;        // A map to store compiled class files (key: class name, value: &#39;MemoryJavaFile&#39; representing bytecode)
+<b class="fc">&nbsp;        private final Map&lt;String, MemoryJavaFile&gt; compiledClasses = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Constructor that accepts a standard Java file manager.
+&nbsp;         *
+&nbsp;         * @param fileManager The standard Java file manager to forward calls to when necessary
+&nbsp;         */
+&nbsp;        public FileManagerMap(javax.tools.JavaFileManager fileManager) {
+<b class="fc">&nbsp;            super(fileManager);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Intercepts requests for output Java files during compilation and stores them in memory.
+&nbsp;         *
+&nbsp;         * @param location The location of the file (not used in this implementation)
+&nbsp;         * @param className The name of the class being compiled
+&nbsp;         * @param kind The type of file (source or bytecode)
+&nbsp;         * @param sibling Not used in this implementation
+&nbsp;         * @return The &#39;MemoryJavaFile&#39; to store the class&#39;s bytecode in memory
+&nbsp;         */
+&nbsp;        @Override
+&nbsp;        public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, javax.tools.FileObject sibling) {
+<b class="fc">&nbsp;            MemoryJavaFile file = new MemoryJavaFile(className, kind);  // Create a new &#39;MemoryJavaFile&#39;</b>
+<b class="fc">&nbsp;            compiledClasses.put(className, file);  // Store it in the map by class name</b>
+<b class="fc">&nbsp;            return file;  // Return the memory file object for the compiled class</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Returns a map of all compiled classes with their bytecode.
+&nbsp;         *
+&nbsp;         * @return A map where the key is the class name and the value is the bytecode as a byte array
+&nbsp;         */
+&nbsp;        public Map&lt;String, byte[]&gt; getAllClassBytes() {
+<b class="fc">&nbsp;            Map&lt;String, byte[]&gt; byteMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;            for (Map.Entry&lt;String, MemoryJavaFile&gt; entry : compiledClasses.entrySet()) {</b>
+<b class="fc">&nbsp;                byteMap.put(entry.getKey(), entry.getValue().getCompiledBytes());  // Store compiled bytecode</b>
+&nbsp;            }
+<b class="fc">&nbsp;            return byteMap;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-20 07:50</div>
+</div>
+</body>
+</html>

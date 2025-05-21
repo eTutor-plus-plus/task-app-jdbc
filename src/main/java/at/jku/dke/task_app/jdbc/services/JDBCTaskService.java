@@ -49,7 +49,7 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
         task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
         task.setCheckAutocommit(data.checkAutocommit());
         task.setAutocommitPenalty(data.autocommitPenalty());
-
+        task.setVariables(data.variables());
         return task;
     }
 
@@ -67,6 +67,8 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
         task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
         task.setCheckAutocommit(data.checkAutocommit());
         task.setAutocommitPenalty(data.autocommitPenalty());
+        task.setVariables(data.variables());
+
     }
 
     @Override

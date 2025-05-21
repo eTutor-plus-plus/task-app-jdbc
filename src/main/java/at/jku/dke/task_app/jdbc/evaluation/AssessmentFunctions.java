@@ -1,35 +1,28 @@
 package at.jku.dke.task_app.jdbc.evaluation;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-
 import org.h2.jdbcx.JdbcDataSource;
 
 /**
- * Provides utility functions for dynamically compiling, executing,
- * and verifying student SQL-related Java code using an in-memory H2 database.
- *
- * The class provides methods for:
- * - Syntax checking by compiling generated code
- * - Comparing output from student and solution code
- * - Capturing and comparing database states
+ * This class contains functions used for evaluating a student's JDBC task. It includes methods for:
+ * - Checking syntax correctness
+ * - Comparing the student's output with the reference solution
+ * - Analyzing and comparing the database content between the student's and the solution's code
+ * - Retrieving the content of database tables as tuples
  */
-
 public class AssessmentFunctions {
 
     private final JdbcDataSource ds;
 
     /**
-     * Initializes the internal shared in-memory H2 database.
-     * This datasource is reused for methods that do not receive a specific URL.
+     * Initializes the AssessmentFunctions instance and sets up the H2 database connection.
      */
     public AssessmentFunctions() {
         ds = new JdbcDataSource();
@@ -39,26 +32,34 @@ public class AssessmentFunctions {
     }
 
     /**
-     * Checks the syntax of the students Java code after embedding it into the
-     * template and attempting to compile it.
+     * Checks the syntax of the student's code.
+     * The method integrates the student's code into a template and attempts to compile it in memory.
      *
-     * @param code   the Java code provided by the student
-     * @param result the Result object to fill in the syntax check info
-     * @return true if the syntax is correct, false if there are errors
+     * @param code The student's code to be checked.
+     * @param variables Variables that are inserted into the code.
+     * @param result A Result object that holds the outcome of the syntax check.
+     * @return {@code true} if the code compiles successfully, {@code false} if there are syntax errors.
      */
-    public boolean checkSyntax(String code, Result result) {
+    public boolean checkSyntax(String code, String variables, Result result) {
         try {
-            // Load the Template.java file from the classpath as a string
-            String template = new String(getClass().getClassLoader().getResourceAsStream("Template.java").readAllBytes(), StandardCharsets.UTF_8);
+            // Load the Template from the Template class
+            String template = new Template().getTemplate();
+
+            // Count how many lines are before the students code to get the correct line number later
+            int variableLineCount = variables.split("\n", -1).length;
+            int linesBeforeStudentCode = countLinesBefore(template, "/*<StudentInput> */");
+            int lineNumberModifier = linesBeforeStudentCode - 1 - 1 + variableLineCount;
 
             // Replace placeholders in the template:
-            // - "public class Template" -> "public class SyntaxCheck" to give a unique class name
-            // - "/*<DB_URL>*/" -> in-memory H2 database connection URL
             template = template.replace("public class Template", "public class SyntaxCheck")
                 .replace("/*<DB_URL>*/", "jdbc:h2:mem:shared_db;DB_CLOSE_DELAY=-1;MODE=Oracle");
 
             // Integrate the student's code into the template
-            String integrated = template.replace("/*<StudentInput> */", code);
+            String integrated = template
+                .replace("/*<Variables>*/", variables)
+                .replace("/*<StudentInput> */", code);
+
+            System.out.println(integrated);
 
             // Create a JavaFileObject for the integrated code, which will be compiled in-memory
             JavaFileObject file = new MemoryJavaFile("at.jku.dke.task_app.jdbc.SyntaxCheck", integrated);
@@ -75,7 +76,6 @@ public class AssessmentFunctions {
                 // Initialize the custom file manager that handles in-memory compilation
                 MemoryJavaFile.FileManagerMap fileManager = new MemoryJavaFile.FileManagerMap(stdManager);
                 //Compilation options (clear warnings)
-
                 List<String> options = List.of(
                     "-proc:none",
                     "-Xlint:-options"
@@ -92,7 +92,6 @@ public class AssessmentFunctions {
                 if (!success) {
                     StringBuilder errorMessage = new StringBuilder();
                     for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                        int lineNumberModifier = 25; //Lines before the template is inserted
                         long lineNumber = diagnostic.getLineNumber() - lineNumberModifier;
                         lineNumber = lineNumber >= 0 ? lineNumber : 0;
 
@@ -104,16 +103,12 @@ public class AssessmentFunctions {
                             .append(lineNumber)
                             .append("\n");
                     }
-                    String test = "";
-                    test += diagnostics.getDiagnostics().getFirst().getLineNumber();
-
                     // Update the result with the error details
                     result.setSyntaxResult(false);
                     result.setSyntaxMessage("Syntax error");
                     result.setSyntaxError(errorMessage.toString());
                     return false;
                 }
-
                 // If no errors were found, set the result as successful
                 result.setSyntaxResult(true);
                 result.setSyntaxMessage("Syntax correct");
@@ -121,7 +116,6 @@ public class AssessmentFunctions {
                 return true;
             }
         } catch (Exception e) {
-            // Handle any unexpected exceptions and set the result accordingly
             result.setSyntaxResult(false);
             result.setSyntaxMessage("Failed to compile");
             result.setSyntaxError(e.getMessage());
@@ -130,93 +124,25 @@ public class AssessmentFunctions {
     }
 
     /**
-     * Compares the output of student and solution executions.
+     * Compares the output of the student's code with the expected output of the solution.
      *
-     * @param studentOutput  the output produced by the student code
-     * @param solutionOutput the expected output from the solution
-     * @return true if both outputs match exactly (ignoring leading/trailing
-     *         whitespace)
+     * @param studentOutput The output generated by the student's code.
+     * @param solutionOutput The expected output (reference solution output).
+     * @return {@code true} if both outputs are the same, {@code false} otherwise.
      */
     public boolean checkOutput(String studentOutput, String solutionOutput) {
         return studentOutput.trim().equals(solutionOutput.trim());
     }
 
     /**
-     * Returns a string representation of the current database state for the
-     * specified H2 database connection URL.
-     * Includes table names, column headers, and all row values.
+     * Analyzes the differences between the student's and the solution's database content.
+     * It compares the rows of each table and identifies any missing or superfluous tuples.
      *
-     * @param dbUrl the JDBC URL of the H2 database
-     * @return the formatted database content
+     * @param studentDbUrl The URL of the student's database.
+     * @param solutionDbUrl The URL of the solution's database.
+     * @param result A  Result object that holds the outcome of the analysis.
+     * @param tables An array of table names to compare.
      */
-    public String getCurrentDbState(String dbUrl, String[] tablesToCheck) {
-        StringBuilder sb = new StringBuilder();
-
-        try (Connection con = DriverManager.getConnection(dbUrl, "sa", "")) {
-            DatabaseMetaData metaData = con.getMetaData();
-
-            for (String tableName : tablesToCheck) {
-                sb.append("Table: ").append(tableName).append("\n");
-
-                // Check if the table actually exists
-                try (ResultSet tableExists = metaData.getTables(null, "PUBLIC", tableName.toUpperCase(), new String[]{"TABLE"})) {
-                    if (!tableExists.next()) {
-                        sb.append("Table ").append(tableName).append(" does not exist.\n\n");
-                        continue;
-                    }
-                }
-
-                try (Statement stmt = con.createStatement();
-                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " ORDER BY 1")) {
-
-                    ResultSetMetaData rsMeta = rs.getMetaData();
-                    int columnCount = rsMeta.getColumnCount();
-
-                    // Column headers
-                    for (int i = 1; i <= columnCount; i++) {
-                        sb.append(rsMeta.getColumnName(i)).append(", ");
-                    }
-                    sb.append("\n");
-
-                    // Rows
-                    while (rs.next()) {
-                        for (int i = 1; i <= columnCount; i++) {
-                            sb.append(rs.getObject(i)).append(", ");
-                        }
-                        sb.append("\n");
-                    }
-                    sb.append("\n");
-                } catch (SQLException e) {
-                    sb.append("Error reading table ").append(tableName).append(": ").append(e.getMessage()).append("\n\n");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * Compares two database state dumps after normalizing out timestamps.
-     *
-     * This avoids mismatches caused by differing dates/times.
-     *
-     * @param studentQueryResult  the database dump after student code execution
-     * @param solutionQueryResult the database dump after solution execution
-     * @return true if both states match, false otherwise
-     */
-
-    public boolean compareDbStates(String studentQueryResult, String solutionQueryResult) {
-        // Normalize the student's query result by removing timestamps formatted as 'yyyy-MM-dd HH:mm:ss.SSS'
-        String normalizedStudent = studentQueryResult.replaceAll("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d", "");
-        // Normalize the solution's query result by removing timestamps.
-        String normalizedSolution = solutionQueryResult.replaceAll("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d",
-                "");
-        // Compare the normalized strings (ignoring timestamp differences)
-        return normalizedStudent.equals(normalizedSolution);
-    }
-
     public void analyzeTupleDifferences(String studentDbUrl, String solutionDbUrl, Result result, String[] tables) {
         List<List<String>> studentTuples = getDatabaseContentAsTuples(studentDbUrl, tables);
         List<List<String>> solutionTuples = getDatabaseContentAsTuples(solutionDbUrl, tables);
@@ -239,6 +165,14 @@ public class AssessmentFunctions {
         result.setDatabaseMessage(msg.toString().trim());
     }
 
+    /**
+     * Retrieves the content of the specified database tables as tuples.
+     * Each tuple represents a row in the database.
+     *
+     * @param dbUrl The URL of the database.
+     * @param tablesToCheck An array of table names to retrieve data from.
+     * @return A list of tuples representing the rows of the specified tables.
+     */
     public List<List<String>> getDatabaseContentAsTuples(String dbUrl, String[] tablesToCheck) {
         List<List<String>> tuples = new ArrayList<>();
 
@@ -270,7 +204,14 @@ public class AssessmentFunctions {
         return tuples;
     }
 
-
+    /**
+     * Retrieves the content of the specified database tables and returns it as a list of TableDump objects.
+     * Each TableDump object represents a table with its columns and rows.
+     *
+     * @param dbUrl The URL of the database.
+     * @param tables An array of table names to retrieve data from.
+     * @return A list of TableDump objects containing the data from the specified tables.
+     */
     public List<TableDump> getDatabaseContent(String dbUrl, String[] tables) {
         List<TableDump> result = new ArrayList<>();
 
@@ -304,13 +245,19 @@ public class AssessmentFunctions {
         } catch (SQLException e) {
             throw new RuntimeException("DB read error: " + e.getMessage(), e);
         }
-
         return result;
     }
 
-
-
-
-
-
+    /**
+     * Counts the number of lines in the template before a given marker.
+     */
+    private int countLinesBefore(String template, String marker) {
+        String[] lines = template.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].contains(marker)) {
+                return i + 1; // +1 to include the line with the marker itself
+            }
+        }
+        return 0;
+    }
 }

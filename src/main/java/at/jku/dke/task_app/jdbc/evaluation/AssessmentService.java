@@ -1,36 +1,31 @@
 package at.jku.dke.task_app.jdbc.evaluation;
 
 import javax.tools.*;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.sql.*;
 import java.util.*;
 
 /**
- * The AssessmentService class is responsible for compiling, executing,
- * and assessing student code against a provided solution.
- * This service evaluates the student's code by performing syntax checks,
- * comparing the output and database state with the solution, and checking
- * exception handling during execution.
+ * This class is responsible for evaluating a student's JDBC code against a predefined solution.
+ * It checks for syntax correctness, autocommit settings, output correctness, and compares the database states
+ * between the student's solution and the reference solution. It also performs exception handling tests for the student's code.
  */
 public class AssessmentService {
+
     /**
-     * Main entry point for assessing a student's code.
-     * This method performs the following:
-     * - Checks the syntax of the student's code
-     * - Compiles the student code and the solution code
-     * - Executes both codes, capturing and comparing the output
-     * - Compares the database states of the student and solution
-     * - Verifies if exceptions are handled properly in the student's code
+     * Assesses the student's task based on the provided input, solution, and database schema.
+     * It evaluates syntax, autocommit handling, output correctness, and compares database states.
+     * Additionally, it runs exception handling tests on the student's code.
      *
-     * @param studentInput The Java code provided by the student
-     * @param dbSchema The schema for the H2 in-memory database
-     * @param taskSolution The reference solution for comparison
-     * @return A Result object containing evaluation results, including syntax, output, database state, and exception handling
+     * @param studentInput The student's code input to be assessed.
+     * @param dbSchema The schema to initialize the databases with.
+     * @param taskSolution The reference solution code to compare against.
+     * @param tables The name of the tables in the database to evaluate.
+     * @param variables Variables that are inserted into the code.
+     * @param analyze If true, performs full evaluation.
+     *                if false only syntax will be checked.
+     * @return The result of the assessment including syntax, autocommit, output comparison, database state, and exception handling results.
      */
-    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables, boolean analyze){
-        //long startTimestamp = System.currentTimeMillis();
+    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables, String variables, boolean analyze){
         DriverManager.setLoginTimeout(5);
         Result evalResult = new Result();
         AssessmentFunctions assessment = new AssessmentFunctions();
@@ -39,9 +34,8 @@ public class AssessmentService {
         String solutionDbUrl = "jdbc:h2:mem:solution_" + dbId + ";DB_CLOSE_DELAY=-1;MODE=Oracle";
 
         // 1. Syntax Check
-        if (!assessment.checkSyntax(studentInput, evalResult)) {
+        if (!assessment.checkSyntax(studentInput, variables, evalResult)) {
             System.out.println(evalResult.getSyntaxError());
-            //System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
             return evalResult;
         }
 
@@ -49,16 +43,16 @@ public class AssessmentService {
         evalResult.setSyntaxMessage("Syntax Correct");
         try {
             // 2. Compile and integrate student and solution code into templates
-            ClassLoader classLoader = AssessmentService.class.getClassLoader();
-            InputStream stream = classLoader.getResourceAsStream("Template.java");
-            String template = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            String template = new Template().getTemplate();
 
             String integratedStudent = template
+                .replace("/*<Variables>*/", variables)
                 .replace("/*<StudentInput> */", studentInput)
                 .replace("public class Template", "public class TemplateStudent")
                 .replace("/*<DB_URL>*/", studentDbUrl);
 
             String integratedSolution = template
+                .replace("/*<Variables>*/", variables)
                 .replace("/*<StudentInput> */", taskSolution)
                 .replace("public class Template", "public class TemplateSolution")
                 .replace("/*<DB_URL>*/", solutionDbUrl);
@@ -70,6 +64,7 @@ public class AssessmentService {
             if (!analyze) {
                 // Nur Syntax prüfen und ausführen. Keine Bewertung
                 resetDatabase(studentDbUrl, dbSchema);
+                evalResult.setDatabaseBefore(assessment.getDatabaseContent(studentDbUrl, tables));
                 String studentOutput = CodeRunner.runCode("at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses);
                 evalResult.setStudentOutput(studentOutput);
                 evalResult.setStudentQueryResult(assessment.getDatabaseContent(studentDbUrl, tables));
@@ -99,14 +94,10 @@ public class AssessmentService {
 
             // 5. Execute student code and capture the output
             resetDatabase(studentDbUrl, dbSchema);
+            evalResult.setDatabaseBefore(assessment.getDatabaseContent(studentDbUrl, tables));
             String studentOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses
             );
-            //System.out.println("Student: " + studentOutput);
-            //String studentDbState = assessment.getCurrentDbState(studentDbUrl, tables);
-            //String studentDbContent = assessment.dbUrlToToString(studentDbUrl, tables);
-            //evalResult.setStudentQueryResult(studentDbContent);
-
             List<TableDump> studentDbTables = assessment.getDatabaseContent(studentDbUrl, tables);
             evalResult.setStudentQueryResult(studentDbTables);
 
@@ -115,14 +106,12 @@ public class AssessmentService {
             String solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
-            //System.out.println("Solution: " + solutionOutput);
             boolean outputRes = assessment.checkOutput(studentOutput, solutionOutput);
 
             evalResult.setStudentOutput(studentOutput);
 
-            evalResult.setOutputComparisionResult(outputRes);
-            evalResult.setOutputComparisionMessage(outputRes ? "Output correct" : "Output incorrect");
-
+            evalResult.setOutputComparisonResult(outputRes);
+            evalResult.setOutputComparisonMessage(outputRes ? "Output correct" : "Output incorrect");
             // Split lines
             List<String> studentLines = Arrays.stream(studentOutput.split("\\R")).map(String::trim).filter(s -> !s.isEmpty()).toList();
             List<String> solutionLines = Arrays.stream(solutionOutput.split("\\R")).map(String::trim).filter(s -> !s.isEmpty()).toList();
@@ -136,26 +125,15 @@ public class AssessmentService {
             evalResult.setMissingOutputs(missing);
             evalResult.setSuperfluousOutputs(extra);
 
-
             // 7. Compare database states between student and solution
             resetDatabase(solutionDbUrl, dbSchema);
             solutionOutput = CodeRunner.runCode(
                 "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
             );
-            //String solutionDbState = assessment.getCurrentDbState(solutionDbUrl, tables);
-            //assessment.analyzeTupleDifferences(studentDbState, solutionDbState, evalResult);
-
-            //boolean dbResult = assessment.compareDbStates(studentDbState, solutionDbState);
-            //evalResult.setDatabaseResult(dbResult);
-            //evalResult.setDatabaseMessage(dbResult ? "Database content correct" : "Incorrect Database Content");
-
             assessment.analyzeTupleDifferences(studentDbUrl, solutionDbUrl, evalResult, tables);
-
-            //assessment.analyzeTupleDifferences(studentDbState, solutionDbState, evalResult);
 
             boolean dbResult = evalResult.getMissingTuples().isEmpty() && evalResult.getSuperfluousTuples().isEmpty();
             evalResult.setDatabaseResult(dbResult);
-
             if (dbResult) {
                 evalResult.setDatabaseMessage("Database content correct");
             } else {
@@ -169,11 +147,12 @@ public class AssessmentService {
             }
 
             // 8. Exception Handling Test
-
-            String integratedStudentFaulty = template
+            DriverManager.setLoginTimeout(1);
+            String integratedStudentFaulty = new Template().getTemplate()
+                .replace("/*<Variables>*/", variables)
                 .replace("/*<StudentInput> */", studentInput)
                 .replace("public class Template", "public class TemplateStudentFaulty")
-                .replace("/*<DB_URL>*/", "jdbc:h2:tcp://10.255.255.1:4040/mem:test");
+                .replace("/*<DB_URL>*/", "jdbc:h2:tcp://nonexistent.invalid/mem:test");
 
             Map<String, byte[]> compiledFaultyClasses = compileJavaInMemory(
                 "at.jku.dke.task_app.jdbc.TemplateStudentFaulty",
@@ -185,8 +164,6 @@ public class AssessmentService {
             );
 
             System.out.println("Exception Test Output:\n" + faultyOutput);
-
-
             // 9. Get exception handling result
             if (faultyOutput.contains("DB ERROR")) {
                 evalResult.setExceptionResult(true);
@@ -204,21 +181,18 @@ public class AssessmentService {
                 evalResult.setExceptionResult(false);
                 evalResult.setExceptionMessage("Unrecognized");
             }
-
-            //System.out.println("Execution Time: " + (System.currentTimeMillis() - startTimestamp) + " ms");
             return evalResult;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-
     /**
-     * Compiles the provided Java source code in-memory.
+     * Compiles the given Java source code and returns the compiled classes as a map.
      *
-     * @param className The name of the class to be compiled
-     * @param javaSource The source code of the Java class
-     * @return A map containing the compiled class bytecode
+     * @param className The fully qualified name of the class.
+     * @param javaSource The Java source code to be compiled.
+     * @return A map of class names to byte arrays of compiled classes.
      */
     private static Map<String, byte[]> compileJavaInMemory(String className, String javaSource) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -241,13 +215,12 @@ public class AssessmentService {
         return fileManager.getAllClassBytes();
     }
 
-     /**
-     * Resets the database schema for the given database URL by truncating all tables.
-     * This method is faster than dropping and re-creating all database objects.
+    /**
+     * Resets the database by clearing all objects and re-executing the provided schema.
      *
-     * @param dbUrl  The JDBC URL of the H2 in-memory database to reset
-     * @param schema The schema definition and initial data as a semicolon-separated SQL string
-     * @throws SQLException If a database access error occurs
+     * @param dbUrl The URL of the database to reset.
+     * @param schema The schema to initialize the database with.
+     * @throws SQLException If there is an error while resetting the database.
      */
     private static void resetDatabase(String dbUrl, String schema) throws SQLException {
         try (Connection con = DriverManager.getConnection(dbUrl, "sa", ""); Statement stmt = con.createStatement()) {

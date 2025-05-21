@@ -2,15 +2,14 @@ package at.jku.dke.task_app.jdbc.evaluation;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PerformanceTest {
 
-    private static final String studentCodeExample = """
+    private static final String baseStudentCode = """
         try (var con = ds.getConnection()) {
             con.setAutoCommit(false);
             try (var st = con.createStatement()) {
@@ -22,41 +21,49 @@ public class PerformanceTest {
         }
     """;
 
-    private static final String taskSolution = studentCodeExample;
     private static final String schema = "CREATE TABLE users (id INT, name VARCHAR); INSERT INTO users (id, name) VALUES (1, 'Michael');";
     private static final String[] tables = new String[]{"users"};
 
     @Test
     public void testConcurrentEvaluations() throws InterruptedException {
-        int[] threadCounts = new int[]{1};
+        int[] threadCounts = new int[]{100};
 
         for (int threads : threadCounts) {
             System.out.println("\n--- Running test with " + threads + " concurrent evaluations ---");
+
+            // Warmup
+            for (int i = 0; i < 3; i++) {
+                String uniqueCode = addUniqueClassName(baseStudentCode, "Warmup" + i);
+                AssessmentService.assessTask(uniqueCode, schema, uniqueCode, tables, "", true);
+            }
 
             ExecutorService executor = Executors.newFixedThreadPool(Math.min(threads, 16));
             List<Future<Long>> futures = new ArrayList<>();
 
             long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-            Instant start = Instant.now();
+            long startTime = System.nanoTime();
 
             for (int i = 0; i < threads; i++) {
                 futures.add(executor.submit(() -> {
-                    Instant s = Instant.now();
-                    Result result = AssessmentService.assessTask(studentCodeExample, schema, taskSolution, tables, true);
-                    Instant e = Instant.now();
+                    String uuid = UUID.randomUUID().toString().replace("-", "");
+                    String studentCode = addUniqueClassName(baseStudentCode, "Student" + uuid);
+                    String taskSolution = studentCode;
 
-                    if (result == null) {
+                    long start = System.nanoTime();
+                    Result result = AssessmentService.assessTask(studentCode, schema, taskSolution, tables, "", true);
+                    long end = System.nanoTime();
+
+                    if (result == null)
                         throw new RuntimeException("Result was null");
-                    }
 
                     assertTrue(result.getSyntaxResult());
-                    return Duration.between(s, e).toMillis();
+                    return end - start; // in nanoseconds
                 }));
             }
 
             executor.shutdown();
             boolean terminated = executor.awaitTermination(90, TimeUnit.SECONDS);
-            Instant end = Instant.now();
+            long endTime = System.nanoTime();
 
             if (!terminated) {
                 System.err.println("Executor did not terminate cleanly!");
@@ -76,12 +83,20 @@ public class PerformanceTest {
             long memoryAfter = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
             long memoryUsed = memoryAfter - memoryBefore;
 
-            long totalDuration = Duration.between(start, end).toMillis();
+            long totalDuration = endTime - startTime;
             double avg = durations.stream().mapToLong(Long::longValue).average().orElse(0);
 
-            System.out.printf("Total Time for %d threads: %dms\n", threads, totalDuration);
-            System.out.printf("Average per evaluation: %.2fms\n", avg);
-            System.out.printf("Heap memory used: %d KB\n", memoryUsed / 1024);
+            System.out.printf("Total Time for %d threads: %.2f s%n", threads, totalDuration / 1_000_000_000.0);
+            System.out.printf("Average per evaluation: %.2f s%n", avg / 1_000_000_000.0);
+            System.out.printf("Heap memory used: %.2f MB%n", memoryUsed / (1024.0 * 1024));
         }
+    }
+
+    /**
+     * Fügt dem Template eine eindeutige Klassendeklaration hinzu.
+     */
+    private static String addUniqueClassName(String baseCode, String className) {
+        // Die Template-Logik in assessTask ersetzt "public class Template" → daher müssen wir darauf vorbereiten
+        return baseCode.replace("public class Template", "public class Template" + className);
     }
 }
