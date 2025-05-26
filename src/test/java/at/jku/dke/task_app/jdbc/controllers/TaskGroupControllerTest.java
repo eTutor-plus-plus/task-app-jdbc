@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({DatabaseSetupExtension.class, ClientSetupExtension.class})
 class TaskGroupControllerTest {
-/*
+
     @LocalServerPort
     private int port;
 
@@ -39,7 +39,7 @@ class TaskGroupControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-        this.taskGroupId = this.repository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 5)).getId();
+        this.taskGroupId = this.repository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3")).getId();
     }
 
     //#region --- GET ---
@@ -99,7 +99,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -119,7 +119,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -150,7 +150,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED,new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -168,7 +168,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -187,7 +187,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId + 1)
@@ -203,7 +203,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -234,7 +234,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -289,68 +289,17 @@ class TaskGroupControllerTest {
     }
     //#endregion
 
-    //#region --- RANDOM NUMBER ---
-    @Test
-    void getRandomNumbers() {
-        // Arrange
-        var controller = new TaskGroupController(null);
-
-        // Act
-        var result = controller.getRandomNumbers();
-
-        // Assert
-        assertNotNull(result);
-        assertNotNull(result.getBody());
-        assertTrue(result.getBody().min() < 100);
-        assertTrue(result.getBody().max() < 1000);
-        assertTrue(result.getBody().min() >= 0);
-        assertTrue(result.getBody().min() < result.getBody().max());
-    }
-
-    @Test
-    void getRandomNumbersShouldReturnOk() {
-        given()
-            .port(port)
-            .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
-            .accept(ContentType.JSON)
-            // WHEN
-            .when()
-            .get("/api/taskGroup/random")
-            // THEN
-            .then()
-            .log().ifValidationFails()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .body("min", Matchers.isA(Integer.class))
-            .body("max", Matchers.isA(Integer.class));
-    }
-
-    @Test
-    void getRandomNumbersShouldReturnForbidden() {
-        given()
-            .port(port)
-            .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
-            .accept(ContentType.JSON)
-            // WHEN
-            .when()
-            .get("/api/taskGroup/random")
-            // THEN
-            .then()
-            .log().ifValidationFails()
-            .statusCode(403);
-    }
-    //#endregion
-
     @Test
     void mapToDto() {
         // Arrange
-        var taskGroup = new JDBCTaskGroup(1, 5);
+        var taskGroup = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
 
         // Act
         var result = new TaskGroupController(null).mapToDto(taskGroup);
 
         // Assert
-        assertEquals(1, result.minNumber());
-        assertEquals(5, result.maxNumber());
-    } */
+        assertEquals("1", result.createStatements());
+        assertEquals("2", result.insertStatementsDiagnose());
+        assertEquals("3", result.insertStatementsSubmission());
+    }
 }

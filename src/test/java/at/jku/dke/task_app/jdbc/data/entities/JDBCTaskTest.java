@@ -1,12 +1,6 @@
 package at.jku.dke.task_app.jdbc.data.entities;
 
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
-
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
-
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -14,81 +8,78 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JDBCTaskTest {
-/*
+
     @Test
-    void testConstructor1() {
-        // Arrange
-        final int expected = 42;
+    void testConstructorWithSolutionAndTables() {
+        String solution = "SELECT * FROM books;";
+        String tables = "books";
+        JDBCTask task = new JDBCTask(solution, tables);
 
-        // Act
-        var task = new JDBCTask(expected);
-        int actual = task.getSolution();
-
-        // Assert
-        assertEquals(expected, actual);
+        assertEquals(solution, task.getSolution());
+        assertEquals(tables, task.getTables());
     }
 
     @Test
-    void testConstructor2() {
-        // Arrange
-        final int expected = 42;
-        final BigDecimal maxPoints = BigDecimal.TEN;
-        final TaskStatus status = TaskStatus.APPROVED;
-        final JDBCTaskGroup taskGroup = new JDBCTaskGroup();
-        taskGroup.setId(55L);
+    void testFullConstructor() {
+        BigDecimal points = BigDecimal.TEN;
+        TaskStatus status = TaskStatus.APPROVED;
+        JDBCTaskGroup group = new JDBCTaskGroup();
+        String solution = "SELECT 1;";
+        String tables = "users";
+        String vars = "int x = 1;";
 
-        // Act
-        var task = new JDBCTask(maxPoints, status, taskGroup, expected);
-        int actualSolution = task.getSolution();
-        BigDecimal actualMaxPoints = task.getMaxPoints();
-        TaskStatus actualStatus = task.getStatus();
-        JDBCTaskGroup actualTaskGroup = task.getTaskGroup();
+        JDBCTask task = new JDBCTask(points, status, group, solution, tables, vars);
 
-        // Assert
-        assertEquals(expected, actualSolution);
-        assertEquals(maxPoints, actualMaxPoints);
-        assertEquals(status, actualStatus);
-        assertEquals(taskGroup, actualTaskGroup);
+        assertEquals(points, task.getMaxPoints());
+        assertEquals(status, task.getStatus());
+        assertEquals(group, task.getTaskGroup());
+        assertEquals(solution, task.getSolution());
+        assertEquals(tables, task.getTables());
+        assertEquals(vars, task.getVariables());
     }
 
     @Test
-    void testConstructor3() {
-        // Arrange
-        final int expected = 42;
-        final BigDecimal maxPoints = BigDecimal.TEN;
-        final TaskStatus status = TaskStatus.APPROVED;
-        final JDBCTaskGroup taskGroup = new JDBCTaskGroup();
-        taskGroup.setId(55L);
-        final long id = 1L;
+    void testGettersAndSetters() {
+        JDBCTask task = new JDBCTask();
 
-        // Act
-        var task = new JDBCTask(id, maxPoints, status, taskGroup, expected);
-        long actualId = task.getId();
-        int actualSolution = task.getSolution();
-        BigDecimal actualMaxPoints = task.getMaxPoints();
-        TaskStatus actualStatus = task.getStatus();
-        JDBCTaskGroup actualTaskGroup = task.getTaskGroup();
+        task.setSolution("SOLUTION");
+        task.setTables("table1, table2");
+        task.setWrongOutputPenalty(2);
+        task.setExceptionHandlingPenalty(3);
+        task.setWrongDbContentPenalty(4);
+        task.setCheckAutocommit(true);
+        task.setAutocommitPenalty(5);
+        task.setVariables("int a = 5;");
 
-        // Assert
-        assertEquals(id, actualId);
-        assertEquals(expected, actualSolution);
-        assertEquals(maxPoints, actualMaxPoints);
-        assertEquals(status, actualStatus);
-        assertEquals(taskGroup, actualTaskGroup);
+        assertEquals("SOLUTION", task.getSolution());
+        assertEquals("table1, table2", task.getTables());
+        assertEquals(2, task.getWrongOutputPenalty());
+        assertEquals(3, task.getExceptionHandlingPenalty());
+        assertEquals(4, task.getWrongDbContentPenalty());
+        assertTrue(task.isCheckAutocommit());
+        assertEquals(5, task.getAutocommitPenalty());
+        assertEquals("int a = 5;", task.getVariables());
     }
 
     @Test
-    void testGetSetSolution() {
-        // Arrange
-        var task = new JDBCTask();
-        final int expected = 42;
+    void testJDBCTaskConstructor_initializesFieldsCorrectly() {
+        BigDecimal points = BigDecimal.TEN;
+        TaskStatus status = TaskStatus.DRAFT;
+        JDBCTaskGroup group = new JDBCTaskGroup("CREATE TABLE books(id INT);", "INSERT INTO books VALUES (1);", "INSERT INTO books VALUES (1);");
+        Long id = 1L;
+        String solution = "SELECT * FROM books;";
+        String tables = "books";
+        String variables = "int x = 1;";
 
-        // Act
-        task.setSolution(expected);
-        final int actual = task.getSolution();
+        JDBCTask task = new JDBCTask(id, points, status, group, solution, tables, variables);
 
-        // Assert
-        assertEquals(expected, actual);
+        assertEquals(id, task.getId());
+        assertEquals(points, task.getMaxPoints());
+        assertEquals(status, task.getStatus());
+        assertEquals(group, task.getTaskGroup());
+        assertEquals(solution, task.getSolution());
+        assertEquals(tables, task.getTables());
+        assertEquals(variables, task.getVariables());
     }
-*/
+
 }

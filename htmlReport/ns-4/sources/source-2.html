@@ -1,0 +1,260 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JDBCTask</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.data.entities</a>
+</div>
+
+<h1>Coverage Summary for Class: JDBCTask (at.jku.dke.task_app.jdbc.data.entities)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JDBCTask</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (20/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (28/28)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.data.entities;
+&nbsp;
+&nbsp;import at.jku.dke.etutor.task_app.data.entities.BaseTaskInGroup;
+&nbsp;import at.jku.dke.etutor.task_app.dto.TaskStatus;
+&nbsp;import jakarta.persistence.Column;
+&nbsp;import jakarta.persistence.Entity;
+&nbsp;import jakarta.persistence.Table;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;
+&nbsp;/**
+&nbsp; * Represents a JDBC task.
+&nbsp; */
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;task&quot;)
+&nbsp;public class JDBCTask extends BaseTaskInGroup&lt;JDBCTaskGroup&gt; {
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;solution&quot;, nullable = false)
+&nbsp;    private String solution;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;tables&quot;, nullable = false)
+&nbsp;    private String tables;
+&nbsp;
+&nbsp;    @Column(name = &quot;wrong_output_penalty&quot;)
+&nbsp;    private Integer wrongOutputPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;exception_handling_penalty&quot;)
+&nbsp;    private Integer exceptionHandlingPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;wrong_db_content_penalty&quot;)
+&nbsp;    private Integer wrongDbContentPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;check_autocommit&quot;)
+&nbsp;    private boolean checkAutocommit;
+&nbsp;
+&nbsp;    @Column(name = &quot;autocommit_penalty&quot;)
+&nbsp;    private Integer autocommitPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;variables&quot;)
+&nbsp;    private String variables;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     */
+<b class="fc">&nbsp;    public JDBCTask() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     *
+&nbsp;     * @param solution The solution.
+&nbsp;     * @param tables   The table list.
+&nbsp;     */
+<b class="fc">&nbsp;    public JDBCTask(String solution, String tables) {</b>
+<b class="fc">&nbsp;        this.solution = solution;</b>
+<b class="fc">&nbsp;        this.tables = tables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     *
+&nbsp;     * @param maxPoints The maximum points.
+&nbsp;     * @param status    The status.
+&nbsp;     * @param taskGroup The task group.
+&nbsp;     * @param solution  The solution.
+&nbsp;     * @param tables    The table list.
+&nbsp;     * @param variables Optional variables for the task.
+&nbsp;     */
+&nbsp;    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
+<b class="fc">&nbsp;        super(maxPoints, status, taskGroup);</b>
+<b class="fc">&nbsp;        this.solution = solution;</b>
+<b class="fc">&nbsp;        this.tables = tables;</b>
+<b class="fc">&nbsp;        this.variables = variables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     *
+&nbsp;     * @param id        The identifier.
+&nbsp;     * @param maxPoints The maximum points.
+&nbsp;     * @param status    The status.
+&nbsp;     * @param taskGroup The task group.
+&nbsp;     * @param solution  The solution.
+&nbsp;     * @param tables    The table list.
+&nbsp;     * @param variables Optional variables for the task.
+&nbsp;     */
+&nbsp;    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
+<b class="fc">&nbsp;        super(id, maxPoints, status, taskGroup);</b>
+<b class="fc">&nbsp;        this.solution = solution;</b>
+<b class="fc">&nbsp;        this.tables = tables;</b>
+<b class="fc">&nbsp;        this.variables = variables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getSolution() {
+<b class="fc">&nbsp;        return solution;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSolution(String solution) {
+<b class="fc">&nbsp;        this.solution = solution;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getTables() {
+<b class="fc">&nbsp;        return tables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setTables(String tables) {
+<b class="fc">&nbsp;        this.tables = tables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getWrongOutputPenalty() {
+<b class="fc">&nbsp;        return wrongOutputPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setWrongOutputPenalty(Integer wrongOutputPenalty) {
+<b class="fc">&nbsp;        this.wrongOutputPenalty = wrongOutputPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getExceptionHandlingPenalty() {
+<b class="fc">&nbsp;        return exceptionHandlingPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setExceptionHandlingPenalty(Integer exceptionHandlingPenalty) {
+<b class="fc">&nbsp;        this.exceptionHandlingPenalty = exceptionHandlingPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getWrongDbContentPenalty() {
+<b class="fc">&nbsp;        return wrongDbContentPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setWrongDbContentPenalty(Integer wrongDbContentPenalty) {
+<b class="fc">&nbsp;        this.wrongDbContentPenalty = wrongDbContentPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isCheckAutocommit() {
+<b class="fc">&nbsp;        return checkAutocommit;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setCheckAutocommit(boolean checkAutocommit) {
+<b class="fc">&nbsp;        this.checkAutocommit = checkAutocommit;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getAutocommitPenalty() {
+<b class="fc">&nbsp;        return autocommitPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setAutocommitPenalty(Integer autocommitPenalty) {
+<b class="fc">&nbsp;        this.autocommitPenalty = autocommitPenalty;</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public String getVariables() {return variables;}</b>
+&nbsp;
+<b class="fc">&nbsp;    public void setVariables(String variables) {this.variables = variables;}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 12:05</div>
+</div>
+</body>
+</html>

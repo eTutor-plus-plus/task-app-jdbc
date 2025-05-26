@@ -75,8 +75,6 @@ public class CodeRunnerTest {
 
         Map<String, byte[]> bytecode = compileSource(className, code);
         String result = CodeRunner.runCode(className, bytecode);
-
-        // Still returns empty string, since exception is caught
         assertEquals("", result);
     }
 }

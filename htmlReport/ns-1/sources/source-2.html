@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > AssessmentService</title>
+  <title>Coverage Report > JDBCTask</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.data.entities</a>
 </div>
 
-<h1>Coverage Summary for Class: AssessmentService (at.jku.dke.task_app.jdbc.evaluation)</h1>
+<h1>Coverage Summary for Class: JDBCTask (at.jku.dke.task_app.jdbc.data.entities)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -37,15 +37,11 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 <th class="coverageStat 
 ">
-  Branch, %
-</th>
-<th class="coverageStat 
-">
   Line, %
 </th>
 </tr>
 <tr>
-  <td class="name">AssessmentService</td>
+  <td class="name">JDBCTask</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -56,26 +52,18 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    75%
+    95%
   </span>
   <span class="absValue">
-    (3/4)
+    (19/20)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    78,9%
+    85,7%
   </span>
   <span class="absValue">
-    (30/38)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    90,6%
-  </span>
-  <span class="absValue">
-    (106/117)
+    (24/28)
   </span>
 </td>
 </tr>
@@ -87,238 +75,161 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.data.entities;
 &nbsp;
-&nbsp;import javax.tools.*;
-&nbsp;import java.sql.*;
-&nbsp;import java.util.*;
+&nbsp;import at.jku.dke.etutor.task_app.data.entities.BaseTaskInGroup;
+&nbsp;import at.jku.dke.etutor.task_app.dto.TaskStatus;
+&nbsp;import jakarta.persistence.Column;
+&nbsp;import jakarta.persistence.Entity;
+&nbsp;import jakarta.persistence.Table;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
 &nbsp;
 &nbsp;/**
-&nbsp; * This class is responsible for evaluating a student&#39;s JDBC code against a predefined solution.
-&nbsp; * It checks for syntax correctness, autocommit settings, output correctness, and compares the database states
-&nbsp; * between the student&#39;s solution and the reference solution. It also performs exception handling tests for the student&#39;s code.
+&nbsp; * Represents a JDBC task.
 &nbsp; */
-<b class="nc">&nbsp;public class AssessmentService {</b>
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;task&quot;)
+&nbsp;public class JDBCTask extends BaseTaskInGroup&lt;JDBCTaskGroup&gt; {
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;solution&quot;, nullable = false)
+&nbsp;    private String solution;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;tables&quot;, nullable = false)
+&nbsp;    private String tables;
+&nbsp;
+&nbsp;    @Column(name = &quot;wrong_output_penalty&quot;)
+&nbsp;    private Integer wrongOutputPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;exception_handling_penalty&quot;)
+&nbsp;    private Integer exceptionHandlingPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;wrong_db_content_penalty&quot;)
+&nbsp;    private Integer wrongDbContentPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;check_autocommit&quot;)
+&nbsp;    private boolean checkAutocommit;
+&nbsp;
+&nbsp;    @Column(name = &quot;autocommit_penalty&quot;)
+&nbsp;    private Integer autocommitPenalty;
+&nbsp;
+&nbsp;    @Column(name = &quot;variables&quot;)
+&nbsp;    private String variables;
 &nbsp;
 &nbsp;    /**
-&nbsp;     * Assesses the student&#39;s task based on the provided input, solution, and database schema.
-&nbsp;     * It evaluates syntax, autocommit handling, output correctness, and compares database states.
-&nbsp;     * Additionally, it runs exception handling tests on the student&#39;s code.
-&nbsp;     *
-&nbsp;     * @param studentInput The student&#39;s code input to be assessed.
-&nbsp;     * @param dbSchema The schema to initialize the databases with.
-&nbsp;     * @param taskSolution The reference solution code to compare against.
-&nbsp;     * @param tables The name of the tables in the database to evaluate.
-&nbsp;     * @param variables Variables that are inserted into the code.
-&nbsp;     * @param analyze If true, performs full evaluation.
-&nbsp;     *                if false only syntax will be checked.
-&nbsp;     * @return The result of the assessment including syntax, autocommit, output comparison, database state, and exception handling results.
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
 &nbsp;     */
-&nbsp;    public static Result assessTask(String studentInput, String dbSchema, String taskSolution, String[] tables, String variables, boolean analyze){
-<b class="fc">&nbsp;        DriverManager.setLoginTimeout(5);</b>
-<b class="fc">&nbsp;        Result evalResult = new Result();</b>
-<b class="fc">&nbsp;        AssessmentFunctions assessment = new AssessmentFunctions();</b>
-<b class="fc">&nbsp;        String dbId = UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;_&quot;);</b>
-<b class="fc">&nbsp;        String studentDbUrl = &quot;jdbc:h2:mem:student_&quot; + dbId + &quot;;DB_CLOSE_DELAY=-1;MODE=Oracle&quot;;</b>
-<b class="fc">&nbsp;        String solutionDbUrl = &quot;jdbc:h2:mem:solution_&quot; + dbId + &quot;;DB_CLOSE_DELAY=-1;MODE=Oracle&quot;;</b>
-&nbsp;
-&nbsp;        // 1. Syntax Check
-<b class="fc">&nbsp;        if (!assessment.checkSyntax(studentInput, variables, evalResult)) {</b>
-<b class="fc">&nbsp;            System.out.println(evalResult.getSyntaxError());</b>
-<b class="fc">&nbsp;            return evalResult;</b>
-&nbsp;        }
-&nbsp;
-<b class="fc">&nbsp;        evalResult.setSyntaxResult(true);</b>
-<b class="fc">&nbsp;        evalResult.setSyntaxMessage(&quot;Syntax Correct&quot;);</b>
-&nbsp;        try {
-&nbsp;            // 2. Compile and integrate student and solution code into templates
-<b class="fc">&nbsp;            String template = new Template().getTemplate();</b>
-&nbsp;
-<b class="fc">&nbsp;            String integratedStudent = template</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;Variables&gt;*/&quot;, variables)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;StudentInput&gt; */&quot;, studentInput)</b>
-<b class="fc">&nbsp;                .replace(&quot;public class Template&quot;, &quot;public class TemplateStudent&quot;)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;DB_URL&gt;*/&quot;, studentDbUrl);</b>
-&nbsp;
-<b class="fc">&nbsp;            String integratedSolution = template</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;Variables&gt;*/&quot;, variables)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;StudentInput&gt; */&quot;, taskSolution)</b>
-<b class="fc">&nbsp;                .replace(&quot;public class Template&quot;, &quot;public class TemplateSolution&quot;)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;DB_URL&gt;*/&quot;, solutionDbUrl);</b>
-&nbsp;
-&nbsp;            // 3. Compile student and solution code in memory
-<b class="fc">&nbsp;            Map&lt;String, byte[]&gt; compiledStudentClasses = compileJavaInMemory(&quot;at.jku.dke.task_app.jdbc.TemplateStudent&quot;, integratedStudent);</b>
-<b class="fc">&nbsp;            Map&lt;String, byte[]&gt; compiledSolutionClasses = compileJavaInMemory(&quot;at.jku.dke.task_app.jdbc.TemplateSolution&quot;, integratedSolution);</b>
-&nbsp;
-<b class="fc">&nbsp;            if (!analyze) {</b>
-&nbsp;                // Nur Syntax prüfen und ausführen. Keine Bewertung
-<b class="fc">&nbsp;                resetDatabase(studentDbUrl, dbSchema);</b>
-<b class="fc">&nbsp;                evalResult.setDatabaseBefore(assessment.getDatabaseContent(studentDbUrl, tables));</b>
-<b class="fc">&nbsp;                String studentOutput = CodeRunner.runCode(&quot;at.jku.dke.task_app.jdbc.TemplateStudent&quot;, compiledStudentClasses);</b>
-<b class="fc">&nbsp;                evalResult.setStudentOutput(studentOutput);</b>
-<b class="fc">&nbsp;                evalResult.setStudentQueryResult(assessment.getDatabaseContent(studentDbUrl, tables));</b>
-<b class="fc">&nbsp;                return evalResult;</b>
-&nbsp;            }
-&nbsp;
-&nbsp;            // 4. Check for disabled autocommit in student&#39;s code
-&nbsp;            // Remove comments and whitespaces
-<b class="fc">&nbsp;            String cleaned = studentInput</b>
-<b class="fc">&nbsp;                .replaceAll(&quot;(?s)/\\*.*?\\*/&quot;, &quot;&quot;)</b>
-<b class="fc">&nbsp;                .replaceAll(&quot;(?m)^\\s*//.*$&quot;, &quot;&quot;)</b>
-<b class="fc">&nbsp;                .replaceAll(&quot;\\s+&quot;, &quot; &quot;);</b>
-&nbsp;
-&nbsp;            // Find position of setAutoCommit(false)
-<b class="fc">&nbsp;            int autoCommitIndex = cleaned.indexOf(&quot;.setAutoCommit(false);&quot;);</b>
-&nbsp;
-&nbsp;            // Find database operations before disabling autocommit
-<b class="fc">&nbsp;            boolean hasWriteBefore = false;</b>
-<b class="fc">&nbsp;            if (autoCommitIndex &gt; 0) {</b>
-<b class="fc">&nbsp;                String before = cleaned.substring(0, autoCommitIndex).toLowerCase();</b>
-<b class="pc">&nbsp;                hasWriteBefore = before.contains(&quot;insert&quot;) || before.contains(&quot;update&quot;) || before.contains(&quot;delete&quot;);</b>
-&nbsp;            }
-<b class="fc">&nbsp;            boolean disabledAutoCommit = autoCommitIndex != -1 &amp;&amp; !hasWriteBefore;</b>
-&nbsp;
-<b class="fc">&nbsp;            evalResult.setAutoCommitResult(disabledAutoCommit);</b>
-<b class="fc">&nbsp;            evalResult.setAutoCommitMessage(disabledAutoCommit ? &quot;Autocommit disabled&quot; : &quot;Autocommit enabled&quot;);</b>
-&nbsp;
-&nbsp;            // 5. Execute student code and capture the output
-<b class="fc">&nbsp;            resetDatabase(studentDbUrl, dbSchema);</b>
-<b class="fc">&nbsp;            evalResult.setDatabaseBefore(assessment.getDatabaseContent(studentDbUrl, tables));</b>
-<b class="fc">&nbsp;            String studentOutput = CodeRunner.runCode(</b>
-&nbsp;                &quot;at.jku.dke.task_app.jdbc.TemplateStudent&quot;, compiledStudentClasses
-&nbsp;            );
-<b class="fc">&nbsp;            List&lt;TableDump&gt; studentDbTables = assessment.getDatabaseContent(studentDbUrl, tables);</b>
-<b class="fc">&nbsp;            evalResult.setStudentQueryResult(studentDbTables);</b>
-&nbsp;
-&nbsp;            // 6. Execute solution code and compare outputs
-<b class="fc">&nbsp;            resetDatabase(solutionDbUrl, dbSchema);</b>
-<b class="fc">&nbsp;            String solutionOutput = CodeRunner.runCode(</b>
-&nbsp;                &quot;at.jku.dke.task_app.jdbc.TemplateSolution&quot;, compiledSolutionClasses
-&nbsp;            );
-<b class="fc">&nbsp;            boolean outputRes = assessment.checkOutput(studentOutput, solutionOutput);</b>
-&nbsp;
-<b class="fc">&nbsp;            evalResult.setStudentOutput(studentOutput);</b>
-&nbsp;
-<b class="fc">&nbsp;            evalResult.setOutputComparisionResult(outputRes);</b>
-<b class="fc">&nbsp;            evalResult.setOutputComparisionMessage(outputRes ? &quot;Output correct&quot; : &quot;Output incorrect&quot;);</b>
-&nbsp;            // Split lines
-<b class="fc">&nbsp;            List&lt;String&gt; studentLines = Arrays.stream(studentOutput.split(&quot;\\R&quot;)).map(String::trim).filter(s -&gt; !s.isEmpty()).toList();</b>
-<b class="fc">&nbsp;            List&lt;String&gt; solutionLines = Arrays.stream(solutionOutput.split(&quot;\\R&quot;)).map(String::trim).filter(s -&gt; !s.isEmpty()).toList();</b>
-&nbsp;
-<b class="fc">&nbsp;            List&lt;String&gt; missing = new ArrayList&lt;&gt;(solutionLines);</b>
-<b class="fc">&nbsp;            missing.removeAll(studentLines);</b>
-&nbsp;
-<b class="fc">&nbsp;            List&lt;String&gt; extra = new ArrayList&lt;&gt;(studentLines);</b>
-<b class="fc">&nbsp;            extra.removeAll(solutionLines);</b>
-&nbsp;
-<b class="fc">&nbsp;            evalResult.setMissingOutputs(missing);</b>
-<b class="fc">&nbsp;            evalResult.setSuperfluousOutputs(extra);</b>
-&nbsp;
-&nbsp;            // 7. Compare database states between student and solution
-<b class="fc">&nbsp;            resetDatabase(solutionDbUrl, dbSchema);</b>
-<b class="fc">&nbsp;            solutionOutput = CodeRunner.runCode(</b>
-&nbsp;                &quot;at.jku.dke.task_app.jdbc.TemplateSolution&quot;, compiledSolutionClasses
-&nbsp;            );
-<b class="fc">&nbsp;            assessment.analyzeTupleDifferences(studentDbUrl, solutionDbUrl, evalResult, tables);</b>
-&nbsp;
-<b class="fc">&nbsp;            boolean dbResult = evalResult.getMissingTuples().isEmpty() &amp;&amp; evalResult.getSuperfluousTuples().isEmpty();</b>
-<b class="fc">&nbsp;            evalResult.setDatabaseResult(dbResult);</b>
-<b class="fc">&nbsp;            if (dbResult) {</b>
-<b class="fc">&nbsp;                evalResult.setDatabaseMessage(&quot;Database content correct&quot;);</b>
-&nbsp;            } else {
-<b class="fc">&nbsp;                int missingCount = evalResult.getMissingTuples().size();</b>
-<b class="fc">&nbsp;                int extraCount = evalResult.getSuperfluousTuples().size();</b>
-<b class="fc">&nbsp;                evalResult.setDatabaseMessage(&quot;Incorrect Database Content: &quot;</b>
-&nbsp;                    + missingCount + &quot; missing, &quot;
-&nbsp;                    + extraCount + &quot; extra tuples.\n&quot; +
-<b class="fc">&nbsp;                    &quot;Missing: &quot; + evalResult.getMissingTuples() + &quot;\n&quot; +</b>
-<b class="fc">&nbsp;                    &quot;Extra: &quot; + evalResult.getSuperfluousTuples());</b>
-&nbsp;            }
-&nbsp;
-&nbsp;            // 8. Exception Handling Test
-<b class="fc">&nbsp;            DriverManager.setLoginTimeout(1);</b>
-<b class="fc">&nbsp;            String integratedStudentFaulty = new Template().getTemplate()</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;Variables&gt;*/&quot;, variables)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;StudentInput&gt; */&quot;, studentInput)</b>
-<b class="fc">&nbsp;                .replace(&quot;public class Template&quot;, &quot;public class TemplateStudentFaulty&quot;)</b>
-<b class="fc">&nbsp;                .replace(&quot;/*&lt;DB_URL&gt;*/&quot;, &quot;jdbc:h2:tcp://nonexistent.invalid/mem:test&quot;);</b>
-&nbsp;
-<b class="fc">&nbsp;            Map&lt;String, byte[]&gt; compiledFaultyClasses = compileJavaInMemory(</b>
-&nbsp;                &quot;at.jku.dke.task_app.jdbc.TemplateStudentFaulty&quot;,
-&nbsp;                integratedStudentFaulty
-&nbsp;            );
-<b class="fc">&nbsp;            String faultyOutput = CodeRunner.runCode(</b>
-&nbsp;                &quot;at.jku.dke.task_app.jdbc.TemplateStudentFaulty&quot;,
-&nbsp;                compiledFaultyClasses
-&nbsp;            );
-&nbsp;
-<b class="fc">&nbsp;            System.out.println(&quot;Exception Test Output:\n&quot; + faultyOutput);</b>
-&nbsp;            // 9. Get exception handling result
-<b class="fc">&nbsp;            if (faultyOutput.contains(&quot;DB ERROR&quot;)) {</b>
-<b class="fc">&nbsp;                evalResult.setExceptionResult(true);</b>
-<b class="fc">&nbsp;                evalResult.setExceptionMessage(&quot;Exceptions handled correctly&quot;);</b>
-<b class="pc">&nbsp;            } else if (faultyOutput.contains(&quot;Student code crashed&quot;)) {</b>
-<b class="nc">&nbsp;                evalResult.setExceptionResult(false);</b>
-<b class="nc">&nbsp;                evalResult.setExceptionMessage(&quot;Exceptions caught by template&quot;);</b>
-<b class="pc">&nbsp;            } else if (faultyOutput.contains(&quot;java.net.UnknownHostException&quot;) || faultyOutput.contains(&quot;java.sql.SQLException&quot;)) {</b>
-<b class="nc">&nbsp;                evalResult.setExceptionResult(false);</b>
-<b class="nc">&nbsp;                evalResult.setExceptionMessage(&quot;java.sql.SQLException thrown&quot;);</b>
-<b class="pc">&nbsp;            } else if (faultyOutput.strip().isEmpty()) {</b>
-<b class="fc">&nbsp;                evalResult.setExceptionResult(false);</b>
-<b class="fc">&nbsp;                evalResult.setExceptionMessage(&quot;Unclear&quot;);</b>
-&nbsp;            } else {
-<b class="nc">&nbsp;                evalResult.setExceptionResult(false);</b>
-<b class="nc">&nbsp;                evalResult.setExceptionMessage(&quot;Unrecognized&quot;);</b>
-&nbsp;            }
-<b class="fc">&nbsp;            return evalResult;</b>
-&nbsp;        } catch (Exception e) {
-<b class="nc">&nbsp;            e.printStackTrace();</b>
-<b class="nc">&nbsp;            return null;</b>
-&nbsp;        }
-&nbsp;    }
-&nbsp;    /**
-&nbsp;     * Compiles the given Java source code and returns the compiled classes as a map.
-&nbsp;     *
-&nbsp;     * @param className The fully qualified name of the class.
-&nbsp;     * @param javaSource The Java source code to be compiled.
-&nbsp;     * @return A map of class names to byte arrays of compiled classes.
-&nbsp;     */
-&nbsp;    private static Map&lt;String, byte[]&gt; compileJavaInMemory(String className, String javaSource) {
-<b class="fc">&nbsp;        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();</b>
-<b class="pc">&nbsp;        if (compiler == null) throw new IllegalStateException(&quot;Java compiler not found.&quot;);</b>
-&nbsp;
-<b class="fc">&nbsp;        DiagnosticCollector&lt;JavaFileObject&gt; diagnostics = new DiagnosticCollector&lt;&gt;();</b>
-<b class="fc">&nbsp;        MemoryJavaFile sourceFile = new MemoryJavaFile(className, javaSource);</b>
-&nbsp;
-<b class="fc">&nbsp;        StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(null, null, null);</b>
-<b class="fc">&nbsp;        MemoryJavaFile.FileManagerMap fileManager = new MemoryJavaFile.FileManagerMap(stdFileManager);</b>
-&nbsp;
-<b class="fc">&nbsp;        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, List.of(sourceFile));</b>
-<b class="fc">&nbsp;        boolean success = task.call();</b>
-&nbsp;
-<b class="pc">&nbsp;        if (!success) {</b>
-<b class="nc">&nbsp;            diagnostics.getDiagnostics().forEach(d -&gt; System.err.println(d.getMessage(null)));</b>
-<b class="nc">&nbsp;            throw new RuntimeException(&quot;Compilation failed.&quot;);</b>
-&nbsp;        }
-&nbsp;
-<b class="fc">&nbsp;        return fileManager.getAllClassBytes();</b>
+<b class="fc">&nbsp;    public JDBCTask() {</b>
 &nbsp;    }
 &nbsp;
 &nbsp;    /**
-&nbsp;     * Resets the database by clearing all objects and re-executing the provided schema.
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
 &nbsp;     *
-&nbsp;     * @param dbUrl The URL of the database to reset.
-&nbsp;     * @param schema The schema to initialize the database with.
-&nbsp;     * @throws SQLException If there is an error while resetting the database.
+&nbsp;     * @param solution The solution.
+&nbsp;     * @param tables   The table list.
 &nbsp;     */
-&nbsp;    private static void resetDatabase(String dbUrl, String schema) throws SQLException {
-<b class="fc">&nbsp;        try (Connection con = DriverManager.getConnection(dbUrl, &quot;sa&quot;, &quot;&quot;); Statement stmt = con.createStatement()) {</b>
-<b class="fc">&nbsp;            stmt.execute(&quot;DROP ALL OBJECTS;&quot;);</b>
-<b class="fc">&nbsp;            for (String sql : schema.split(&quot;;&quot;)) {</b>
-<b class="fc">&nbsp;                if (!sql.strip().isEmpty()) stmt.execute(sql.strip());</b>
-&nbsp;            }
-&nbsp;        }
+<b class="fc">&nbsp;    public JDBCTask(String solution, String tables) {</b>
+<b class="fc">&nbsp;        this.solution = solution;</b>
+<b class="fc">&nbsp;        this.tables = tables;</b>
 &nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     *
+&nbsp;     * @param maxPoints The maximum points.
+&nbsp;     * @param status    The status.
+&nbsp;     * @param taskGroup The task group.
+&nbsp;     * @param solution  The solution.
+&nbsp;     * @param tables    The table list.
+&nbsp;     * @param variables Optional variables for the task.
+&nbsp;     */
+&nbsp;    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
+<b class="fc">&nbsp;        super(maxPoints, status, taskGroup);</b>
+<b class="fc">&nbsp;        this.solution = solution;</b>
+<b class="fc">&nbsp;        this.tables = tables;</b>
+<b class="fc">&nbsp;        this.variables = variables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTask}.
+&nbsp;     *
+&nbsp;     * @param id        The identifier.
+&nbsp;     * @param maxPoints The maximum points.
+&nbsp;     * @param status    The status.
+&nbsp;     * @param taskGroup The task group.
+&nbsp;     * @param solution  The solution.
+&nbsp;     * @param tables    The table list.
+&nbsp;     * @param variables Optional variables for the task.
+&nbsp;     */
+&nbsp;    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
+<b class="nc">&nbsp;        super(id, maxPoints, status, taskGroup);</b>
+<b class="nc">&nbsp;        this.solution = solution;</b>
+<b class="nc">&nbsp;        this.tables = tables;</b>
+<b class="nc">&nbsp;        this.variables = variables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getSolution() {
+<b class="fc">&nbsp;        return solution;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSolution(String solution) {
+<b class="fc">&nbsp;        this.solution = solution;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getTables() {
+<b class="fc">&nbsp;        return tables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setTables(String tables) {
+<b class="fc">&nbsp;        this.tables = tables;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getWrongOutputPenalty() {
+<b class="fc">&nbsp;        return wrongOutputPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setWrongOutputPenalty(Integer wrongOutputPenalty) {
+<b class="fc">&nbsp;        this.wrongOutputPenalty = wrongOutputPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getExceptionHandlingPenalty() {
+<b class="fc">&nbsp;        return exceptionHandlingPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setExceptionHandlingPenalty(Integer exceptionHandlingPenalty) {
+<b class="fc">&nbsp;        this.exceptionHandlingPenalty = exceptionHandlingPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getWrongDbContentPenalty() {
+<b class="fc">&nbsp;        return wrongDbContentPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setWrongDbContentPenalty(Integer wrongDbContentPenalty) {
+<b class="fc">&nbsp;        this.wrongDbContentPenalty = wrongDbContentPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isCheckAutocommit() {
+<b class="fc">&nbsp;        return checkAutocommit;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setCheckAutocommit(boolean checkAutocommit) {
+<b class="fc">&nbsp;        this.checkAutocommit = checkAutocommit;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getAutocommitPenalty() {
+<b class="fc">&nbsp;        return autocommitPenalty;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setAutocommitPenalty(Integer autocommitPenalty) {
+<b class="fc">&nbsp;        this.autocommitPenalty = autocommitPenalty;</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public String getVariables() {return variables;}</b>
+&nbsp;
+<b class="fc">&nbsp;    public void setVariables(String variables) {this.variables = variables;}</b>
 &nbsp;}
 </code>
 </pre>
@@ -343,7 +254,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2025-05-20 07:50</div>
+    <div style="float:right;">generated on 2025-05-26 10:27</div>
 </div>
 </body>
 </html>

@@ -39,30 +39,4 @@ public class TaskGroupController extends BaseTaskGroupController<JDBCTaskGroup, 
             taskGroup.getInsertStatementsSubmission()
         );
     }
-
-    /**
-     * Returns two random numbers.
-     * <p>
-     * This method is used to demonstrate how additional endpoints can be used.
-     *
-     * @return Two random numbers.
-     */
-    /*
-    @GetMapping(value = "/random", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @PreAuthorize(AuthConstants.CRUD_AUTHORITY)
-    @SecurityRequirement(name = AuthConstants.API_KEY_REQUIREMENT)
-    public ResponseEntity<SchemaDto> getRandomNumbers() {
-        var min = rand.nextInt(100);
-        return ResponseEntity.ok(new SchemaDto(min,  rand.nextInt(min + 1, 1000)));
-    }*/
-    @GetMapping(value = "/random", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @PreAuthorize(AuthConstants.CRUD_AUTHORITY)
-    @SecurityRequirement(name = AuthConstants.API_KEY_REQUIREMENT)
-    public ResponseEntity<SchemaDto> getRandomSchemaName() {
-        var rand = new Random();
-        var schema = "schema_" + rand.nextInt(1000);
-        return ResponseEntity.ok(new SchemaDto(schema));
-    }
-
-
 }

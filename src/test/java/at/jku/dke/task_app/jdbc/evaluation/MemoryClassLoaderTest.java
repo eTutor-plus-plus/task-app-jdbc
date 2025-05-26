@@ -34,7 +34,6 @@ public class MemoryClassLoaderTest {
 
     @Test
     public void testLoadValidClassFromMemory() throws Exception {
-        // given
         String className = "HelloWorld";
         String qualifiedName = "HelloWorld";
         String sourceCode = """
@@ -48,12 +47,9 @@ public class MemoryClassLoaderTest {
         Map<String, byte[]> compiledClasses = compileJava(qualifiedName, sourceCode);
         MemoryClassLoader loader = new MemoryClassLoader(compiledClasses);
 
-        // when
         Class<?> clazz = loader.loadClass(qualifiedName);
         Object instance = clazz.getDeclaredConstructor().newInstance();
         String result = (String) clazz.getMethod("sayHi").invoke(instance);
-
-        // then
         assertEquals("Hi!", result);
     }
 

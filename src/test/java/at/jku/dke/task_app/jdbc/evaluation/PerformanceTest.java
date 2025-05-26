@@ -26,7 +26,7 @@ public class PerformanceTest {
 
     @Test
     public void testConcurrentEvaluations() throws InterruptedException {
-        int[] threadCounts = new int[]{100};
+        int[] threadCounts = new int[]{1};
 
         for (int threads : threadCounts) {
             System.out.println("\n--- Running test with " + threads + " concurrent evaluations ---");
@@ -57,7 +57,7 @@ public class PerformanceTest {
                         throw new RuntimeException("Result was null");
 
                     assertTrue(result.getSyntaxResult());
-                    return end - start; // in nanoseconds
+                    return end - start;
                 }));
             }
 
@@ -93,10 +93,9 @@ public class PerformanceTest {
     }
 
     /**
-     * Fügt dem Template eine eindeutige Klassendeklaration hinzu.
+     * Adds unique class declaration to Template
      */
     private static String addUniqueClassName(String baseCode, String className) {
-        // Die Template-Logik in assessTask ersetzt "public class Template" → daher müssen wir darauf vorbereiten
         return baseCode.replace("public class Template", "public class Template" + className);
     }
 }

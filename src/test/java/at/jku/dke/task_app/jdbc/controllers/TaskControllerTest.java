@@ -13,6 +13,7 @@ import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
 import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
 import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
 import io.restassured.http.ContentType;
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,12 +45,18 @@ class TaskControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-/*
-        var group = this.groupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
+        var group = this.groupRepository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""));
         this.taskGroupId = group.getId();
-        this.taskId = this.repository.save(new JDBCTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5)).getId(); */
+        this.taskId = this.repository.save(new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            group,
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        )).getId();
     }
-/*
     //#region --- GET ---
     @Test
     void getShouldReturnOk() {
@@ -106,7 +113,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -126,7 +133,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -157,7 +164,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(6)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -175,7 +182,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -194,7 +201,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId + 1)
@@ -210,7 +217,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -241,7 +248,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(9)))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -299,7 +306,17 @@ class TaskControllerTest {
     @Test
     void mapToDto() {
         // Arrange
-        var task = new JDBCTask(42);
+        var group = this.groupRepository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""));
+        this.taskGroupId = group.getId();
+        var task = new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            group,
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        );
 
         // Act
         var result = new TaskController(null).mapToDto(task);
@@ -307,5 +324,4 @@ class TaskControllerTest {
         // Assert
         assertEquals(42, result.solution());
     }
-*/
 }

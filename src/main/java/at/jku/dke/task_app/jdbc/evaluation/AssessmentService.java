@@ -35,7 +35,6 @@ public class AssessmentService {
 
         // 1. Syntax Check
         if (!assessment.checkSyntax(studentInput, variables, evalResult)) {
-            System.out.println(evalResult.getSyntaxError());
             return evalResult;
         }
 
@@ -62,7 +61,7 @@ public class AssessmentService {
             Map<String, byte[]> compiledSolutionClasses = compileJavaInMemory("at.jku.dke.task_app.jdbc.TemplateSolution", integratedSolution);
 
             if (!analyze) {
-                // Nur Syntax prüfen und ausführen. Keine Bewertung
+                // Only check Syntax without any further checks
                 resetDatabase(studentDbUrl, dbSchema);
                 evalResult.setDatabaseBefore(assessment.getDatabaseContent(studentDbUrl, tables));
                 String studentOutput = CodeRunner.runCode("at.jku.dke.task_app.jdbc.TemplateStudent", compiledStudentClasses);
@@ -163,7 +162,6 @@ public class AssessmentService {
                 compiledFaultyClasses
             );
 
-            System.out.println("Exception Test Output:\n" + faultyOutput);
             // 9. Get exception handling result
             if (faultyOutput.contains("DB ERROR")) {
                 evalResult.setExceptionResult(true);

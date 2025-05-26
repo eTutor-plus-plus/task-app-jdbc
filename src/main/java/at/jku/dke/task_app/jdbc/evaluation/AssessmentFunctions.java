@@ -58,9 +58,6 @@ public class AssessmentFunctions {
             String integrated = template
                 .replace("/*<Variables>*/", variables)
                 .replace("/*<StudentInput> */", code);
-
-            System.out.println(integrated);
-
             // Create a JavaFileObject for the integrated code, which will be compiled in-memory
             JavaFileObject file = new MemoryJavaFile("at.jku.dke.task_app.jdbc.SyntaxCheck", integrated);
 

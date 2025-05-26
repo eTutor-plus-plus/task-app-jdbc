@@ -19,25 +19,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class JDBCTaskGroupServiceTest {
-/*
     @Test
     void createTaskGroup() {
         // Arrange
-        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 2));
+        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3"));
         JDBCTaskGroupService service = new JDBCTaskGroupService(null, null);
 
         // Act
         var taskGroup = service.createTaskGroup(3, dto);
 
         // Assert
-        assertEquals(dto.additionalData().minNumber(), taskGroup.getMinNumber());
-        assertEquals(dto.additionalData().maxNumber(), taskGroup.getMaxNumber());
+        assertEquals(dto.additionalData().createStatements(), taskGroup.getCreateStatements());
+        assertEquals(dto.additionalData().insertStatementsDiagnose(), taskGroup.getInsertStatementsDiagnose());
+        assertEquals(dto.additionalData().insertStatementsSubmission(), taskGroup.getInsertStatementsSubmission());
     }
 
     @Test
     void createTaskGroupInvalidType() {
         // Arrange
-        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 2));
+        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3"));
         JDBCTaskGroupService service = new JDBCTaskGroupService(null, null);
 
         // Act & Assert
@@ -47,24 +47,25 @@ class JDBCTaskGroupServiceTest {
     @Test
     void updateTaskGroup() {
         // Arrange
-        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 2));
+        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3"));
         JDBCTaskGroupService service = new JDBCTaskGroupService(null, null);
-        var taskGroup = new JDBCTaskGroup(3, 4);
+        var taskGroup = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
 
         // Act
         service.updateTaskGroup(taskGroup, dto);
 
         // Assert
-        assertEquals(dto.additionalData().minNumber(), taskGroup.getMinNumber());
-        assertEquals(dto.additionalData().maxNumber(), taskGroup.getMaxNumber());
+        assertEquals(dto.additionalData().createStatements(), taskGroup.getCreateStatements());
+        assertEquals(dto.additionalData().insertStatementsDiagnose(), taskGroup.getInsertStatementsDiagnose());
+        assertEquals(dto.additionalData().insertStatementsSubmission(), taskGroup.getInsertStatementsSubmission());
     }
 
     @Test
     void updateTaskGroupInvalidType() {
         // Arrange
-        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 2));
+        ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> dto = new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3"));
         JDBCTaskGroupService service = new JDBCTaskGroupService(null, null);
-        var taskGroup = new JDBCTaskGroup(3, 4);
+        var taskGroup =new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
 
         // Act & Assert
         assertThrows(ResponseStatusException.class, () -> service.updateTaskGroup(taskGroup, dto));
@@ -75,15 +76,14 @@ class JDBCTaskGroupServiceTest {
         // Arrange
         MessageSource ms = mock(MessageSource.class);
         JDBCTaskGroupService service = new JDBCTaskGroupService(null, ms);
-        var taskGroup = new JDBCTaskGroup(3, 4);
+        var taskGroup = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
 
         // Act
         var result = service.mapToReturnData(taskGroup, true);
 
         // Assert
         assertNotNull(result);
-        verify(ms).getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.GERMAN);
-        verify(ms).getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.ENGLISH);
+        verify(ms).getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getCreateStatements()}, Locale.GERMAN);
+        verify(ms).getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getCreateStatements()}, Locale.ENGLISH);
     }
-*/
 }

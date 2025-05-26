@@ -1,0 +1,145 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TaskController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: TaskController (at.jku.dke.task_app.jdbc.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TaskController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.controllers;
+&nbsp;
+&nbsp;import at.jku.dke.etutor.task_app.controllers.BaseTaskController;
+&nbsp;import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+&nbsp;import at.jku.dke.task_app.jdbc.dto.JDBCTaskDto;
+&nbsp;import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
+&nbsp;import at.jku.dke.task_app.jdbc.services.JDBCTaskService;
+&nbsp;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;/**
+&nbsp; * Controller for managing {@link JDBCTask}s.
+&nbsp; */
+&nbsp;@RestController
+&nbsp;public class TaskController extends BaseTaskController&lt;JDBCTask, JDBCTaskDto, ModifyJDBCTaskDto&gt; {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link TaskController}.
+&nbsp;     *
+&nbsp;     * @param taskService The task service.
+&nbsp;     */
+&nbsp;    public TaskController(JDBCTaskService taskService) {
+<b class="nc">&nbsp;        super(taskService);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    protected JDBCTaskDto mapToDto(JDBCTask task) {
+<b class="nc">&nbsp;        return new JDBCTaskDto(</b>
+<b class="nc">&nbsp;            task.getSolution(),</b>
+<b class="nc">&nbsp;            task.getTables(),</b>
+<b class="nc">&nbsp;            task.getWrongOutputPenalty(),</b>
+<b class="nc">&nbsp;            task.getExceptionHandlingPenalty(),</b>
+<b class="nc">&nbsp;            task.getWrongDbContentPenalty(),</b>
+<b class="nc">&nbsp;            task.isCheckAutocommit(),</b>
+<b class="nc">&nbsp;            task.getAutocommitPenalty(),</b>
+<b class="nc">&nbsp;            task.getVariables()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 12:05</div>
+</div>
+</body>
+</html>

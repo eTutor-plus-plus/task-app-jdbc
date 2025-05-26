@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > CodeRunner</title>
+  <title>Coverage Report > JDBCTaskGroup</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.data.entities</a>
 </div>
 
-<h1>Coverage Summary for Class: CodeRunner (at.jku.dke.task_app.jdbc.evaluation)</h1>
+<h1>Coverage Summary for Class: JDBCTaskGroup (at.jku.dke.task_app.jdbc.data.entities)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -37,15 +37,11 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 <th class="coverageStat 
 ">
-  Branch, %
-</th>
-<th class="coverageStat 
-">
   Line, %
 </th>
 </tr>
 <tr>
-  <td class="name">CodeRunner</td>
+  <td class="name">JDBCTaskGroup</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -56,26 +52,18 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    50%
+    100%
   </span>
   <span class="absValue">
-    (1/2)
+    (10/10)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/2)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    57,9%
-  </span>
-  <span class="absValue">
-    (11/19)
+    (19/19)
   </span>
 </td>
 </tr>
@@ -87,76 +75,139 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.data.entities;
 &nbsp;
-&nbsp;import java.lang.reflect.Method;
-&nbsp;import java.util.Map;
-&nbsp;import java.util.concurrent.*;
+&nbsp;import at.jku.dke.etutor.task_app.data.entities.BaseTaskGroup;
+&nbsp;import at.jku.dke.etutor.task_app.dto.TaskStatus;
+&nbsp;import jakarta.persistence.Column;
+&nbsp;import jakarta.persistence.Entity;
+&nbsp;import jakarta.persistence.Table;
+&nbsp;import jakarta.validation.constraints.NotNull;
 &nbsp;
 &nbsp;/**
-&nbsp; * This class is responsible for executing dynamically compiled Java code.
-&nbsp; * It loads a class at runtime using the MemoryClassLoader,
-&nbsp; * invokes its templateMethod() method, and returns the result.
-&nbsp; *
-&nbsp; * The Execution happens in a separate thread with a fixed timeout
-&nbsp; * to prevent infinite loops or excessively long-running code.
+&nbsp; * Represents a JDBC task group.
+&nbsp; * &lt;p&gt;
+&nbsp; * It is also possible to create tasks without task types. Tasks of type JDBC would not need a task group.
+&nbsp; * Here a task group is only used for demonstration purposes.
 &nbsp; */
-<b class="nc">&nbsp;public class CodeRunner {</b>
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;task_group&quot;)
+&nbsp;public class JDBCTaskGroup extends BaseTaskGroup {
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;create_statements&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String createStatements;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;insert_statements_diagnose&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String insertStatementsDiagnose;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;insert_statements_submission&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String insertStatementsSubmission;
 &nbsp;
 &nbsp;    /**
-&nbsp;     * Time limit (in seconds) for code execution.
-&nbsp;     * If the execution exceeds this limit, it will be aborted.
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
 &nbsp;     */
-&nbsp;    private static final long TIME_LIMIT_SECONDS = 5;
+<b class="fc">&nbsp;    public JDBCTaskGroup() {</b>
+&nbsp;    }
 &nbsp;
 &nbsp;    /**
-&nbsp;     * Runs a specified class by loading it from the provided bytecode map,
-&nbsp;     * creating an instance, and invoking its {@code templateMethod()}.
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
 &nbsp;     *
-&nbsp;     * @param className       The fully qualified name of the class to be executed.
-&nbsp;     * @param compiledClasses A map where the key is the class name and the value is the compiled bytecode.
-&nbsp;     * @return The result of the {@code templateMethod()} as a String,
-&nbsp;     *         or &quot;TIMEOUT&quot; if execution takes too long.
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
 &nbsp;     */
-&nbsp;    public static String runCode(String className, Map&lt;String, byte[]&gt; compiledClasses) {
-<b class="fc">&nbsp;        MemoryClassLoader classLoader = new MemoryClassLoader(compiledClasses);</b>
-<b class="fc">&nbsp;        String result = &quot;&quot;;</b>
+<b class="fc">&nbsp;    public JDBCTaskGroup(String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;        // Execute code in a separate thread to enforce timeout
-<b class="fc">&nbsp;        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {</b>
-<b class="fc">&nbsp;            Future&lt;String&gt; future = null;</b>
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     *
+&nbsp;     * @param status                    The task group status.
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
+&nbsp;     */
+&nbsp;    public JDBCTaskGroup(TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
+<b class="fc">&nbsp;        super(status);</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;            try {
-&nbsp;                // Dynamically load and instantiate the class
-<b class="fc">&nbsp;                Class&lt;?&gt; clazz = classLoader.loadClass(className);</b>
-<b class="fc">&nbsp;                Object instance = clazz.getDeclaredConstructor().newInstance();</b>
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     *
+&nbsp;     * @param id                        The identifier.
+&nbsp;     * @param status                    The task group status.
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
+&nbsp;     */
+&nbsp;    public JDBCTaskGroup(Long id, TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
+<b class="fc">&nbsp;        super(id, status);</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;                // Get the method to execute
-<b class="fc">&nbsp;                Method templateMethod = clazz.getMethod(&quot;templateMethod&quot;);</b>
+&nbsp;    /**
+&nbsp;     * Gets the CREATE TABLE statements.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getCreateStatements() {
+<b class="fc">&nbsp;        return createStatements;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;                // Run the method asynchronously
-<b class="fc">&nbsp;                future = executor.submit(() -&gt; (String) templateMethod.invoke(instance));</b>
+&nbsp;    /**
+&nbsp;     * Sets the CREATE TABLE statements.
+&nbsp;     *
+&nbsp;     * @param createStatements The statements.
+&nbsp;     */
+&nbsp;    public void setCreateStatements(String createStatements) {
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;                // Try to get the result with time limit
-<b class="fc">&nbsp;                result = future.get(TIME_LIMIT_SECONDS, TimeUnit.SECONDS);</b>
+&nbsp;    /**
+&nbsp;     * Gets the INSERT INTO statements for diagnosis.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getInsertStatementsDiagnose() {
+<b class="fc">&nbsp;        return insertStatementsDiagnose;</b>
+&nbsp;    }
 &nbsp;
-&nbsp;            } catch (TimeoutException e) {
-<b class="nc">&nbsp;                if (future != null) future.cancel(true);</b>
-<b class="nc">&nbsp;                System.err.println(&quot;Execution took too long (Timeout).&quot;);</b>
-<b class="nc">&nbsp;                result = &quot;TIMEOUT&quot;;</b>
-&nbsp;            } catch (ExecutionException e) {
-<b class="nc">&nbsp;                System.err.println(&quot;Error during code execution: &quot; + e.getCause());</b>
-&nbsp;            } catch (InterruptedException e) {
-<b class="nc">&nbsp;                Thread.currentThread().interrupt();</b>
-<b class="nc">&nbsp;                System.err.println(&quot;Execution was interrupted.&quot;);</b>
-&nbsp;            } catch (Exception e) {
-<b class="nc">&nbsp;                System.err.println(&quot;An unexpected error occurred: &quot; + e.getMessage());</b>
-&nbsp;            } finally {
-<b class="fc">&nbsp;                executor.shutdownNow();</b>
-&nbsp;            }
-&nbsp;        }
+&nbsp;    /**
+&nbsp;     * Sets the INSERT INTO statements for diagnosis.
+&nbsp;     *
+&nbsp;     * @param insertStatementsDiagnose The statements.
+&nbsp;     */
+&nbsp;    public void setInsertStatementsDiagnose(String insertStatementsDiagnose) {
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+&nbsp;    }
 &nbsp;
-<b class="fc">&nbsp;        return result;</b>
+&nbsp;    /**
+&nbsp;     * Gets the INSERT INTO statements for submission.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getInsertStatementsSubmission() {
+<b class="fc">&nbsp;        return insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the INSERT INTO statements for submission.
+&nbsp;     *
+&nbsp;     * @param insertStatementsSubmission The statements.
+&nbsp;     */
+&nbsp;    public void setInsertStatementsSubmission(String insertStatementsSubmission) {
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
 &nbsp;    }
 &nbsp;}
 </code>
@@ -182,7 +233,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2025-05-20 07:50</div>
+    <div style="float:right;">generated on 2025-05-26 10:27</div>
 </div>
 </body>
 </html>

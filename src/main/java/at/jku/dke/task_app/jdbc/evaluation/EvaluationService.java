@@ -71,43 +71,9 @@ public class EvaluationService {
 
         //Variables
         String variables = task.getVariables() != null ? task.getVariables() : "";
-
-        String inputString = "";
-        try {
-            inputString = submission.submission().input();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
         String[] tables = Arrays.stream(task.getTables().split(",")).map(String::trim).toArray(String[]::new);
-
-        //***  TEST DATA ***///
-        String studentInput = "";
-        switch (inputString){
-            case "1":
-                studentInput = Solutions.studentInput;
-                break;
-            case "2":
-                studentInput = Solutions.studentInputNoExceptionHandling;
-                break;
-            case "3":
-                studentInput = Solutions.studentInputWrongSyntax;
-                break;
-            case "4":
-                studentInput = Solutions.studentInputAutocommitNotDisabled;
-                break;
-            case "5":
-                studentInput = Solutions.studentInputTooFewDbRows;
-                break;
-            case "6":
-                studentInput = Solutions.studentInputTooManyDbRows;
-                break;
-            default:
-                studentInput = Solutions.studentInput;
-                break;
-        }
-
-
-        Result testResult = null;
+        String studentInput = submission.submission().input();
+        Result testResult;
 
         // Evaluate and Grade
         switch (submission.mode()) {
@@ -159,7 +125,7 @@ public class EvaluationService {
             }
 
             case DIAGNOSE, SUBMIT: {
-                // Syntaxcheck vor Ausführung
+                // Syntax check before execution
                 testResult = new Result();
                 boolean syntaxOk = new AssessmentFunctions().checkSyntax(studentInput, variables, testResult);
 
@@ -178,20 +144,19 @@ public class EvaluationService {
                     return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
                 }
 
-                // Vorbereitung
-                String taskSolution = Solutions.taskSolution;
+                // Preparation of variables
+                String taskSolution = task.getSolution();
                 String createStatements = task.getTaskGroup().getCreateStatements();
 
                 String insertStatements = submission.mode().toString().equals("DIAGNOSE")
                     ? task.getTaskGroup().getInsertStatementsDiagnose()
                     : task.getTaskGroup().getInsertStatementsSubmission();
                 String dbSchema = createStatements + ";" + insertStatements;
-
                 testResult = AssessmentService.assessTask(studentInput, dbSchema, taskSolution, tables, variables, true);
 
                 if (testResult == null) throw new RuntimeException("Assessment failed – result is null");
 
-                // Ergebnisbewertung nach Feedbacklevel
+                // Grading according to Feedback-Level
                 if (feedbackLevel >= 1) {
                     if(task.isCheckAutocommit()) criteria.add(makeCriterion("criterium.autocommit", testResult.getAutoCommitResult(), testResult.getAutoCommitMessage(), locale, feedbackLevel, testResult));
                     criteria.add(makeCriterion("criterium.output", testResult.getOutputComparisonResult(), testResult.getOutputComparisonMessage(), locale, feedbackLevel, testResult));
@@ -265,15 +230,16 @@ public class EvaluationService {
                             points = points.subtract(deductionPoints);
                         }
                     }
+                    if (points.compareTo(BigDecimal.ZERO) < 0) {
+                        points = BigDecimal.ZERO;
+                    }
                 }
-
                 break;
             }
 
             default: throw new IllegalStateException("Unexpected mode: " + submission.mode());
         }
-
-
+        //Explanation of Deductions in Feedback-Level 3
         if (feedbackLevel >= 3 && submission.mode() == SubmissionMode.SUBMIT) {
             feedback += "<hr><br/><strong>" + messageSource.getMessage("deduction.heading", null, locale) + "</strong>";
 
@@ -309,6 +275,17 @@ public class EvaluationService {
         return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
     }
 
+    /**
+     * Creates a {@link CriterionDto} for a given evaluation aspect.
+     *
+     * @param key     The message key used for localization (e.g., "criterium.output").
+     * @param passed  Whether the criterion has been passed.
+     * @param detail  Additional detail for feedback.
+     * @param locale  The locale to use for messages.
+     * @param level   The feedback level.
+     * @param result  The evaluation result.
+     * @return The generated {@code CriterionDto}.
+     */
     private CriterionDto makeCriterion(String key, Boolean passed, String detail, Locale locale, int level, Result result) {
         String message;
 
@@ -398,6 +375,12 @@ public class EvaluationService {
         );
     }
 
+    /**
+     * Converts a list of tuple rows into an HTML table.
+     *
+     * @param tuples A list of rows, each represented as a list of strings.
+     * @return The HTML representation of the table.
+     */
     private String toHtmlTable(List<List<String>> tuples) {
         if (tuples.isEmpty()) return "";
 
@@ -416,6 +399,12 @@ public class EvaluationService {
         return html.toString();
     }
 
+    /**
+     * Renders a list of {@link TableDump}s as HTML tables.
+     *
+     * @param dumps The list of table dumps to render.
+     * @return A HTML string containing formatted tables or a fallback if no tables are found.
+     */
     private String renderTableDumps(List<TableDump> dumps) {
         StringBuilder html = new StringBuilder();
 

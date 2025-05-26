@@ -1,0 +1,154 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JDBCSubmissionService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.services</a>
+</div>
+
+<h1>Coverage Summary for Class: JDBCSubmissionService (at.jku.dke.task_app.jdbc.services)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JDBCSubmissionService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.services;
+&nbsp;
+&nbsp;import at.jku.dke.etutor.task_app.dto.GradingDto;
+&nbsp;import at.jku.dke.etutor.task_app.dto.SubmitSubmissionDto;
+&nbsp;import at.jku.dke.etutor.task_app.services.BaseSubmissionService;
+&nbsp;import at.jku.dke.task_app.jdbc.data.entities.JDBCSubmission;
+&nbsp;import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+&nbsp;import at.jku.dke.task_app.jdbc.data.repositories.JDBCSubmissionRepository;
+&nbsp;import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
+&nbsp;import at.jku.dke.task_app.jdbc.dto.JDBCSubmissionDto;
+&nbsp;import at.jku.dke.task_app.jdbc.evaluation.EvaluationService;
+&nbsp;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class provides methods for managing {@link JDBCSubmission}s.
+&nbsp; */
+&nbsp;@Service
+&nbsp;public class JDBCSubmissionService extends BaseSubmissionService&lt;JDBCTask, JDBCSubmission, JDBCSubmissionDto&gt; {
+&nbsp;
+&nbsp;    private final EvaluationService evaluationService;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCSubmissionService}.
+&nbsp;     *
+&nbsp;     * @param submissionRepository The input repository.
+&nbsp;     * @param taskRepository       The task repository.
+&nbsp;     * @param evaluationService    The evaluation service.
+&nbsp;     */
+&nbsp;    public JDBCSubmissionService(JDBCSubmissionRepository submissionRepository, JDBCTaskRepository taskRepository, EvaluationService evaluationService) {
+<b class="fc">&nbsp;        super(submissionRepository, taskRepository);</b>
+<b class="fc">&nbsp;        this.evaluationService = evaluationService;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    protected JDBCSubmission createSubmissionEntity(SubmitSubmissionDto&lt;JDBCSubmissionDto&gt; submitSubmissionDto) {
+<b class="fc">&nbsp;        return new JDBCSubmission(submitSubmissionDto.submission().input());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    protected GradingDto evaluate(SubmitSubmissionDto&lt;JDBCSubmissionDto&gt; submitSubmissionDto) {
+<b class="fc">&nbsp;        return this.evaluationService.evaluate(submitSubmissionDto);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    protected JDBCSubmissionDto mapSubmissionToSubmissionData(JDBCSubmission submission) {
+<b class="fc">&nbsp;        return new JDBCSubmissionDto(submission.getSubmission());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 12:05</div>
+</div>
+</body>
+</html>
