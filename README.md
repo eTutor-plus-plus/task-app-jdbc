@@ -1,15 +1,11 @@
 # eTutor Task-App: JDBC
+This application provides a REST interface for the following task type: JDBC.
 
-This application provides a REST-interface for following task type: JDBC.
+Students can submit their solution for a JDBC task. The system is responsible for compiling and executing the submitted code and evaluating it against a predefined reference solution. 
+The evaluation includes checks for syntax correctness, output accuracy, autocommit handling, database state conformity, and proper exception handling. Instructors can configure tasks with custom SQL schemas and a reference solution. 
 
-Students have to guess a number. The student's input is compared with the number stored in the solution, and it is returned whether the number sought is _smaller_, _equal_ to or
-_greater_ than the input.
-
-This project **can** be used as a template for new task apps. Replace all occurrences of `JDBC`/`JDBC`/`JDBC`/`JDBC` with the name of your task
-type.
-
-Task-App repositories should start with `task-app-` and end with the task type (e.g. `task-app-JDBC`).
-
+The application supports detailed feedback with different levels of granularity and allows configurable point deductions per criterion. 
+The system also includes support for variable declarations that are injected before execution, enabling reusable code structures across multiple submissions.
 ## Development
 
 In development environment, the API documentation is available at http://localhost:8081/docs.
