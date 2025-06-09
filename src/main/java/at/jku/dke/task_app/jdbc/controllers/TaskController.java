@@ -25,7 +25,17 @@ public class TaskController extends BaseTaskController<JDBCTask, JDBCTaskDto, Mo
 
     @Override
     protected JDBCTaskDto mapToDto(JDBCTask task) {
-        return new JDBCTaskDto(task.getSolution());
+        return new JDBCTaskDto(
+            task.getSolution(),
+            task.getTables(),
+            task.getWrongOutputPenalty(),
+            task.getExceptionHandlingPenalty(),
+            task.getWrongDbContentPenalty(),
+            task.isCheckAutocommit(),
+            task.getAutocommitPenalty(),
+            task.getVariables()
+        );
     }
+
 
 }

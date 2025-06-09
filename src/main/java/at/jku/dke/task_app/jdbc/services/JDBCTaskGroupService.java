@@ -37,21 +37,31 @@ public class JDBCTaskGroupService extends BaseTaskGroupService<JDBCTaskGroup, Mo
     protected JDBCTaskGroup createTaskGroup(long id, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
         if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
-        return new JDBCTaskGroup(modifyTaskGroupDto.additionalData().minNumber(), modifyTaskGroupDto.additionalData().maxNumber());
+
+        var data = modifyTaskGroupDto.additionalData();
+        return new JDBCTaskGroup(
+            data.createStatements(),
+            data.insertStatementsDiagnose(),
+            data.insertStatementsSubmission()
+        );
     }
 
     @Override
     protected void updateTaskGroup(JDBCTaskGroup taskGroup, ModifyTaskGroupDto<ModifyJDBCTaskGroupDto> modifyTaskGroupDto) {
         if (!modifyTaskGroupDto.taskGroupType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task group type.");
-        taskGroup.setMinNumber(modifyTaskGroupDto.additionalData().minNumber());
-        taskGroup.setMaxNumber(modifyTaskGroupDto.additionalData().maxNumber());
+
+        var data = modifyTaskGroupDto.additionalData();
+        taskGroup.setCreateStatements(data.createStatements());
+        taskGroup.setInsertStatementsDiagnose(data.insertStatementsDiagnose());
+        taskGroup.setInsertStatementsSubmission(data.insertStatementsSubmission());
     }
 
     @Override
     protected TaskGroupModificationResponseDto mapToReturnData(JDBCTaskGroup taskGroup, boolean create) {
         return new TaskGroupModificationResponseDto(
-            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.GERMAN),
-            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getMinNumber(), taskGroup.getMaxNumber()}, Locale.ENGLISH));
+            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getCreateStatements()}, Locale.GERMAN),
+            this.messageSource.getMessage("defaultTaskGroupDescription", new Object[]{taskGroup.getCreateStatements()}, Locale.ENGLISH)
+        );
     }
 }

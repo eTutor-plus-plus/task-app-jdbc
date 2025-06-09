@@ -15,9 +15,32 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "task")
 public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
+
     @NotNull
     @Column(name = "solution", nullable = false)
-    private Integer solution;
+    private String solution;
+
+    @NotNull
+    @Column(name = "tables", nullable = false)
+    private String tables;
+
+    @Column(name = "wrong_output_penalty")
+    private Integer wrongOutputPenalty;
+
+    @Column(name = "exception_handling_penalty")
+    private Integer exceptionHandlingPenalty;
+
+    @Column(name = "wrong_db_content_penalty")
+    private Integer wrongDbContentPenalty;
+
+    @Column(name = "check_autocommit")
+    private boolean checkAutocommit;
+
+    @Column(name = "autocommit_penalty")
+    private Integer autocommitPenalty;
+
+    @Column(name = "variables")
+    private String variables;
 
     /**
      * Creates a new instance of class {@link JDBCTask}.
@@ -29,9 +52,11 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * Creates a new instance of class {@link JDBCTask}.
      *
      * @param solution The solution.
+     * @param tables   The table list.
      */
-    public JDBCTask(Integer solution) {
+    public JDBCTask(String solution, String tables) {
         this.solution = solution;
+        this.tables = tables;
     }
 
     /**
@@ -41,10 +66,14 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param status    The status.
      * @param taskGroup The task group.
      * @param solution  The solution.
+     * @param tables    The table list.
+     * @param variables Optional variables for the task.
      */
-    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
         super(maxPoints, status, taskGroup);
         this.solution = solution;
+        this.tables = tables;
+        this.variables = variables;
     }
 
     /**
@@ -55,27 +84,73 @@ public class JDBCTask extends BaseTaskInGroup<JDBCTaskGroup> {
      * @param status    The status.
      * @param taskGroup The task group.
      * @param solution  The solution.
+     * @param tables    The table list.
+     * @param variables Optional variables for the task.
      */
-    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, Integer solution) {
+    public JDBCTask(Long id, BigDecimal maxPoints, TaskStatus status, JDBCTaskGroup taskGroup, String solution, String tables, String variables) {
         super(id, maxPoints, status, taskGroup);
         this.solution = solution;
+        this.tables = tables;
+        this.variables = variables;
     }
 
-    /**
-     * Gets the solution.
-     *
-     * @return The solution.
-     */
-    public Integer getSolution() {
+    public String getSolution() {
         return solution;
     }
 
-    /**
-     * Sets the solution.
-     *
-     * @param solution The solution.
-     */
-    public void setSolution(Integer solution) {
+    public void setSolution(String solution) {
         this.solution = solution;
     }
+
+    public String getTables() {
+        return tables;
+    }
+
+    public void setTables(String tables) {
+        this.tables = tables;
+    }
+
+    public Integer getWrongOutputPenalty() {
+        return wrongOutputPenalty;
+    }
+
+    public void setWrongOutputPenalty(Integer wrongOutputPenalty) {
+        this.wrongOutputPenalty = wrongOutputPenalty;
+    }
+
+    public Integer getExceptionHandlingPenalty() {
+        return exceptionHandlingPenalty;
+    }
+
+    public void setExceptionHandlingPenalty(Integer exceptionHandlingPenalty) {
+        this.exceptionHandlingPenalty = exceptionHandlingPenalty;
+    }
+
+    public Integer getWrongDbContentPenalty() {
+        return wrongDbContentPenalty;
+    }
+
+    public void setWrongDbContentPenalty(Integer wrongDbContentPenalty) {
+        this.wrongDbContentPenalty = wrongDbContentPenalty;
+    }
+
+    public boolean isCheckAutocommit() {
+        return checkAutocommit;
+    }
+
+    public void setCheckAutocommit(boolean checkAutocommit) {
+        this.checkAutocommit = checkAutocommit;
+    }
+
+    public Integer getAutocommitPenalty() {
+        return autocommitPenalty;
+    }
+
+    public void setAutocommitPenalty(Integer autocommitPenalty) {
+        this.autocommitPenalty = autocommitPenalty;
+    }
+
+    public String getVariables() {return variables;}
+
+    public void setVariables(String variables) {this.variables = variables;}
 }

@@ -39,8 +39,10 @@ class TaskGroupControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-        this.taskGroupId = this.repository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 5)).getId();
-    }
+        var group = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
+        group.setId(1L);
+        group = this.repository.save(group);
+        this.taskGroupId = group.getId();    }
 
     //#region --- GET ---
     @Test
@@ -57,8 +59,8 @@ class TaskGroupControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("minNumber", equalTo(1))
-            .body("maxNumber", equalTo(5));
+            .body("createStatements", equalTo("1"))
+            .body("insertStatementsDiagnose", equalTo("2"));
     }
 
     @Test
@@ -99,7 +101,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -109,8 +111,8 @@ class TaskGroupControllerTest {
             .statusCode(201)
             .contentType(ContentType.JSON)
             .header("Location", containsString("/api/taskGroup/" + (this.taskGroupId + 2)))
-            .body("descriptionDe", containsString("5"))
-            .body("descriptionEn", containsString("5"));
+            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
+            .body("descriptionEn", containsString("TaskGroupDescription."));
     }
 
     @Test
@@ -119,7 +121,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -150,7 +152,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 5)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED,new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .post("/api/taskGroup/{id}", this.taskGroupId + 2)
@@ -168,7 +170,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -177,8 +179,8 @@ class TaskGroupControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("descriptionDe", containsString("10"))
-            .body("descriptionEn", containsString("10"));
+            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
+            .body("descriptionEn", containsString("TaskGroupDescription."));
     }
 
     @Test
@@ -187,7 +189,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId + 1)
@@ -203,7 +205,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("sql", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -234,7 +236,7 @@ class TaskGroupControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskGroupDto<>("JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto(1, 10)))
+            .body(new ModifyTaskGroupDto<>("jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskGroupDto("1", "2", "3")))
             // WHEN
             .when()
             .put("/api/taskGroup/{id}", this.taskGroupId)
@@ -289,68 +291,17 @@ class TaskGroupControllerTest {
     }
     //#endregion
 
-    //#region --- RANDOM NUMBER ---
-    @Test
-    void getRandomNumbers() {
-        // Arrange
-        var controller = new TaskGroupController(null);
-
-        // Act
-        var result = controller.getRandomNumbers();
-
-        // Assert
-        assertNotNull(result);
-        assertNotNull(result.getBody());
-        assertTrue(result.getBody().min() < 100);
-        assertTrue(result.getBody().max() < 1000);
-        assertTrue(result.getBody().min() >= 0);
-        assertTrue(result.getBody().min() < result.getBody().max());
-    }
-
-    @Test
-    void getRandomNumbersShouldReturnOk() {
-        given()
-            .port(port)
-            .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
-            .accept(ContentType.JSON)
-            // WHEN
-            .when()
-            .get("/api/taskGroup/random")
-            // THEN
-            .then()
-            .log().ifValidationFails()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .body("min", Matchers.isA(Integer.class))
-            .body("max", Matchers.isA(Integer.class));
-    }
-
-    @Test
-    void getRandomNumbersShouldReturnForbidden() {
-        given()
-            .port(port)
-            .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.SUBMIT_API_KEY)
-            .accept(ContentType.JSON)
-            // WHEN
-            .when()
-            .get("/api/taskGroup/random")
-            // THEN
-            .then()
-            .log().ifValidationFails()
-            .statusCode(403);
-    }
-    //#endregion
-
     @Test
     void mapToDto() {
         // Arrange
-        var taskGroup = new JDBCTaskGroup(1, 5);
+        var taskGroup = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
 
         // Act
         var result = new TaskGroupController(null).mapToDto(taskGroup);
 
         // Assert
-        assertEquals(1, result.minNumber());
-        assertEquals(5, result.maxNumber());
+        assertEquals("1", result.createStatements());
+        assertEquals("2", result.insertStatementsDiagnose());
+        assertEquals("3", result.insertStatementsSubmission());
     }
 }

@@ -1,0 +1,374 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Result</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+</div>
+
+<h1>Coverage Summary for Class: Result (at.jku.dke.task_app.jdbc.evaluation)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Result</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92,3%
+  </span>
+  <span class="absValue">
+    (36/39)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    67,2%
+  </span>
+  <span class="absValue">
+    (43/64)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class contains the evaluation results of a student&#39;s JDBC submission.
+&nbsp; * It contains results and feedback messages for various evaluation criteria
+&nbsp; */
+&nbsp;public class Result {
+&nbsp;    // --- Syntax Check ---
+&nbsp;    /** True if syntax is valid, false otherwise. */
+&nbsp;    private Boolean syntaxResult;
+&nbsp;    /** Message explaining the result of the syntax check. */
+<b class="fc">&nbsp;    private String syntaxMessage = &quot;&quot;;</b>
+&nbsp;    /** Error details if syntax is invalid. */
+<b class="fc">&nbsp;    private String syntaxError = &quot;&quot;;</b>
+&nbsp;
+&nbsp;    // --- Autocommit Check ---
+&nbsp;    /** True if autocommit is correctly disabled. */
+&nbsp;    private Boolean autoCommitResult;
+&nbsp;    /** Feedback message for autocommit check. */
+<b class="fc">&nbsp;    private String autoCommitMessage = &quot;&quot;;</b>
+&nbsp;
+&nbsp;    // --- Output Comparison ---
+&nbsp;    /** True if console output matches the expected result. */
+&nbsp;    private Boolean outputComparisionResult;
+&nbsp;    /** Feedback message for output comparison. */
+<b class="fc">&nbsp;    private String outputComparisionMessage = &quot;&quot;;</b>
+&nbsp;
+&nbsp;    // --- Database Comparison ---
+&nbsp;    /** True if the resulting database state is correct. */
+&nbsp;    private Boolean databaseResult;
+&nbsp;    /** Feedback message for database content evaluation. */
+<b class="fc">&nbsp;    private String databaseMessage = &quot;&quot;;</b>
+&nbsp;
+&nbsp;
+&nbsp;    // --- Exception Handling ---
+&nbsp;    /** True if exception handling is correct. */
+&nbsp;    private Boolean exceptionResult;
+&nbsp;    /** Feedback message for exception handling. */
+<b class="fc">&nbsp;    private String exceptionMessage = &quot;&quot;;</b>
+&nbsp;
+&nbsp;    // --- Detailed Results ---
+&nbsp;    /** Final query result of the student&#39;s code (as structured table dumps). */
+&nbsp;    private List&lt;TableDump&gt; studentQueryResult;
+&nbsp;    /** Tuples that are missing in the student&#39;s result compared to the expected one. */
+&nbsp;    private List&lt;List&lt;String&gt;&gt; missingTuples;
+&nbsp;    /** Tuples that are present in the student&#39;s result but shouldn&#39;t be. */
+&nbsp;    private List&lt;List&lt;String&gt;&gt; superfluousTuples;
+&nbsp;
+&nbsp;    /** The console output of the student&#39;s code. */
+<b class="fc">&nbsp;    private String studentOutput = &quot;&quot;;</b>
+&nbsp;    /** Lines that are missing in the output. */
+&nbsp;    private List&lt;String&gt; missingOutputs;
+&nbsp;    /** Lines that are superfluous in the output. */
+&nbsp;    private List&lt;String&gt; superfluousOutputs;
+&nbsp;    /** Database content before the execution of the students&#39; code */
+&nbsp;    private List&lt;TableDump&gt; databaseBefore;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Default constructor.
+&nbsp;     */
+<b class="fc">&nbsp;    public Result() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructor initializing all fields relevant to evaluation, excluding tuples and table data.
+&nbsp;     *
+&nbsp;     * @param syntaxResult              True if syntax is correct
+&nbsp;     * @param syntaxMessage             Syntax feedback message
+&nbsp;     * @param syntaxError               Syntax error details (if any)
+&nbsp;     * @param autoCommitResult          Result of autocommit check
+&nbsp;     * @param autoCommitMessage         Feedback on autocommit
+&nbsp;     * @param outputComparisionResult   Result of output comparison
+&nbsp;     * @param outputComparisionMessage  Feedback on output comparison
+&nbsp;     * @param databaseResult            Result of database state comparison
+&nbsp;     * @param databaseMessage           Feedback on database content
+&nbsp;     * @param exceptionResult           Result of exception handling
+&nbsp;     * @param exceptionMessage          Feedback on exception handling
+&nbsp;     * @param studentOutput             Console output
+&nbsp;     * @param superfluousOutputs        Output lines that were too much
+&nbsp;     * @param missingOutputs            Output lines that were missing
+&nbsp;     * @param studentQueryResult        Result of student&#39;s database query as table dumps
+&nbsp;     * @param missingTuples             Missing tuples in student&#39;s query result
+&nbsp;     * @param superfluousTuples         Extra tuples in student&#39;s query result
+&nbsp;     * @param databaseBefore            Database content before the execution of the students&#39; code
+&nbsp;     */
+&nbsp;    public Result(Boolean syntaxResult, String syntaxMessage, String syntaxError,
+&nbsp;                  Boolean autoCommitResult, String autoCommitMessage,
+&nbsp;                  Boolean outputComparisionResult, String outputComparisionMessage,
+&nbsp;                  Boolean databaseResult, String databaseMessage,
+&nbsp;                  Boolean exceptionResult, String exceptionMessage,
+&nbsp;                  String studentOutput, List&lt;String&gt; superfluousOutputs, List&lt;String&gt; missingOutputs,
+<b class="nc">&nbsp;                  List&lt;TableDump&gt; studentQueryResult, List&lt;List&lt;String&gt;&gt; missingTuples, List&lt;List&lt;String&gt;&gt; superfluousTuples, List&lt;TableDump&gt; databaseBefore) {</b>
+<b class="nc">&nbsp;        this.syntaxResult = syntaxResult;</b>
+<b class="nc">&nbsp;        this.syntaxMessage = syntaxMessage;</b>
+<b class="nc">&nbsp;        this.syntaxError = syntaxError;</b>
+<b class="nc">&nbsp;        this.autoCommitResult = autoCommitResult;</b>
+<b class="nc">&nbsp;        this.autoCommitMessage = autoCommitMessage;</b>
+<b class="nc">&nbsp;        this.outputComparisionResult = outputComparisionResult;</b>
+<b class="nc">&nbsp;        this.outputComparisionMessage = outputComparisionMessage;</b>
+<b class="nc">&nbsp;        this.databaseResult = databaseResult;</b>
+<b class="nc">&nbsp;        this.databaseMessage = databaseMessage;</b>
+<b class="nc">&nbsp;        this.exceptionResult = exceptionResult;</b>
+<b class="nc">&nbsp;        this.exceptionMessage = exceptionMessage;</b>
+<b class="nc">&nbsp;        this.studentOutput = studentOutput;</b>
+<b class="nc">&nbsp;        this.missingOutputs = missingOutputs;</b>
+<b class="nc">&nbsp;        this.superfluousOutputs = superfluousOutputs;</b>
+<b class="nc">&nbsp;        this.studentQueryResult = studentQueryResult;</b>
+<b class="nc">&nbsp;        this.missingTuples = missingTuples;</b>
+<b class="nc">&nbsp;        this.superfluousTuples = superfluousTuples;</b>
+<b class="nc">&nbsp;        this.databaseBefore = databaseBefore;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Boolean getSyntaxResult() {
+<b class="fc">&nbsp;        return syntaxResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSyntaxResult(Boolean syntaxResult) {
+<b class="fc">&nbsp;        this.syntaxResult = syntaxResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getSyntaxMessage() {
+<b class="nc">&nbsp;        return syntaxMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSyntaxMessage(String syntaxMessage) {
+<b class="fc">&nbsp;        this.syntaxMessage = syntaxMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getSyntaxError() {
+<b class="fc">&nbsp;        return syntaxError;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSyntaxError(String syntaxError) {
+<b class="fc">&nbsp;        this.syntaxError = syntaxError;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Boolean getAutoCommitResult() {
+<b class="fc">&nbsp;        return autoCommitResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setAutoCommitResult(Boolean autoCommitResult) {
+<b class="fc">&nbsp;        this.autoCommitResult = autoCommitResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getAutoCommitMessage() {
+<b class="fc">&nbsp;        return autoCommitMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setAutoCommitMessage(String autoCommitMessage) {
+<b class="fc">&nbsp;        this.autoCommitMessage = autoCommitMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Boolean getOutputComparisonResult() {
+<b class="fc">&nbsp;        return outputComparisionResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setOutputComparisonResult(Boolean outputComparisionResult) {
+<b class="fc">&nbsp;        this.outputComparisionResult = outputComparisionResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getOutputComparisonMessage() {
+<b class="fc">&nbsp;        return outputComparisionMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setOutputComparisonMessage(String outputComparisonMessage) {
+<b class="fc">&nbsp;        this.outputComparisionMessage = outputComparisonMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Boolean getDatabaseResult() {
+<b class="fc">&nbsp;        return databaseResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setDatabaseResult(Boolean databaseResult) {
+<b class="fc">&nbsp;        this.databaseResult = databaseResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getDatabaseMessage() {
+<b class="fc">&nbsp;        return databaseMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setDatabaseMessage(String databaseMessage) {
+<b class="fc">&nbsp;        this.databaseMessage = databaseMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Boolean getExceptionResult() {
+<b class="fc">&nbsp;        return exceptionResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setExceptionResult(Boolean exceptionResult) {
+<b class="fc">&nbsp;        this.exceptionResult = exceptionResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getExceptionMessage() {
+<b class="fc">&nbsp;        return exceptionMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setExceptionMessage(String exceptionMessage) {
+<b class="fc">&nbsp;        this.exceptionMessage = exceptionMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;TableDump&gt; getStudentQueryResult() {
+<b class="fc">&nbsp;        return studentQueryResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setStudentQueryResult(List&lt;TableDump&gt; studentQueryResult) {
+<b class="fc">&nbsp;        this.studentQueryResult = studentQueryResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;List&lt;String&gt;&gt; getMissingTuples() {
+<b class="fc">&nbsp;        return missingTuples;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setMissingTuples(List&lt;List&lt;String&gt;&gt; missingTuples) {
+<b class="fc">&nbsp;        this.missingTuples = missingTuples;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;List&lt;String&gt;&gt; getSuperfluousTuples() {
+<b class="fc">&nbsp;        return superfluousTuples;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSuperfluousTuples(List&lt;List&lt;String&gt;&gt; superfluousTuples) {
+<b class="fc">&nbsp;        this.superfluousTuples = superfluousTuples;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getStudentOutput() {
+<b class="fc">&nbsp;        return studentOutput;</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public void setStudentOutput(String studentOutput) {this.studentOutput = studentOutput;}</b>
+&nbsp;
+&nbsp;    public List&lt;String&gt; getMissingOutputs() {
+<b class="fc">&nbsp;        return missingOutputs;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setMissingOutputs(List&lt;String&gt; missingOutputs) {
+<b class="fc">&nbsp;        this.missingOutputs = missingOutputs;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;String&gt; getSuperfluousOutputs() {
+<b class="fc">&nbsp;        return superfluousOutputs;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSuperfluousOutputs(List&lt;String&gt; superfluousOutputs) {
+<b class="fc">&nbsp;        this.superfluousOutputs = superfluousOutputs;</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public void setDatabaseBefore(List&lt;TableDump&gt; databaseBefore) {this.databaseBefore = databaseBefore;}</b>
+&nbsp;
+<b class="fc">&nbsp;    public List&lt;TableDump&gt; getDatabaseBefore() {return databaseBefore;}</b>
+&nbsp;    /**
+&nbsp;     * Returns a string representation of the result
+&nbsp;     *
+&nbsp;     * @return String containing a summary of the evaluation results
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="nc">&nbsp;        return &quot;Result :\n\n&quot; +</b>
+&nbsp;                &quot;  Sytnax: &quot; + syntaxMessage + &quot;\n&quot; +
+&nbsp;                &quot;  Autocommit: &quot; + autoCommitMessage + &quot;\n&quot; +
+&nbsp;                &quot;  Output: &quot; + outputComparisionMessage + &quot;\n&quot; +
+&nbsp;                &quot;  Database content: &quot; + databaseMessage + &quot;\n&quot; +
+&nbsp;                &quot;  Exceptionhandling: &quot; + exceptionMessage + &quot;\n&quot; +
+&nbsp;                &quot;  Student Query Result:\n&quot; + studentQueryResult + &quot;\n&quot;
+&nbsp;                ;
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 12:05</div>
+</div>
+</body>
+</html>

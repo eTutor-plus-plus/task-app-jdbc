@@ -1,10 +1,6 @@
 package at.jku.dke.task_app.jdbc.data.entities;
 
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
-
-import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,88 +8,69 @@ import static org.junit.jupiter.api.Assertions.*;
 class JDBCTaskGroupTest {
 
     @Test
-    void testConstructor1() {
-        // Arrange
-        final int expectedMinNumber = 21;
-        final int expectedMaxNumber = 42;
-
-        // Act
-        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(expectedMinNumber, expectedMaxNumber);
-        int actualMinNumber = JDBCTaskGroup.getMinNumber();
-        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
-
-        // Assert
-        assertEquals(expectedMinNumber, actualMinNumber);
-        assertEquals(expectedMaxNumber, actualMaxNumber);
+    void defaultConstructor() {
+        JDBCTaskGroup group = new JDBCTaskGroup();
+        assertNotNull(group);
     }
 
     @Test
-    void testConstructor2() {
-        // Arrange
-        final TaskStatus status = TaskStatus.APPROVED;
-        final int expectedMinNumber = 21;
-        final int expectedMaxNumber = 42;
+    void constructorWithCreateAndInsertStatements() {
+        String createStmt = "CREATE TABLE test (id INT);";
+        String insertDiag = "INSERT INTO test VALUES (1);";
+        String insertSub = "INSERT INTO test VALUES (2);";
 
-        // Act
-        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(status, expectedMinNumber, expectedMaxNumber);
-        TaskStatus actualStatus = JDBCTaskGroup.getStatus();
-        int actualMinNumber = JDBCTaskGroup.getMinNumber();
-        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
+        JDBCTaskGroup group = new JDBCTaskGroup(createStmt, insertDiag, insertSub);
 
-        // Assert
-        assertEquals(status, actualStatus);
-        assertEquals(expectedMinNumber, actualMinNumber);
-        assertEquals(expectedMaxNumber, actualMaxNumber);
+        assertEquals(createStmt, group.getCreateStatements());
+        assertEquals(insertDiag, group.getInsertStatementsDiagnose());
+        assertEquals(insertSub, group.getInsertStatementsSubmission());
     }
 
     @Test
-    void testConstructor3() {
-        // Arrange
-        final long expectedId = 21;
-        final TaskStatus status = TaskStatus.APPROVED;
-        final int expectedMinNumber = 21;
-        final int expectedMaxNumber = 42;
+    void constructorWithStatusAndStatements() {
+        TaskStatus status = TaskStatus.APPROVED;
+        String createStmt = "CREATE TABLE example (x INT);";
+        String insertDiag = "INSERT INTO example VALUES (10);";
+        String insertSub = "INSERT INTO example VALUES (20);";
 
-        // Act
-        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup(expectedId, status, expectedMinNumber, expectedMaxNumber);
-        long actualId = JDBCTaskGroup.getId();
-        TaskStatus actualStatus = JDBCTaskGroup.getStatus();
-        int actualMinNumber = JDBCTaskGroup.getMinNumber();
-        int actualMaxNumber = JDBCTaskGroup.getMaxNumber();
+        JDBCTaskGroup group = new JDBCTaskGroup(status, createStmt, insertDiag, insertSub);
 
-        // Assert
-        assertEquals(expectedId, actualId);
-        assertEquals(status, actualStatus);
-        assertEquals(expectedMinNumber, actualMinNumber);
-        assertEquals(expectedMaxNumber, actualMaxNumber);
+        assertEquals(status, group.getStatus());
+        assertEquals(createStmt, group.getCreateStatements());
+        assertEquals(insertDiag, group.getInsertStatementsDiagnose());
+        assertEquals(insertSub, group.getInsertStatementsSubmission());
     }
 
     @Test
-    void testGetSetMinNumber() {
-        // Arrange
-        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup();
-        final int expected = 21;
+    void constructorWithIdStatusAndStatements() {
+        long id = 123L;
+        TaskStatus status = TaskStatus.DRAFT;
+        String createStmt = "CREATE TABLE t (a INT);";
+        String insertDiag = "INSERT INTO t VALUES (5);";
+        String insertSub = "INSERT INTO t VALUES (6);";
 
-        // Act
-        JDBCTaskGroup.setMinNumber(expected);
-        int actual = JDBCTaskGroup.getMinNumber();
+        JDBCTaskGroup group = new JDBCTaskGroup(id, status, createStmt, insertDiag, insertSub);
 
-        // Assert
-        assertEquals(expected, actual);
+        assertEquals(id, group.getId());
+        assertEquals(status, group.getStatus());
+        assertEquals(createStmt, group.getCreateStatements());
+        assertEquals(insertDiag, group.getInsertStatementsDiagnose());
+        assertEquals(insertSub, group.getInsertStatementsSubmission());
     }
 
     @Test
-    void testGetSetMaxNumber() {
-        // Arrange
-        JDBCTaskGroup JDBCTaskGroup = new JDBCTaskGroup();
-        final int expected = 21;
+    void settersAndGetters() {
+        JDBCTaskGroup group = new JDBCTaskGroup();
+        String createStmt = "CREATE TABLE demo (id INT);";
+        String insertDiag = "INSERT INTO demo VALUES (1);";
+        String insertSub = "INSERT INTO demo VALUES (2);";
 
-        // Act
-        JDBCTaskGroup.setMaxNumber(expected);
-        int actual = JDBCTaskGroup.getMaxNumber();
+        group.setCreateStatements(createStmt);
+        group.setInsertStatementsDiagnose(insertDiag);
+        group.setInsertStatementsSubmission(insertSub);
 
-        // Assert
-        assertEquals(expected, actual);
+        assertEquals(createStmt, group.getCreateStatements());
+        assertEquals(insertDiag, group.getInsertStatementsDiagnose());
+        assertEquals(insertSub, group.getInsertStatementsSubmission());
     }
-
 }

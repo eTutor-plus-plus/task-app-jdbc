@@ -1,0 +1,239 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JDBCTaskGroup</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.data.entities</a>
+</div>
+
+<h1>Coverage Summary for Class: JDBCTaskGroup (at.jku.dke.task_app.jdbc.data.entities)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JDBCTaskGroup</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.data.entities;
+&nbsp;
+&nbsp;import at.jku.dke.etutor.task_app.data.entities.BaseTaskGroup;
+&nbsp;import at.jku.dke.etutor.task_app.dto.TaskStatus;
+&nbsp;import jakarta.persistence.Column;
+&nbsp;import jakarta.persistence.Entity;
+&nbsp;import jakarta.persistence.Table;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;
+&nbsp;/**
+&nbsp; * Represents a JDBC task group.
+&nbsp; * &lt;p&gt;
+&nbsp; * It is also possible to create tasks without task types. Tasks of type JDBC would not need a task group.
+&nbsp; * Here a task group is only used for demonstration purposes.
+&nbsp; */
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;task_group&quot;)
+&nbsp;public class JDBCTaskGroup extends BaseTaskGroup {
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;create_statements&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String createStatements;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;insert_statements_diagnose&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String insertStatementsDiagnose;
+&nbsp;
+&nbsp;    @NotNull
+&nbsp;    @Column(name = &quot;insert_statements_submission&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String insertStatementsSubmission;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     */
+<b class="fc">&nbsp;    public JDBCTaskGroup() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     *
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
+&nbsp;     */
+<b class="fc">&nbsp;    public JDBCTaskGroup(String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     *
+&nbsp;     * @param status                    The task group status.
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
+&nbsp;     */
+&nbsp;    public JDBCTaskGroup(TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
+<b class="fc">&nbsp;        super(status);</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of class {@link JDBCTaskGroup}.
+&nbsp;     *
+&nbsp;     * @param id                        The identifier.
+&nbsp;     * @param status                    The task group status.
+&nbsp;     * @param createStatements          The CREATE TABLE statements.
+&nbsp;     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+&nbsp;     * @param insertStatementsSubmission The INSERT INTO statements for submission.
+&nbsp;     */
+&nbsp;    public JDBCTaskGroup(Long id, TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
+<b class="fc">&nbsp;        super(id, status);</b>
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the CREATE TABLE statements.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getCreateStatements() {
+<b class="fc">&nbsp;        return createStatements;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the CREATE TABLE statements.
+&nbsp;     *
+&nbsp;     * @param createStatements The statements.
+&nbsp;     */
+&nbsp;    public void setCreateStatements(String createStatements) {
+<b class="fc">&nbsp;        this.createStatements = createStatements;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the INSERT INTO statements for diagnosis.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getInsertStatementsDiagnose() {
+<b class="fc">&nbsp;        return insertStatementsDiagnose;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the INSERT INTO statements for diagnosis.
+&nbsp;     *
+&nbsp;     * @param insertStatementsDiagnose The statements.
+&nbsp;     */
+&nbsp;    public void setInsertStatementsDiagnose(String insertStatementsDiagnose) {
+<b class="fc">&nbsp;        this.insertStatementsDiagnose = insertStatementsDiagnose;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the INSERT INTO statements for submission.
+&nbsp;     *
+&nbsp;     * @return The statements.
+&nbsp;     */
+&nbsp;    public String getInsertStatementsSubmission() {
+<b class="fc">&nbsp;        return insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the INSERT INTO statements for submission.
+&nbsp;     *
+&nbsp;     * @param insertStatementsSubmission The statements.
+&nbsp;     */
+&nbsp;    public void setInsertStatementsSubmission(String insertStatementsSubmission) {
+<b class="fc">&nbsp;        this.insertStatementsSubmission = insertStatementsSubmission;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 10:27</div>
+</div>
+</body>
+</html>

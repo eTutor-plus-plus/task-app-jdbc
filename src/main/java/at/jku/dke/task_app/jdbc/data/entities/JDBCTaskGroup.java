@@ -16,13 +16,18 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "task_group")
 public class JDBCTaskGroup extends BaseTaskGroup {
-    @NotNull
-    @Column(name = "min_number", nullable = false)
-    private Integer minNumber;
 
     @NotNull
-    @Column(name = "max_number", nullable = false)
-    private Integer maxNumber;
+    @Column(name = "create_statements", nullable = false, columnDefinition = "TEXT")
+    private String createStatements;
+
+    @NotNull
+    @Column(name = "insert_statements_diagnose", nullable = false, columnDefinition = "TEXT")
+    private String insertStatementsDiagnose;
+
+    @NotNull
+    @Column(name = "insert_statements_submission", nullable = false, columnDefinition = "TEXT")
+    private String insertStatementsSubmission;
 
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
@@ -33,74 +38,98 @@ public class JDBCTaskGroup extends BaseTaskGroup {
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
      *
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param createStatements          The CREATE TABLE statements.
+     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+     * @param insertStatementsSubmission The INSERT INTO statements for submission.
      */
-    public JDBCTaskGroup(Integer minNumber, Integer maxNumber) {
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+    public JDBCTaskGroup(String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
+        this.createStatements = createStatements;
+        this.insertStatementsDiagnose = insertStatementsDiagnose;
+        this.insertStatementsSubmission = insertStatementsSubmission;
     }
 
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
      *
-     * @param status    The status.
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param status                    The task group status.
+     * @param createStatements          The CREATE TABLE statements.
+     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+     * @param insertStatementsSubmission The INSERT INTO statements for submission.
      */
-    public JDBCTaskGroup(TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
         super(status);
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+        this.createStatements = createStatements;
+        this.insertStatementsDiagnose = insertStatementsDiagnose;
+        this.insertStatementsSubmission = insertStatementsSubmission;
     }
 
     /**
      * Creates a new instance of class {@link JDBCTaskGroup}.
      *
-     * @param id        The id.
-     * @param status    The status.
-     * @param minNumber The minimum number.
-     * @param maxNumber The maximum number.
+     * @param id                        The identifier.
+     * @param status                    The task group status.
+     * @param createStatements          The CREATE TABLE statements.
+     * @param insertStatementsDiagnose  The INSERT INTO statements for diagnosis.
+     * @param insertStatementsSubmission The INSERT INTO statements for submission.
      */
-    public JDBCTaskGroup(Long id, TaskStatus status, Integer minNumber, Integer maxNumber) {
+    public JDBCTaskGroup(Long id, TaskStatus status, String createStatements, String insertStatementsDiagnose, String insertStatementsSubmission) {
         super(id, status);
-        this.minNumber = minNumber;
-        this.maxNumber = maxNumber;
+        this.createStatements = createStatements;
+        this.insertStatementsDiagnose = insertStatementsDiagnose;
+        this.insertStatementsSubmission = insertStatementsSubmission;
     }
 
     /**
-     * Gets the minimum number.
+     * Gets the CREATE TABLE statements.
      *
-     * @return The minimum number.
+     * @return The statements.
      */
-    public Integer getMinNumber() {
-        return minNumber;
+    public String getCreateStatements() {
+        return createStatements;
     }
 
     /**
-     * Sets the minimum number.
+     * Sets the CREATE TABLE statements.
      *
-     * @param minNumber The minimum number.
+     * @param createStatements The statements.
      */
-    public void setMinNumber(Integer minNumber) {
-        this.minNumber = minNumber;
+    public void setCreateStatements(String createStatements) {
+        this.createStatements = createStatements;
     }
 
     /**
-     * Gets the maximum number.
+     * Gets the INSERT INTO statements for diagnosis.
      *
-     * @return The maximum number.
+     * @return The statements.
      */
-    public Integer getMaxNumber() {
-        return maxNumber;
+    public String getInsertStatementsDiagnose() {
+        return insertStatementsDiagnose;
     }
 
     /**
-     * Sets the maximum number.
+     * Sets the INSERT INTO statements for diagnosis.
      *
-     * @param maxNumber The maximum number.
+     * @param insertStatementsDiagnose The statements.
      */
-    public void setMaxNumber(Integer maxNumber) {
-        this.maxNumber = maxNumber;
+    public void setInsertStatementsDiagnose(String insertStatementsDiagnose) {
+        this.insertStatementsDiagnose = insertStatementsDiagnose;
+    }
+
+    /**
+     * Gets the INSERT INTO statements for submission.
+     *
+     * @return The statements.
+     */
+    public String getInsertStatementsSubmission() {
+        return insertStatementsSubmission;
+    }
+
+    /**
+     * Sets the INSERT INTO statements for submission.
+     *
+     * @param insertStatementsSubmission The statements.
+     */
+    public void setInsertStatementsSubmission(String insertStatementsSubmission) {
+        this.insertStatementsSubmission = insertStatementsSubmission;
     }
 }

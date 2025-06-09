@@ -1,0 +1,376 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AssessmentFunctions</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+</div>
+
+<h1>Coverage Summary for Class: AssessmentFunctions (at.jku.dke.task_app.jdbc.evaluation)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AssessmentFunctions</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    87,5%
+  </span>
+  <span class="absValue">
+    (28/32)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    90,5%
+  </span>
+  <span class="absValue">
+    (95/105)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+&nbsp;
+&nbsp;import java.sql.*;
+&nbsp;import java.util.*;
+&nbsp;import javax.tools.Diagnostic;
+&nbsp;import javax.tools.DiagnosticCollector;
+&nbsp;import javax.tools.JavaCompiler;
+&nbsp;import javax.tools.JavaFileObject;
+&nbsp;import javax.tools.StandardJavaFileManager;
+&nbsp;import javax.tools.ToolProvider;
+&nbsp;import org.h2.jdbcx.JdbcDataSource;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class contains functions used for evaluating a student&#39;s JDBC task. It includes methods for:
+&nbsp; * - Checking syntax correctness
+&nbsp; * - Comparing the student&#39;s output with the reference solution
+&nbsp; * - Analyzing and comparing the database content between the student&#39;s and the solution&#39;s code
+&nbsp; * - Retrieving the content of database tables as tuples
+&nbsp; */
+&nbsp;public class AssessmentFunctions {
+&nbsp;
+&nbsp;    private final JdbcDataSource ds;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Initializes the AssessmentFunctions instance and sets up the H2 database connection.
+&nbsp;     */
+<b class="fc">&nbsp;    public AssessmentFunctions() {</b>
+<b class="fc">&nbsp;        ds = new JdbcDataSource();</b>
+<b class="fc">&nbsp;        ds.setURL(&quot;jdbc:h2:mem:shared_db;DB_CLOSE_DELAY=-1;MODE=Oracle&quot;);</b>
+<b class="fc">&nbsp;        ds.setUser(&quot;sa&quot;);</b>
+<b class="fc">&nbsp;        ds.setPassword(&quot;&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks the syntax of the student&#39;s code.
+&nbsp;     * The method integrates the student&#39;s code into a template and attempts to compile it in memory.
+&nbsp;     *
+&nbsp;     * @param code The student&#39;s code to be checked.
+&nbsp;     * @param variables Variables that are inserted into the code.
+&nbsp;     * @param result A Result object that holds the outcome of the syntax check.
+&nbsp;     * @return {@code true} if the code compiles successfully, {@code false} if there are syntax errors.
+&nbsp;     */
+&nbsp;    public boolean checkSyntax(String code, String variables, Result result) {
+&nbsp;        try {
+&nbsp;            // Load the Template from the Template class
+<b class="fc">&nbsp;            String template = new Template().getTemplate();</b>
+&nbsp;
+&nbsp;            // Count how many lines are before the students code to get the correct line number later
+<b class="fc">&nbsp;            int variableLineCount = variables.split(&quot;\n&quot;, -1).length;</b>
+<b class="fc">&nbsp;            int linesBeforeStudentCode = countLinesBefore(template, &quot;/*&lt;StudentInput&gt; */&quot;);</b>
+<b class="fc">&nbsp;            int lineNumberModifier = linesBeforeStudentCode - 1 - 1 + variableLineCount;</b>
+&nbsp;
+&nbsp;            // Replace placeholders in the template:
+<b class="fc">&nbsp;            template = template.replace(&quot;public class Template&quot;, &quot;public class SyntaxCheck&quot;)</b>
+<b class="fc">&nbsp;                .replace(&quot;/*&lt;DB_URL&gt;*/&quot;, &quot;jdbc:h2:mem:shared_db;DB_CLOSE_DELAY=-1;MODE=Oracle&quot;);</b>
+&nbsp;
+&nbsp;            // Integrate the student&#39;s code into the template
+<b class="fc">&nbsp;            String integrated = template</b>
+<b class="fc">&nbsp;                .replace(&quot;/*&lt;Variables&gt;*/&quot;, variables)</b>
+<b class="fc">&nbsp;                .replace(&quot;/*&lt;StudentInput&gt; */&quot;, code);</b>
+&nbsp;            // Create a JavaFileObject for the integrated code, which will be compiled in-memory
+<b class="fc">&nbsp;            JavaFileObject file = new MemoryJavaFile(&quot;at.jku.dke.task_app.jdbc.SyntaxCheck&quot;, integrated);</b>
+&nbsp;
+&nbsp;            // Set the default locale to English for any error messages
+<b class="fc">&nbsp;            Locale.setDefault(Locale.ENGLISH);</b>
+&nbsp;
+&nbsp;            // Initialize the Java compiler and diagnostics collector
+<b class="fc">&nbsp;            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();</b>
+<b class="fc">&nbsp;            DiagnosticCollector&lt;JavaFileObject&gt; diagnostics = new DiagnosticCollector&lt;&gt;();</b>
+&nbsp;
+&nbsp;            // Use the custom file manager to compile in-memory, instead of using the standard file manager
+<b class="fc">&nbsp;            try (StandardJavaFileManager stdManager = compiler.getStandardFileManager(null, null, null)) {</b>
+&nbsp;                // Initialize the custom file manager that handles in-memory compilation
+<b class="fc">&nbsp;                MemoryJavaFile.FileManagerMap fileManager = new MemoryJavaFile.FileManagerMap(stdManager);</b>
+&nbsp;                //Compilation options (clear warnings)
+<b class="fc">&nbsp;                List&lt;String&gt; options = List.of(</b>
+&nbsp;                    &quot;-proc:none&quot;,
+&nbsp;                    &quot;-Xlint:-options&quot;
+&nbsp;                );
+&nbsp;                // Compile the student&#39;s code
+<b class="fc">&nbsp;                JavaCompiler.CompilationTask task = compiler.getTask(</b>
+<b class="fc">&nbsp;                    null, fileManager, diagnostics, options, null, List.of(file)</b>
+&nbsp;                );
+&nbsp;
+&nbsp;                // Call the compilation task
+<b class="fc">&nbsp;                boolean success = task.call();</b>
+&nbsp;
+&nbsp;                // If compilation fails, gather the error messages and set the result accordingly
+<b class="fc">&nbsp;                if (!success) {</b>
+<b class="fc">&nbsp;                    StringBuilder errorMessage = new StringBuilder();</b>
+<b class="fc">&nbsp;                    for (Diagnostic&lt;? extends JavaFileObject&gt; diagnostic : diagnostics.getDiagnostics()) {</b>
+<b class="fc">&nbsp;                        long lineNumber = diagnostic.getLineNumber() - lineNumberModifier;</b>
+<b class="fc">&nbsp;                        lineNumber = lineNumber &gt;= 0 ? lineNumber : 0;</b>
+&nbsp;
+<b class="fc">&nbsp;                        errorMessage</b>
+<b class="fc">&nbsp;                            .append(&quot;Syntax error&quot;)</b>
+<b class="fc">&nbsp;                            .append(&quot;: &quot;)</b>
+<b class="fc">&nbsp;                            .append(diagnostic.getMessage(null))</b>
+<b class="fc">&nbsp;                            .append(&quot; in Line &quot;)</b>
+<b class="fc">&nbsp;                            .append(lineNumber)</b>
+<b class="fc">&nbsp;                            .append(&quot;\n&quot;);</b>
+&nbsp;                    }
+&nbsp;                    // Update the result with the error details
+<b class="fc">&nbsp;                    result.setSyntaxResult(false);</b>
+<b class="fc">&nbsp;                    result.setSyntaxMessage(&quot;Syntax error&quot;);</b>
+<b class="fc">&nbsp;                    result.setSyntaxError(errorMessage.toString());</b>
+<b class="fc">&nbsp;                    return false;</b>
+&nbsp;                }
+&nbsp;                // If no errors were found, set the result as successful
+<b class="fc">&nbsp;                result.setSyntaxResult(true);</b>
+<b class="fc">&nbsp;                result.setSyntaxMessage(&quot;Syntax correct&quot;);</b>
+<b class="fc">&nbsp;                result.setSyntaxError(null);</b>
+<b class="fc">&nbsp;                return true;</b>
+&nbsp;            }
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            result.setSyntaxResult(false);</b>
+<b class="nc">&nbsp;            result.setSyntaxMessage(&quot;Failed to compile&quot;);</b>
+<b class="nc">&nbsp;            result.setSyntaxError(e.getMessage());</b>
+<b class="nc">&nbsp;            return false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Compares the output of the student&#39;s code with the expected output of the solution.
+&nbsp;     *
+&nbsp;     * @param studentOutput The output generated by the student&#39;s code.
+&nbsp;     * @param solutionOutput The expected output (reference solution output).
+&nbsp;     * @return {@code true} if both outputs are the same, {@code false} otherwise.
+&nbsp;     */
+&nbsp;    public boolean checkOutput(String studentOutput, String solutionOutput) {
+<b class="fc">&nbsp;        return studentOutput.trim().equals(solutionOutput.trim());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Analyzes the differences between the student&#39;s and the solution&#39;s database content.
+&nbsp;     * It compares the rows of each table and identifies any missing or superfluous tuples.
+&nbsp;     *
+&nbsp;     * @param studentDbUrl The URL of the student&#39;s database.
+&nbsp;     * @param solutionDbUrl The URL of the solution&#39;s database.
+&nbsp;     * @param result A  Result object that holds the outcome of the analysis.
+&nbsp;     * @param tables An array of table names to compare.
+&nbsp;     */
+&nbsp;    public void analyzeTupleDifferences(String studentDbUrl, String solutionDbUrl, Result result, String[] tables) {
+<b class="fc">&nbsp;        List&lt;List&lt;String&gt;&gt; studentTuples = getDatabaseContentAsTuples(studentDbUrl, tables);</b>
+<b class="fc">&nbsp;        List&lt;List&lt;String&gt;&gt; solutionTuples = getDatabaseContentAsTuples(solutionDbUrl, tables);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;List&lt;String&gt;&gt; missing = new ArrayList&lt;&gt;(solutionTuples);</b>
+<b class="fc">&nbsp;        missing.removeAll(studentTuples);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;List&lt;String&gt;&gt; superfluous = new ArrayList&lt;&gt;(studentTuples);</b>
+<b class="fc">&nbsp;        superfluous.removeAll(solutionTuples);</b>
+&nbsp;
+<b class="fc">&nbsp;        result.setMissingTuples(missing);</b>
+<b class="fc">&nbsp;        result.setSuperfluousTuples(superfluous);</b>
+&nbsp;
+<b class="fc">&nbsp;        StringBuilder msg = new StringBuilder();</b>
+<b class="fc">&nbsp;        if (!missing.isEmpty())</b>
+<b class="fc">&nbsp;            msg.append(&quot;Missing tuples (&quot;).append(missing.size()).append(&quot;)&quot;);</b>
+<b class="pc">&nbsp;        if (!superfluous.isEmpty())</b>
+<b class="nc">&nbsp;            msg.append(&quot; Superfluous tuples (&quot;).append(superfluous.size()).append(&quot;)&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        result.setDatabaseMessage(msg.toString().trim());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the content of the specified database tables as tuples.
+&nbsp;     * Each tuple represents a row in the database.
+&nbsp;     *
+&nbsp;     * @param dbUrl The URL of the database.
+&nbsp;     * @param tablesToCheck An array of table names to retrieve data from.
+&nbsp;     * @return A list of tuples representing the rows of the specified tables.
+&nbsp;     */
+&nbsp;    public List&lt;List&lt;String&gt;&gt; getDatabaseContentAsTuples(String dbUrl, String[] tablesToCheck) {
+<b class="fc">&nbsp;        List&lt;List&lt;String&gt;&gt; tuples = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        try (Connection con = DriverManager.getConnection(dbUrl, &quot;sa&quot;, &quot;&quot;)) {</b>
+<b class="fc">&nbsp;            for (String tableName : tablesToCheck) {</b>
+<b class="fc">&nbsp;                try (Statement stmt = con.createStatement();</b>
+<b class="fc">&nbsp;                     ResultSet rs = stmt.executeQuery(&quot;SELECT * FROM &quot; + tableName + &quot; ORDER BY 1&quot;)) {</b>
+&nbsp;
+<b class="fc">&nbsp;                    ResultSetMetaData rsMeta = rs.getMetaData();</b>
+<b class="fc">&nbsp;                    int columnCount = rsMeta.getColumnCount();</b>
+&nbsp;
+<b class="fc">&nbsp;                    while (rs.next()) {</b>
+<b class="fc">&nbsp;                        List&lt;String&gt; row = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;                        for (int i = 1; i &lt;= columnCount; i++) {</b>
+<b class="fc">&nbsp;                            Object val = rs.getObject(i);</b>
+<b class="pc">&nbsp;                            row.add(val != null ? val.toString() : &quot;NULL&quot;);</b>
+&nbsp;                        }
+<b class="fc">&nbsp;                        tuples.add(row);</b>
+&nbsp;                    }
+&nbsp;
+&nbsp;                } catch (SQLException e) {
+<b class="nc">&nbsp;                    e.printStackTrace();</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (SQLException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return tuples;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the content of the specified database tables and returns it as a list of TableDump objects.
+&nbsp;     * Each TableDump object represents a table with its columns and rows.
+&nbsp;     *
+&nbsp;     * @param dbUrl The URL of the database.
+&nbsp;     * @param tables An array of table names to retrieve data from.
+&nbsp;     * @return A list of TableDump objects containing the data from the specified tables.
+&nbsp;     */
+&nbsp;    public List&lt;TableDump&gt; getDatabaseContent(String dbUrl, String[] tables) {
+<b class="fc">&nbsp;        List&lt;TableDump&gt; result = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        try (Connection con = DriverManager.getConnection(dbUrl, &quot;sa&quot;, &quot;&quot;)) {</b>
+<b class="fc">&nbsp;            for (String tableName : tables) {</b>
+<b class="fc">&nbsp;                List&lt;String&gt; columns = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;                List&lt;List&lt;String&gt;&gt; rows = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;                try (Statement stmt = con.createStatement();</b>
+<b class="fc">&nbsp;                     ResultSet rs = stmt.executeQuery(&quot;SELECT * FROM &quot; + tableName + &quot; ORDER BY 1&quot;)) {</b>
+&nbsp;
+<b class="fc">&nbsp;                    ResultSetMetaData meta = rs.getMetaData();</b>
+<b class="fc">&nbsp;                    int colCount = meta.getColumnCount();</b>
+&nbsp;
+<b class="fc">&nbsp;                    for (int i = 1; i &lt;= colCount; i++)</b>
+<b class="fc">&nbsp;                        columns.add(meta.getColumnName(i));</b>
+&nbsp;
+<b class="fc">&nbsp;                    while (rs.next()) {</b>
+<b class="fc">&nbsp;                        List&lt;String&gt; row = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;                        for (int i = 1; i &lt;= colCount; i++) {</b>
+<b class="fc">&nbsp;                            Object val = rs.getObject(i);</b>
+<b class="pc">&nbsp;                            row.add(val != null ? val.toString() : &quot;NULL&quot;);</b>
+&nbsp;                        }
+<b class="fc">&nbsp;                        rows.add(row);</b>
+&nbsp;                    }
+<b class="fc">&nbsp;                    result.add(new TableDump(tableName, columns, rows));</b>
+&nbsp;                } catch (SQLException e) {
+<b class="nc">&nbsp;                    result.add(new TableDump(tableName, List.of(), List.of(List.of(&quot;Error: &quot; + e.getMessage()))));</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (SQLException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;DB read error: &quot; + e.getMessage(), e);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Counts the number of lines in the template before a given marker.
+&nbsp;     */
+&nbsp;    private int countLinesBefore(String template, String marker) {
+<b class="fc">&nbsp;        String[] lines = template.split(&quot;\n&quot;);</b>
+<b class="pc">&nbsp;        for (int i = 0; i &lt; lines.length; i++) {</b>
+<b class="fc">&nbsp;            if (lines[i].contains(marker)) {</b>
+<b class="fc">&nbsp;                return i + 1; // +1 to include the line with the marker itself</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return 0;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 12:05</div>
+</div>
+</body>
+</html>

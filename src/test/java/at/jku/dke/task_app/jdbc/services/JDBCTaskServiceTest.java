@@ -4,6 +4,7 @@ import at.jku.dke.etutor.task_app.dto.ModifyTaskDto;
 import at.jku.dke.etutor.task_app.dto.TaskModificationResponseDto;
 import at.jku.dke.etutor.task_app.dto.TaskStatus;
 import at.jku.dke.task_app.jdbc.data.entities.JDBCTask;
+import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
 import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
 import at.jku.dke.task_app.jdbc.services.JDBCTaskService;
 
@@ -21,11 +22,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class JDBCTaskServiceTest {
-
     @Test
     void createTask() {
         // Arrange
-        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(33));
+        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" ));
         JDBCTaskService service = new JDBCTaskService(null, null, null);
 
         // Act
@@ -38,7 +38,7 @@ class JDBCTaskServiceTest {
     @Test
     void createTaskInvalidType() {
         // Arrange
-        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto(33));
+        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "sql", TaskStatus.APPROVED,new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" ));
         JDBCTaskService service = new JDBCTaskService(null, null, null);
 
         // Act & Assert
@@ -48,9 +48,17 @@ class JDBCTaskServiceTest {
     @Test
     void updateTask() {
         // Arrange
-        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto(33));
+        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" ));
         JDBCTaskService service = new JDBCTaskService(null, null, null);
-        JDBCTask task = new JDBCTask(3);
+        JDBCTask task = new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""),
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        );
 
         // Act
         service.updateTask(task, dto);
@@ -62,9 +70,17 @@ class JDBCTaskServiceTest {
     @Test
     void updateTaskInvalidType() {
         // Arrange
-        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto(33));
+        ModifyTaskDto<ModifyJDBCTaskDto> dto = new ModifyTaskDto<>(7L, BigDecimal.TEN, "sql", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" ));
         JDBCTaskService service = new JDBCTaskService(null, null, null);
-        JDBCTask task = new JDBCTask(3);
+        JDBCTask task = new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""),
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        );;
 
         // Act & Assert
         assertThrows(ResponseStatusException.class, () -> service.updateTask(task, dto));
@@ -75,8 +91,16 @@ class JDBCTaskServiceTest {
         // Arrange
         MessageSource ms = mock(MessageSource.class);
         JDBCTaskService service = new JDBCTaskService(null, null, ms);
-        JDBCTask task = new JDBCTask(3);
-        task.setSolution(33);
+        JDBCTask task = new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""),
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        );
+        task.setSolution("SELECT * FROM books;");
 
         // Act
         TaskModificationResponseDto result = service.mapToReturnData(task, true);
@@ -86,5 +110,4 @@ class JDBCTaskServiceTest {
         verify(ms).getMessage("defaultTaskDescription", null, Locale.GERMAN);
         verify(ms).getMessage("defaultTaskDescription", null, Locale.ENGLISH);
     }
-
 }

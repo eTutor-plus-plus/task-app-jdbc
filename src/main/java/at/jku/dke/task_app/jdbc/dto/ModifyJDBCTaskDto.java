@@ -9,5 +9,14 @@ import java.io.Serializable;
  *
  * @param solution The solution.
  */
-public record ModifyJDBCTaskDto(@NotNull Integer solution) implements Serializable {
+public record ModifyJDBCTaskDto(
+    @NotNull String solution,
+    @NotNull String tables,
+    @NotNull int wrongOutputPenalty,
+    @NotNull int exceptionHandlingPenalty,
+    @NotNull int wrongDbContentPenalty,
+    @NotNull boolean checkAutocommit,
+    Integer autocommitPenalty,
+    String variables
+) implements Serializable {
 }

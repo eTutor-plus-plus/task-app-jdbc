@@ -40,14 +40,35 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
     protected JDBCTask createTask(long id, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
         if (!modifyTaskDto.taskType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
-        return new JDBCTask(modifyTaskDto.additionalData().solution());
+
+        var data = modifyTaskDto.additionalData();
+        var task = new JDBCTask(data.solution(), data.tables());
+
+        task.setWrongOutputPenalty(data.wrongOutputPenalty());
+        task.setExceptionHandlingPenalty(data.exceptionHandlingPenalty());
+        task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
+        task.setCheckAutocommit(data.checkAutocommit());
+        task.setAutocommitPenalty(data.autocommitPenalty());
+        task.setVariables(data.variables());
+        return task;
     }
 
     @Override
     protected void updateTask(JDBCTask task, ModifyTaskDto<ModifyJDBCTaskDto> modifyTaskDto) {
         if (!modifyTaskDto.taskType().equals("jdbc"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
-        task.setSolution(modifyTaskDto.additionalData().solution());
+
+        var data = modifyTaskDto.additionalData();
+
+        task.setSolution(data.solution());
+        task.setTables(data.tables());
+        task.setWrongOutputPenalty(data.wrongOutputPenalty());
+        task.setExceptionHandlingPenalty(data.exceptionHandlingPenalty());
+        task.setWrongDbContentPenalty(data.wrongDbContentPenalty());
+        task.setCheckAutocommit(data.checkAutocommit());
+        task.setAutocommitPenalty(data.autocommitPenalty());
+        task.setVariables(data.variables());
+
     }
 
     @Override

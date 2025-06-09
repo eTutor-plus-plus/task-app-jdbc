@@ -56,9 +56,25 @@ class SubmissionControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-
-        var group = this.groupRepository.save(new JDBCTaskGroup(1L, TaskStatus.APPROVED, 1, 10));
-        var task = this.repository.save(new JDBCTask(1L, BigDecimal.TWO, TaskStatus.APPROVED, group, 5));
+        var group = new JDBCTaskGroup(TaskStatus.APPROVED, "", "", "");
+        group.setId(1L);
+        group = this.groupRepository.save(group);
+        var task = new JDBCTask(
+            1L,
+            BigDecimal.TWO,
+            TaskStatus.APPROVED,
+            group,
+            "SELECT * FROM books;",
+            "books,loans",
+            "int book = 1;\nint user = 42;"
+        );
+        task.setWrongOutputPenalty(1);
+        task.setWrongDbContentPenalty(1);
+        task.setAutocommitPenalty(1);
+        task.setExceptionHandlingPenalty(1);
+        task.setCheckAutocommit(false);
+        task.setVariables(null);
+        this.repository.save(task);
         this.taskId = task.getId();
 
         var submission = new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5");
@@ -66,7 +82,6 @@ class SubmissionControllerTest {
         this.graded = this.submissionRepository.save(submission).getId();
         this.ungraded = this.submissionRepository.save(new JDBCSubmission("test-user", "test-id", task, "de", 3, SubmissionMode.SUBMIT, "5")).getId();
     }
-
     //#region --- SUBMIT ---
     @Test
     void submitInForegroundWithPersist() {
@@ -109,7 +124,7 @@ class SubmissionControllerTest {
             .contentType(ContentType.JSON)
             .body("submissionId", nullValue())
             .body("grading.maxPoints", equalTo(2f))
-            .body("grading.points", equalTo(2f))
+            .body("grading.points", equalTo(0))
             .body("grading.generalFeedback", any(String.class))
             .body("grading.criteria", hasSize(1));
     }

@@ -1,0 +1,396 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Solutions</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">at.jku.dke.task_app.jdbc.evaluation</a>
+</div>
+
+<h1>Coverage Summary for Class: Solutions (at.jku.dke.task_app.jdbc.evaluation)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Solutions</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88,9%
+  </span>
+  <span class="absValue">
+    (8/9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package at.jku.dke.task_app.jdbc.evaluation;
+&nbsp;
+<b class="nc">&nbsp;public class Solutions {</b>
+&nbsp;
+<b class="fc">&nbsp;    public static String dbSchema = &quot;CREATE TABLE books (book_id INT PRIMARY KEY, status VARCHAR(20));&quot; +</b>
+&nbsp;            &quot;CREATE TABLE loans (user_id INT, book_id INT, loan_date DATE);&quot; +
+&nbsp;            &quot;INSERT INTO books (book_id, status) VALUES (1, &#39;available&#39;);&quot; +
+&nbsp;            &quot;INSERT INTO books (book_id, status) VALUES (2, &#39;available&#39;);&quot;;
+&nbsp;
+&nbsp;    // Correct Input
+<b class="fc">&nbsp;    public static String studentInput = &quot;try (Connection con = ds.getConnection()) {\n&quot; +</b>
+&nbsp;            &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;            &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;            &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;            &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;            &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;            &quot;        } else {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;            &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot;
+&nbsp;            +
+&nbsp;            &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;            &quot;            try (\n&quot; +
+&nbsp;            &quot;                PreparedStatement insertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement secondInsertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;            &quot;            ) {\n&quot; +
+&nbsp;            &quot;                // zweiter Eintrag zuerst\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(1, 100);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(2, 2);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                // erster Eintrag danach\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(1, user);\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(2, book);\n&quot; +
+&nbsp;            &quot;                insertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;                con.commit();\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;The book loan was successfully recorded!\&quot;);\n&quot; +
+&nbsp;            &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;                con.rollback();\n&quot; +
+&nbsp;            &quot;            }\n&quot; +
+&nbsp;            &quot;        }\n&quot; +
+&nbsp;            &quot;    }\n&quot; +
+&nbsp;            &quot;} catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;    Out.println(\&quot;DB ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;}&quot;;
+&nbsp;
+&nbsp;    // Autocommit is not disabled
+<b class="fc">&nbsp;    public static String studentInputAutocommitNotDisabled = &quot;try (Connection con = ds.getConnection()) {\n&quot; +</b>
+&nbsp;            &quot;    //con.setAutoCommit(false);\n&quot; +
+&nbsp;            &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;            &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;            &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;            &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;            &quot;        } else {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;            &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot;
+&nbsp;            +
+&nbsp;            &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;            &quot;            try (\n&quot; +
+&nbsp;            &quot;                PreparedStatement insertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement secondInsertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;            &quot;            ) {\n&quot; +
+&nbsp;            &quot;                // zweiter Eintrag zuerst\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(1, 100);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(2, 2);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                // erster Eintrag danach\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(1, user);\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(2, book);\n&quot; +
+&nbsp;            &quot;                insertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;                con.commit();\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;The book loan was successfully recorded!\&quot;);\n&quot; +
+&nbsp;            &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;                con.rollback();\n&quot; +
+&nbsp;            &quot;            }\n&quot; +
+&nbsp;            &quot;        }\n&quot; +
+&nbsp;            &quot;    }\n&quot; +
+&nbsp;            &quot;} catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;    Out.println(\&quot;DB ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;}&quot;;
+&nbsp;
+&nbsp;    // No Exception Handling for Connection con = ds.getConnection()
+<b class="fc">&nbsp;    public static String studentInputNoExceptionHandling = &quot;    Connection con = ds.getConnection();\n&quot; +</b>
+&nbsp;            &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;            &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;            &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;            &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;            &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;            &quot;        } else {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;            &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot;
+&nbsp;            +
+&nbsp;            &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;            &quot;            try (\n&quot; +
+&nbsp;            &quot;                PreparedStatement insertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement secondInsertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;            &quot;            ) {\n&quot; +
+&nbsp;            &quot;                // zweiter Eintrag zuerst\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(1, 100);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(2, 2);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                // erster Eintrag danach\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(1, user);\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(2, book);\n&quot; +
+&nbsp;            &quot;                insertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;                con.commit();\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;The book loan was successfully recorded!\&quot;);\n&quot; +
+&nbsp;            &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;                con.rollback();\n&quot; +
+&nbsp;            &quot;            }\n&quot; +
+&nbsp;            &quot;        }\n&quot; +
+&nbsp;            &quot;    }\n&quot;;
+&nbsp;
+&nbsp;    // Missing ; after ResultSet rs = selectStmt.executeQuery()
+<b class="fc">&nbsp;    public static String studentInputWrongSyntax =</b>
+&nbsp;            &quot;    Connection con = ds.getConnection();\n&quot; +
+&nbsp;            &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;            &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;            &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;            &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;        ResultSet rs = selectStmt.executeQuery()\n&quot; +
+&nbsp;            &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;            &quot;        } else {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;            &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot;
+&nbsp;            +
+&nbsp;            &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;            &quot;            try (\n&quot; +
+&nbsp;            &quot;                PreparedStatement insertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement secondInsertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;            &quot;            ) {\n&quot; +
+&nbsp;            &quot;                // zweiter Eintrag zuerst\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(1, 100);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(2, 2);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                // erster Eintrag danach\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(1, user);\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(2, book);\n&quot; +
+&nbsp;            &quot;                insertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;                con.commit();\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;The book loan was successfully recorded!\&quot;);\n&quot; +
+&nbsp;            &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;                con.rollback();\n&quot; +
+&nbsp;            &quot;            }\n&quot; +
+&nbsp;            &quot;        }\n&quot; +
+&nbsp;            &quot;    }\n&quot;;
+&nbsp;
+<b class="fc">&nbsp;    public static String studentInputTooManyDbRows = &quot;try (Connection con = ds.getConnection()) {\n&quot; +</b>
+&nbsp;        &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;        &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;        &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;        &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;        &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;        &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;        &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;        &quot;        } else {\n&quot; +
+&nbsp;        &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;        &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot; +
+&nbsp;        &quot;            try (\n&quot; +
+&nbsp;        &quot;                PreparedStatement insertStmt1 = con.prepareStatement(insert);\n&quot; +
+&nbsp;        &quot;                PreparedStatement insertStmt2 = con.prepareStatement(insert);\n&quot; +
+&nbsp;        &quot;                PreparedStatement insertStmt3 = con.prepareStatement(insert);\n&quot; +
+&nbsp;        &quot;                PreparedStatement updateStmt = con.prepareStatement(\&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;)\n&quot; +
+&nbsp;        &quot;            ) {\n&quot; +
+&nbsp;        &quot;                insertStmt1.setInt(1, user);\n&quot; +
+&nbsp;        &quot;                insertStmt1.setInt(2, book);\n&quot; +
+&nbsp;        &quot;                insertStmt1.executeUpdate();\n&quot; +
+&nbsp;        &quot;\n&quot; +
+&nbsp;        &quot;                insertStmt2.setInt(1, 100);\n&quot; +
+&nbsp;        &quot;                insertStmt2.setInt(2, 2);\n&quot; +
+&nbsp;        &quot;                insertStmt2.executeUpdate();\n&quot; +
+&nbsp;        &quot;\n&quot; +
+&nbsp;        &quot;                insertStmt3.setInt(1, 101);\n&quot; +
+&nbsp;        &quot;                insertStmt3.setInt(2, 1);\n&quot; +
+&nbsp;        &quot;                insertStmt3.executeUpdate(); // too much\n&quot; +
+&nbsp;        &quot;\n&quot; +
+&nbsp;        &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;        &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;        &quot;                con.commit();\n&quot; +
+&nbsp;        &quot;                Out.println(\&quot;Loan recorded with extra entry!\&quot;);\n&quot; +
+&nbsp;        &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;        &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;        &quot;                con.rollback();\n&quot; +
+&nbsp;        &quot;            }\n&quot; +
+&nbsp;        &quot;        }\n&quot; +
+&nbsp;        &quot;    }\n&quot; +
+&nbsp;        &quot;} catch (SQLException ex) {\n&quot; +
+&nbsp;        &quot;    Out.println(\&quot;DB ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;        &quot;}&quot;;
+&nbsp;
+<b class="fc">&nbsp;    public static String studentInputTooFewDbRows = &quot;try (Connection con = ds.getConnection()) {\n&quot; +</b>
+&nbsp;        &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;        &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;        &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;        &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;        &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;        &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;        &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;        &quot;        } else {\n&quot; +
+&nbsp;        &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;        &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;        &quot;            try (\n&quot; +
+&nbsp;        &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;        &quot;            ) {\n&quot; +
+&nbsp;        &quot;                // MISSING: Insert into loans table\n&quot; +
+&nbsp;        &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;        &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;        &quot;                con.commit();\n&quot; +
+&nbsp;        &quot;                Out.println(\&quot;Only book updated, loan not recorded!\&quot;);\n&quot; +
+&nbsp;        &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;        &quot;                Out.println(\&quot;UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;        &quot;                con.rollback();\n&quot; +
+&nbsp;        &quot;            }\n&quot; +
+&nbsp;        &quot;        }\n&quot; +
+&nbsp;        &quot;    }\n&quot; +
+&nbsp;        &quot;} catch (SQLException ex) {\n&quot; +
+&nbsp;        &quot;    Out.println(\&quot;DB ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;        &quot;}&quot;;
+&nbsp;
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    public static String taskSolution = &quot;try (Connection con = ds.getConnection()) {\n&quot; +</b>
+&nbsp;            &quot;    con.setAutoCommit(false);\n&quot; +
+&nbsp;            &quot;    String select = \&quot;SELECT * FROM books WHERE book_id = ? AND status = &#39;available&#39;\&quot;;\n&quot; +
+&nbsp;            &quot;    try (PreparedStatement selectStmt = con.prepareStatement(select)) {\n&quot; +
+&nbsp;            &quot;        selectStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;        ResultSet rs = selectStmt.executeQuery();\n&quot; +
+&nbsp;            &quot;        if (!rs.next()) {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;The book is not available!\&quot;);\n&quot; +
+&nbsp;            &quot;        } else {\n&quot; +
+&nbsp;            &quot;            Out.println(\&quot;Book is available!\&quot;);\n&quot; +
+&nbsp;            &quot;            String insert = \&quot;INSERT INTO loans (user_id, book_id, loan_date) VALUES (?, ?, SYSDATE)\&quot;;\n&quot;
+&nbsp;            +
+&nbsp;            &quot;            String update = \&quot;UPDATE books SET status = &#39;borrowed&#39; WHERE book_id = ?\&quot;;\n&quot; +
+&nbsp;            &quot;            try (\n&quot; +
+&nbsp;            &quot;                PreparedStatement insertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement secondInsertStmt = con.prepareStatement(insert);\n&quot; +
+&nbsp;            &quot;                PreparedStatement updateStmt = con.prepareStatement(update)\n&quot; +
+&nbsp;            &quot;            ) {\n&quot; +
+&nbsp;            &quot;                // erster Eintrag\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(1, user);\n&quot; +
+&nbsp;            &quot;                insertStmt.setInt(2, book);\n&quot; +
+&nbsp;            &quot;                insertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                // zweiter Eintrag\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(1, 100);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.setInt(2, 2);\n&quot; +
+&nbsp;            &quot;                secondInsertStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;\n&quot; +
+&nbsp;            &quot;                updateStmt.setInt(1, book);\n&quot; +
+&nbsp;            &quot;                updateStmt.executeUpdate();\n&quot; +
+&nbsp;            &quot;                con.commit();\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;The book loan was successfully recorded!\&quot;);\n&quot; +
+&nbsp;            &quot;            } catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;                Out.println(\&quot;INSERT/UPDATE ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;                con.rollback();\n&quot; +
+&nbsp;            &quot;            }\n&quot; +
+&nbsp;            &quot;        }\n&quot; +
+&nbsp;            &quot;    }\n&quot; +
+&nbsp;            &quot;} catch (SQLException ex) {\n&quot; +
+&nbsp;            &quot;    Out.println(\&quot;DB ERROR: \&quot; + ex.getMessage());\n&quot; +
+&nbsp;            &quot;}&quot;;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-05-26 07:51</div>
+</div>
+</body>
+</html>
