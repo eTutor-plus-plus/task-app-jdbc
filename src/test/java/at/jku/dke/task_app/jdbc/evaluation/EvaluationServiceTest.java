@@ -64,7 +64,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_runMode_validSyntax() {
+    void evaluate_runMode_validSyntax() {
         var submission = new SubmitSubmissionDto<>(
             "user1", "assign1", 1L, "de", SubmissionMode.RUN, 3,
             new JDBCSubmissionDto("SELECT 1;")
@@ -90,7 +90,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_runMode_invalidSyntax() {
+    void evaluate_runMode_invalidSyntax() {
         var submission = new SubmitSubmissionDto<>(
             "user1", "assign1", 1L, "de", SubmissionMode.RUN, 3,
             new JDBCSubmissionDto("NOT VALID SQL")
@@ -114,7 +114,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_diagnoseMode_allCorrect() {
+    void evaluate_diagnoseMode_allCorrect() {
         Result result = new Result();
         result.setSyntaxResult(true);
         result.setAutoCommitResult(true);
@@ -138,7 +138,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_taskNotFound_shouldThrowException() {
+    void evaluate_taskNotFound_shouldThrowException() {
         var submission = new SubmitSubmissionDto<>(
             "user1", "assign1", 99L, "de", SubmissionMode.RUN, 3,
             new JDBCSubmissionDto("SELECT 1;")
@@ -150,7 +150,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_diagnoseMode_autocommitIncorrect() {
+    void evaluate_diagnoseMode_autocommitIncorrect() {
         Result result = new Result();
         result.setSyntaxResult(true);
         result.setAutoCommitResult(false);
@@ -172,7 +172,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_diagnoseMode_outputIncorrect() {
+    void evaluate_diagnoseMode_outputIncorrect() {
         Result result = new Result();
         result.setSyntaxResult(true);
         result.setAutoCommitResult(true);
@@ -205,7 +205,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_diagnoseMode_databaseIncorrect() {
+    void evaluate_diagnoseMode_databaseIncorrect() {
         Result result = new Result();
         result.setSyntaxResult(true);
         result.setAutoCommitResult(true);
@@ -228,7 +228,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testEvaluate_diagnoseMode_exceptionIncorrect() {
+    void evaluate_diagnoseMode_exceptionIncorrect() {
         Result result = new Result();
         result.setSyntaxResult(true);
         result.setAutoCommitResult(true);
@@ -249,7 +249,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testRenderTableDumps_shouldGenerateCorrectHtml() throws Exception {
+    void renderTableDumps_shouldGenerateCorrectHtml() throws Exception {
         TableDump dump = new TableDump(
             "test_table",
             List.of("id", "name"),
@@ -267,7 +267,7 @@ class EvaluationServiceTest {
     }
 
     @Test
-    void testNegativePointsAreClampedToZero() {
+    void negativePointsAreLimitedToZero() {
         mockTask.setMaxPoints(BigDecimal.ONE);
         mockTask.setAutocommitPenalty(1);
         mockTask.setWrongOutputPenalty(1);

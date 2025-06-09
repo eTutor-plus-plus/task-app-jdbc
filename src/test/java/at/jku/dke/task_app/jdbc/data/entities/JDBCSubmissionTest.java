@@ -10,20 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class JDBCSubmissionTest {
 
     @Test
-    void testDefaultConstructor() {
+    void defaultConstructor() {
         JDBCSubmission submission = new JDBCSubmission();
         assertNotNull(submission);
     }
 
     @Test
-    void testConstructorWithOnlySubmissionText() {
+    void constructorWithOnlySubmissionText() {
         String expected = "SELECT * FROM books;";
         JDBCSubmission submission = new JDBCSubmission(expected);
         assertEquals(expected, submission.getSubmission());
     }
 
     @Test
-    void testFullConstructor() {
+    void fullConstructor() {
         String userId = "user123";
         String assignmentId = "assignmentABC";
         String language = "de";
@@ -44,7 +44,7 @@ class JDBCSubmissionTest {
     }
 
     @Test
-    void testGetSetSubmission() {
+    void getAndSetSubmission() {
         JDBCSubmission submission = new JDBCSubmission();
         String expected = "UPDATE books SET status = 'borrowed' WHERE id = 1;";
         submission.setSubmission(expected);

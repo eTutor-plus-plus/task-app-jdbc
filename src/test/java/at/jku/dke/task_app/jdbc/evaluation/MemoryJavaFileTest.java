@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MemoryJavaFileTest {
 
     @Test
-    public void testConstructor_SourceFile() {
+    public void constructor_SourceFile() {
         String className = "com.example.SourceClass";
         String source = "public class SourceClass {}";
 
@@ -23,7 +23,7 @@ public class MemoryJavaFileTest {
     }
 
     @Test
-    public void testConstructor_BytecodeFile() throws Exception {
+    public void constructor_BytecodeFile() throws Exception {
         String className = "com.example.BytecodeClass";
 
         MemoryJavaFile file = new MemoryJavaFile(className, JavaFileObject.Kind.CLASS);
@@ -40,7 +40,7 @@ public class MemoryJavaFileTest {
     }
 
     @Test
-    public void testGetCompiledBytes_ReturnsNullForSourceFile() {
+    public void getCompiledBytes_ReturnsNullForSourceFile() {
         String className = "com.example.SourceClass";
         MemoryJavaFile file = new MemoryJavaFile(className, "public class SourceClass {}");
 
@@ -48,7 +48,7 @@ public class MemoryJavaFileTest {
     }
 
     @Test
-    public void testFileManagerMap_StoresCompiledBytecode() {
+    public void fileManagerMap_StoresCompiledBytecode() {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull(compiler, "JDK required for tests (javac)");
 
@@ -81,7 +81,7 @@ public class MemoryJavaFileTest {
     }
 
     @Test
-    public void testFileManagerMap_HandlesMultipleClasses() {
+    public void fileManagerMap_HandlesMultipleClasses() {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull(compiler);
 

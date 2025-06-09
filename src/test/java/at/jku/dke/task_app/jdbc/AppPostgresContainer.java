@@ -19,10 +19,10 @@ class AppPostgresContainer extends PostgreSQLContainer<AppPostgresContainer> {
     public static final DockerImageName IMAGE_NAME = DockerImageName.parse(IMAGE_VERSION);
 
     public static final String DATABASE_NAME = "test_db";
-    public static final String USERNAME = "etutor_JDBC_test_admin";
+    public static final String USERNAME = "etutor_jdbc_test_admin";
     public static final String PASSWORD = "strong-password";
-    public static final String ETUTOR_USERNAME = "etutor_JDBC_test";
-    public static final String ETUTOR_PASSWORD = "etutor_JDBC_pwd";
+    public static final String ETUTOR_USERNAME = "etutor_jdbc_test";
+    public static final String ETUTOR_PASSWORD = "etutor_jdbc_pwd";
 
     /**
      * The singleton instance of the test database container.
@@ -38,10 +38,11 @@ class AppPostgresContainer extends PostgreSQLContainer<AppPostgresContainer> {
 
                 $POSTGRES <<-EOSQL
                 CREATE USER %s WITH CREATEDB PASSWORD '%s';
-                GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES IN SCHEMA public TO %s;
+                GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO %s;
+                GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO %s;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLES TO %s;
                 EOSQL
-                """, USERNAME, DATABASE_NAME, ETUTOR_USERNAME, ETUTOR_PASSWORD, ETUTOR_USERNAME, ETUTOR_USERNAME)),
+                """, USERNAME, DATABASE_NAME, ETUTOR_USERNAME, ETUTOR_PASSWORD, ETUTOR_USERNAME, ETUTOR_USERNAME, ETUTOR_USERNAME)),
             "/docker-entrypoint-initdb.d/900-create_user.sh");
 
     /**

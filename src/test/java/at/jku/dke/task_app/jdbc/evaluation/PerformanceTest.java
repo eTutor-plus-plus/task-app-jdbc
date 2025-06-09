@@ -25,7 +25,7 @@ public class PerformanceTest {
     private static final String[] tables = new String[]{"users"};
 
     @Test
-    public void testConcurrentEvaluations() throws InterruptedException {
+    public void concurrentEvaluations() throws InterruptedException {
         int[] threadCounts = new int[]{1};
 
         for (int threads : threadCounts) {

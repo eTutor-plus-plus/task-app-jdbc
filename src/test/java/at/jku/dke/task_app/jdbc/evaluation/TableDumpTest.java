@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TableDumpTest {
 
     @Test
-    public void testTableDumpConstructionAndAccess() {
+    public void tableDumpConstructionAndAccess() {
         List<String> columns = List.of("id", "name");
         List<List<String>> rows = List.of(
             List.of("1", "Test1"),
@@ -24,7 +24,7 @@ public class TableDumpTest {
     }
 
     @Test
-    public void testEquality() {
+    public void equalityOfTables() {
         TableDump d1 = new TableDump(
             "products",
             List.of("id", "title"),
@@ -48,7 +48,7 @@ public class TableDumpTest {
     }
 
     @Test
-    public void testToStringContainsTableName() {
+    public void toStringContainsTableName() {
         TableDump dump = new TableDump("employees", List.of("id"), List.of(List.of("1")));
 
         String str = dump.toString();

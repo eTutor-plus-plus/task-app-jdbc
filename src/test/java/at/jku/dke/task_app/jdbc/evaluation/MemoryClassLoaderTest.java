@@ -33,7 +33,7 @@ public class MemoryClassLoaderTest {
 
 
     @Test
-    public void testLoadValidClassFromMemory() throws Exception {
+    public void loadValidClassFromMemory() throws Exception {
         String className = "HelloWorld";
         String qualifiedName = "HelloWorld";
         String sourceCode = """
@@ -54,7 +54,7 @@ public class MemoryClassLoaderTest {
     }
 
     @Test
-    public void testDelegationToParentClassLoader() throws Exception {
+    public void delegationToParentClassLoader() throws Exception {
         MemoryClassLoader loader = new MemoryClassLoader(Map.of());
 
         Class<?> clazz = loader.loadClass("java.lang.String");
@@ -64,7 +64,7 @@ public class MemoryClassLoaderTest {
     }
 
     @Test
-    public void testClassNotFoundExceptionWhenClassIsMissing() {
+    public void classNotFoundExceptionWhenClassIsMissing() {
         MemoryClassLoader loader = new MemoryClassLoader(Map.of());
 
         assertThrows(ClassNotFoundException.class, () -> {

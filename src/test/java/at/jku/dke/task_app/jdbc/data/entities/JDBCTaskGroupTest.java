@@ -8,13 +8,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class JDBCTaskGroupTest {
 
     @Test
-    void testDefaultConstructor() {
+    void defaultConstructor() {
         JDBCTaskGroup group = new JDBCTaskGroup();
         assertNotNull(group);
     }
 
     @Test
-    void testConstructorWithCreateAndInsertStatements() {
+    void constructorWithCreateAndInsertStatements() {
         String createStmt = "CREATE TABLE test (id INT);";
         String insertDiag = "INSERT INTO test VALUES (1);";
         String insertSub = "INSERT INTO test VALUES (2);";
@@ -27,7 +27,7 @@ class JDBCTaskGroupTest {
     }
 
     @Test
-    void testConstructorWithStatusAndStatements() {
+    void constructorWithStatusAndStatements() {
         TaskStatus status = TaskStatus.APPROVED;
         String createStmt = "CREATE TABLE example (x INT);";
         String insertDiag = "INSERT INTO example VALUES (10);";
@@ -42,7 +42,7 @@ class JDBCTaskGroupTest {
     }
 
     @Test
-    void testConstructorWithIdStatusAndStatements() {
+    void constructorWithIdStatusAndStatements() {
         long id = 123L;
         TaskStatus status = TaskStatus.DRAFT;
         String createStmt = "CREATE TABLE t (a INT);";
@@ -59,7 +59,7 @@ class JDBCTaskGroupTest {
     }
 
     @Test
-    void testSettersAndGetters() {
+    void settersAndGetters() {
         JDBCTaskGroup group = new JDBCTaskGroup();
         String createStmt = "CREATE TABLE demo (id INT);";
         String insertDiag = "INSERT INTO demo VALUES (1);";

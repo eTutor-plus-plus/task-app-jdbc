@@ -67,7 +67,7 @@ class AssessmentServiceTest {
         """;
 
     @Test
-    void testAssessTask_validCode() {
+    void assessTask_validCode() {
         String code = addUniqueClassName(validCode, "Valid" + UUID.randomUUID());
         Result result = AssessmentService.assessTask(code, schema, code, tables, "", true);
 
@@ -80,7 +80,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void testAssessTask_syntaxError() {
+    void assessTask_syntaxError() {
         String code = addUniqueClassName(faultySyntaxCode, "Faulty" + UUID.randomUUID());
         Result result = AssessmentService.assessTask(code, schema, code, tables, "", true);
 
@@ -90,7 +90,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void testAssessTask_autocommitNotSet() {
+    void assessTask_autocommitNotSet() {
         String code = addUniqueClassName(codeWithNoAutocommit, "NoAuto" + UUID.randomUUID());
         Result result = AssessmentService.assessTask(code, schema, code, tables, "", true);
 
@@ -100,7 +100,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void testAssessTask_databaseMismatch() {
+    void assessTask_databaseMismatch() {
         String code = addUniqueClassName(codeWithNoChange, "DbMismatch" + UUID.randomUUID());
         String solution = addUniqueClassName(validCode, "Ref" + UUID.randomUUID());
 
@@ -115,7 +115,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void testAssessTask_outputMismatch() {
+    void assessTask_outputMismatch() {
         String studentCode = addUniqueClassName(validCodeWithOutput, "OutputMismatch" + UUID.randomUUID());
         String solutionCode = addUniqueClassName(validCode, "Ref" + UUID.randomUUID());
 
@@ -131,7 +131,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void testAssessTask_runMode_onlySyntaxCheck() {
+    void assessTask_runMode_onlySyntaxCheck() {
         String code = addUniqueClassName(validCodeWithOutput, "RunOnly" + UUID.randomUUID());
         Result result = AssessmentService.assessTask(code, schema, "", tables, "", false);
         assertNotNull(result);

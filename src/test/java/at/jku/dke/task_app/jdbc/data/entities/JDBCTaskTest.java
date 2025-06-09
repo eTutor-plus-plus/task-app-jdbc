@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JDBCTaskTest {
 
     @Test
-    void testConstructorWithSolutionAndTables() {
+    void constructorWithSolutionAndTables() {
         String solution = "SELECT * FROM books;";
         String tables = "books";
         JDBCTask task = new JDBCTask(solution, tables);
@@ -20,7 +20,7 @@ class JDBCTaskTest {
     }
 
     @Test
-    void testFullConstructor() {
+    void fullConstructor() {
         BigDecimal points = BigDecimal.TEN;
         TaskStatus status = TaskStatus.APPROVED;
         JDBCTaskGroup group = new JDBCTaskGroup();
@@ -39,7 +39,7 @@ class JDBCTaskTest {
     }
 
     @Test
-    void testGettersAndSetters() {
+    void gettersAndSetters() {
         JDBCTask task = new JDBCTask();
 
         task.setSolution("SOLUTION");
@@ -62,7 +62,7 @@ class JDBCTaskTest {
     }
 
     @Test
-    void testJDBCTaskConstructor_initializesFieldsCorrectly() {
+    void jdbcTaskConstructor_initializesFieldsCorrectly() {
         BigDecimal points = BigDecimal.TEN;
         TaskStatus status = TaskStatus.DRAFT;
         JDBCTaskGroup group = new JDBCTaskGroup("CREATE TABLE books(id INT);", "INSERT INTO books VALUES (1);", "INSERT INTO books VALUES (1);");

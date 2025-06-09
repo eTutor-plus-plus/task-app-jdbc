@@ -45,9 +45,11 @@ class TaskControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-        var group = this.groupRepository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""));
+        var group = new JDBCTaskGroup(TaskStatus.APPROVED, "", "", "");
+        group.setId(1L);
+        group = this.groupRepository.save(group);
         this.taskGroupId = group.getId();
-        this.taskId = this.repository.save(new JDBCTask(
+        var task = new JDBCTask(
             1L,
             BigDecimal.TWO,
             TaskStatus.APPROVED,
@@ -55,7 +57,15 @@ class TaskControllerTest {
             "SELECT * FROM books;",
             "books,loans",
             "int book = 1;\nint user = 42;"
-        )).getId();
+        );
+        task.setWrongOutputPenalty(1);
+        task.setWrongDbContentPenalty(1);
+        task.setAutocommitPenalty(1);
+        task.setExceptionHandlingPenalty(1);
+        task.setCheckAutocommit(false);
+        task.setVariables(null);
+        this.repository.save(task);
+        this.taskId = task.getId();
     }
     //#region --- GET ---
     @Test
@@ -72,7 +82,7 @@ class TaskControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("solution", equalTo(5));
+            .body("solution", equalTo("SELECT * FROM books;"));
     }
 
     @Test
@@ -113,7 +123,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -133,7 +143,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .post("/api/task/{id}", this.taskId + 2)
@@ -182,7 +192,7 @@ class TaskControllerTest {
             .port(port)
             .header(AuthConstants.AUTH_TOKEN_HEADER_NAME, ClientSetupExtension.CRUD_API_KEY)
             .contentType(ContentType.JSON)
-            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "JDBC", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
+            .body(new ModifyTaskDto<>(this.taskGroupId, BigDecimal.TEN, "jdbc", TaskStatus.APPROVED, new ModifyJDBCTaskDto("", "", 1,1, 1, true, 1, "" )))
             // WHEN
             .when()
             .put("/api/task/{id}", this.taskId)
@@ -306,7 +316,9 @@ class TaskControllerTest {
     @Test
     void mapToDto() {
         // Arrange
-        var group = this.groupRepository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "", "", ""));
+        var group = new JDBCTaskGroup(TaskStatus.APPROVED, "", "", "");
+        group.setId(2L);
+        group = this.groupRepository.save(group);
         this.taskGroupId = group.getId();
         var task = new JDBCTask(
             1L,
@@ -317,11 +329,16 @@ class TaskControllerTest {
             "books,loans",
             "int book = 1;\nint user = 42;"
         );
-
+        task.setWrongOutputPenalty(1);
+        task.setWrongDbContentPenalty(1);
+        task.setAutocommitPenalty(1);
+        task.setExceptionHandlingPenalty(1);
+        task.setCheckAutocommit(false);
+        task.setVariables(null);
         // Act
         var result = new TaskController(null).mapToDto(task);
 
         // Assert
-        assertEquals(42, result.solution());
+        assertEquals("SELECT * FROM books;", result.solution());
     }
 }

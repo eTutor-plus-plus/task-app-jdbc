@@ -26,7 +26,7 @@ public class CodeRunnerTest {
     }
 
     @Test
-    public void testRunCodeReturnsExpectedOutput() {
+    public void runCodeReturnsExpectedOutput() {
         String className = "TestClass";
         String code = """
             public class TestClass {
@@ -43,7 +43,7 @@ public class CodeRunnerTest {
     }
 
     @Test
-    public void testRunCodeTimeout() {
+    public void runCodeTimeout() {
         String className = "TimeoutClass";
         String code = """
             public class TimeoutClass {
@@ -63,7 +63,7 @@ public class CodeRunnerTest {
     }
 
     @Test
-    public void testRunCodeThrowsException() {
+    public void runCodeThrowsException() {
         String className = "ExceptionClass";
         String code = """
             public class ExceptionClass {

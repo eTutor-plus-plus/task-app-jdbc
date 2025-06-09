@@ -39,8 +39,10 @@ class TaskGroupControllerTest {
     @BeforeEach
     void initDb() {
         this.repository.deleteAll();
-        this.taskGroupId = this.repository.save(new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3")).getId();
-    }
+        var group = new JDBCTaskGroup(TaskStatus.APPROVED, "1", "2", "3");
+        group.setId(1L);
+        group = this.repository.save(group);
+        this.taskGroupId = group.getId();    }
 
     //#region --- GET ---
     @Test
@@ -57,8 +59,8 @@ class TaskGroupControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("minNumber", equalTo(1))
-            .body("maxNumber", equalTo(5));
+            .body("createStatements", equalTo("1"))
+            .body("insertStatementsDiagnose", equalTo("2"));
     }
 
     @Test
@@ -109,8 +111,8 @@ class TaskGroupControllerTest {
             .statusCode(201)
             .contentType(ContentType.JSON)
             .header("Location", containsString("/api/taskGroup/" + (this.taskGroupId + 2)))
-            .body("descriptionDe", containsString("5"))
-            .body("descriptionEn", containsString("5"));
+            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
+            .body("descriptionEn", containsString("TaskGroupDescription."));
     }
 
     @Test
@@ -177,8 +179,8 @@ class TaskGroupControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("descriptionDe", containsString("10"))
-            .body("descriptionEn", containsString("10"));
+            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
+            .body("descriptionEn", containsString("TaskGroupDescription."));
     }
 
     @Test
