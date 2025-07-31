@@ -111,8 +111,8 @@ class TaskGroupControllerTest {
             .statusCode(201)
             .contentType(ContentType.JSON)
             .header("Location", containsString("/api/taskGroup/" + (this.taskGroupId + 2)))
-            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
-            .body("descriptionEn", containsString("TaskGroupDescription."));
+            .body("descriptionDe", containsString("Relationenschema:"))
+            .body("descriptionEn", containsString("Relational schema:"));
     }
 
     @Test
@@ -179,8 +179,8 @@ class TaskGroupControllerTest {
             .log().ifValidationFails()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("descriptionDe", containsString("TaskGruppenBeschreibung."))
-            .body("descriptionEn", containsString("TaskGroupDescription."));
+            .body("descriptionDe", containsString("Relationenschema:"))
+            .body("descriptionEn", containsString("Relational schema:"));
     }
 
     @Test

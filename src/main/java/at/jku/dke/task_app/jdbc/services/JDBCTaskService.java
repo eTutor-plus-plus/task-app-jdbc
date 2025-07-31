@@ -8,7 +8,8 @@ import at.jku.dke.task_app.jdbc.data.entities.JDBCTaskGroup;
 import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskGroupRepository;
 import at.jku.dke.task_app.jdbc.data.repositories.JDBCTaskRepository;
 import at.jku.dke.task_app.jdbc.dto.ModifyJDBCTaskDto;
-
+import at.jku.dke.task_app.jdbc.evaluation.AssessmentFunctions;
+import at.jku.dke.task_app.jdbc.evaluation.Result;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,14 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
 
         var data = modifyTaskDto.additionalData();
+
+        //Syntax Check
+        Result syntaxResult = new Result();
+        boolean syntaxOk = new AssessmentFunctions().checkSyntax(data.solution(), data.variables(), syntaxResult);
+        if (!syntaxOk) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: " + syntaxResult.getSyntaxError());
+        }
+
         var task = new JDBCTask(data.solution(), data.tables());
 
         task.setWrongOutputPenalty(data.wrongOutputPenalty());
@@ -59,6 +68,13 @@ public class JDBCTaskService extends BaseTaskInGroupService<JDBCTask, JDBCTaskGr
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task type.");
 
         var data = modifyTaskDto.additionalData();
+
+        //Syntax Check
+        Result syntaxResult = new Result();
+        boolean syntaxOk = new AssessmentFunctions().checkSyntax(data.solution(), data.variables(), syntaxResult);
+        if (!syntaxOk) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: " + syntaxResult.getSyntaxError());
+        }
 
         task.setSolution(data.solution());
         task.setTables(data.tables());

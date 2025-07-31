@@ -51,6 +51,7 @@ public class PerformanceTest {
 
                     long start = System.nanoTime();
                     Result result = AssessmentService.assessTask(studentCode, schema, taskSolution, tables, "", true);
+                    System.out.println(result.toString());
                     long end = System.nanoTime();
 
                     if (result == null)
