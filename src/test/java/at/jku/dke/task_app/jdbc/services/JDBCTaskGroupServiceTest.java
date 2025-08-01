@@ -104,7 +104,7 @@ class JDBCTaskGroupServiceTest {
     }
 
     @Test
-    void loadSchemaTableDumps_simpleSchema_returnsCorrectDump() throws Exception {
+    void loadSchemaTableDumps_returnsCorrectDump() throws Exception {
         String ddl = "CREATE TABLE test(id INT PRIMARY KEY, name VARCHAR(255));";
         when(ms.getMessage("table.header.name", null, Locale.ENGLISH)).thenReturn("Name");
         when(ms.getMessage("table.header.type", null, Locale.ENGLISH)).thenReturn("Type");
