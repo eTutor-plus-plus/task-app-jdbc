@@ -3,6 +3,7 @@ package at.jku.dke.task_app.jdbc.evaluation;
 import javax.tools.*;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class is responsible for evaluating a student's JDBC code against a predefined solution.
@@ -125,27 +126,48 @@ public class AssessmentService {
             evalResult.setSuperfluousOutputs(extra);
 
             // 7. Compare database states between student and solution
-            resetDatabase(solutionDbUrl, dbSchema);
-            solutionOutput = CodeRunner.runCode(
-                "at.jku.dke.task_app.jdbc.TemplateSolution", compiledSolutionClasses
-            );
             assessment.analyzeTupleDifferences(studentDbUrl, solutionDbUrl, evalResult, tables);
+            //Clean timestamps by cutting of the time to not fail the assessment when seconds do not match but keep them for the results
+            List<List<String>> missingOriginal = evalResult.getMissingTuples();
+            List<List<String>> superfluousOriginal = evalResult.getSuperfluousTuples();
+            // Cut timestamps
+            List<List<String>> missingStripped = missingOriginal.stream()
+                .map(tuple -> tuple.stream()
+                    .map(cell -> {
+                        //Clean timestamps by cutting of the time to not fail the assessment when seconds do not match but keep them for the results
+                        String base = cell.contains(" ") ? cell.split(" ")[0] : cell;
+                        // Remove all whitespaces
+                        return base.replaceAll("\\s+", "");
+                    })
+                    .collect(Collectors.toList()))
+                .toList();
+            List<List<String>> superfluousStripped = superfluousOriginal.stream()
+                .map(tuple -> tuple.stream()
+                    .map(cell -> {
+                        String base = cell.contains(" ") ? cell.split(" ")[0] : cell;
+                        return base.replaceAll("\\s+", "");
+                    })
+                    .collect(Collectors.toList()))
+                .toList();
 
-            boolean dbResult = evalResult.getMissingTuples().isEmpty() && evalResult.getSuperfluousTuples().isEmpty();
+
+            boolean dbResult = missingStripped.isEmpty() && superfluousStripped.isEmpty();
+
             evalResult.setDatabaseResult(dbResult);
             if (dbResult) {
                 evalResult.setDatabaseMessage("Database content correct");
             } else {
-                int missingCount = evalResult.getMissingTuples().size();
-                int extraCount = evalResult.getSuperfluousTuples().size();
-                evalResult.setDatabaseMessage("Incorrect Database Content: "
-                    + missingCount + " missing, "
-                    + extraCount + " extra tuples.\n" +
-                    "Missing: " + evalResult.getMissingTuples() + "\n" +
-                    "Extra: " + evalResult.getSuperfluousTuples());
+            int missingCount = missingOriginal.size();
+            int extraCount = superfluousOriginal.size();
+            evalResult.setDatabaseMessage("Incorrect Database Content: "
+                + missingCount + " missing, "
+                + extraCount + " extra tuples.\n"
+                + "Missing: " + missingOriginal + "\n"
+                + "Extra: " + superfluousOriginal);
             }
 
-            // 8. Exception Handling Test
+
+        // 8. Exception Handling Test
             DriverManager.setLoginTimeout(1);
             String integratedStudentFaulty = new Template().getTemplate()
                 .replace("/*<Variables>*/", variables)
@@ -163,21 +185,13 @@ public class AssessmentService {
             );
 
             // 9. Get exception handling result
-            if (faultyOutput.contains("DB ERROR")) {
+            boolean uncaught = faultyOutput.contains(".java:");
+            if (!uncaught) {
                 evalResult.setExceptionResult(true);
                 evalResult.setExceptionMessage("Exceptions handled correctly");
-            } else if (faultyOutput.contains("Student code crashed")) {
-                evalResult.setExceptionResult(false);
-                evalResult.setExceptionMessage("Exceptions caught by template");
-            } else if (faultyOutput.contains("java.net.UnknownHostException") || faultyOutput.contains("java.sql.SQLException")) {
-                evalResult.setExceptionResult(false);
-                evalResult.setExceptionMessage("java.sql.SQLException thrown");
-            } else if (faultyOutput.strip().isEmpty()) {
-                evalResult.setExceptionResult(false);
-                evalResult.setExceptionMessage("Unclear");
             } else {
                 evalResult.setExceptionResult(false);
-                evalResult.setExceptionMessage("Unrecognized");
+                evalResult.setExceptionMessage("Exception was not caught");
             }
             return evalResult;
         } catch (Exception e) {

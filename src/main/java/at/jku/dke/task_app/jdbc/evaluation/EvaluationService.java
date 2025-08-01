@@ -97,6 +97,7 @@ public class EvaluationService {
                         locale
                     ) + (syntaxOk ? "" : ": " + testResult.getSyntaxError())
                 ));
+                //Stop when syntax is not okay
                 if (!syntaxOk) {
                     feedback = messageSource.getMessage("incorrect", null, locale);
                     return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
@@ -109,19 +110,18 @@ public class EvaluationService {
                     feedback += "</details><br/><hr>";
                 }
                 //Output
-                if (feedbackLevel >= 2) {
-                    feedback += "<br/><strong>" + messageSource.getMessage("text.output", new Object[]{}, locale) + "</strong><br/><br/>";
-                    feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
-                    feedback += "<br/>";
-                }
-                //Database State
-                if (feedbackLevel >= 3) {
-                    feedback += "<hr><br/><details><summary style='cursor: pointer;'><strong>" + messageSource.getMessage("text.databaseafter", new Object[]{}, locale) + "</strong></summary>";
-                    feedback += renderTableDumps(testResult.getStudentQueryResult());
-                    feedback += "</details><br/>";
-                }
+                feedback += "<br/><strong>" + messageSource.getMessage("text.output", new Object[]{}, locale) + "</strong><br/><br/>";
+                feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
+                feedback += "<br/>";
 
-                break;
+
+
+                //Database State
+                feedback += "<hr><br/><details><summary style='cursor: pointer;'><strong>" + messageSource.getMessage("text.databaseafter", new Object[]{}, locale) + "</strong></summary>";
+                feedback += renderTableDumps(testResult.getStudentQueryResult());
+                feedback += "</details><br/>";
+
+                return new GradingDto(task.getMaxPoints(), points, feedback, criteria);
             }
 
             case DIAGNOSE, SUBMIT: {
@@ -240,7 +240,7 @@ public class EvaluationService {
             default: throw new IllegalStateException("Unexpected mode: " + submission.mode());
         }
         //Explanation of Deductions in Feedback-Level 3
-        if (feedbackLevel >= 3 && submission.mode() == SubmissionMode.SUBMIT) {
+        if (feedbackLevel >= 3 && (submission.mode() == SubmissionMode.SUBMIT || submission.mode() == SubmissionMode.DIAGNOSE)) {
             feedback += "<hr><br/><strong>" + messageSource.getMessage("deduction.heading", null, locale) + "</strong>";
 
             boolean anyDeduction = false;

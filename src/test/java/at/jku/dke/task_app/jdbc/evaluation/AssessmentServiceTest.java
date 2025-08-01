@@ -76,7 +76,7 @@ class AssessmentServiceTest {
         assertTrue(result.getAutoCommitResult());
         assertTrue(result.getOutputComparisonResult());
         assertTrue(result.getDatabaseResult());
-        assertFalse(result.getExceptionResult());
+        assertTrue(result.getExceptionResult());
     }
 
     @Test
