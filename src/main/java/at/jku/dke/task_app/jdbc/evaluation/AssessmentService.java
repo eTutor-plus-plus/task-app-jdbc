@@ -133,14 +133,23 @@ public class AssessmentService {
             // Cut timestamps
             List<List<String>> missingStripped = missingOriginal.stream()
                 .map(tuple -> tuple.stream()
-                    .map(cell -> cell.contains(" ") ? cell.split(" ")[0] : cell)
+                    .map(cell -> {
+                        //Clean timestamps by cutting of the time to not fail the assessment when seconds do not match but keep them for the results
+                        String base = cell.contains(" ") ? cell.split(" ")[0] : cell;
+                        // Remove all whitespaces
+                        return base.replaceAll("\\s+", "");
+                    })
                     .collect(Collectors.toList()))
                 .toList();
             List<List<String>> superfluousStripped = superfluousOriginal.stream()
                 .map(tuple -> tuple.stream()
-                    .map(cell -> cell.contains(" ") ? cell.split(" ")[0] : cell)
+                    .map(cell -> {
+                        String base = cell.contains(" ") ? cell.split(" ")[0] : cell;
+                        return base.replaceAll("\\s+", "");
+                    })
                     .collect(Collectors.toList()))
                 .toList();
+
 
             boolean dbResult = missingStripped.isEmpty() && superfluousStripped.isEmpty();
 
