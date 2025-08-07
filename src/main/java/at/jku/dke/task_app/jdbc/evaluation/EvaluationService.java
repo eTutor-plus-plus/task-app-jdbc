@@ -104,11 +104,11 @@ public class EvaluationService {
                 }
                 feedback = "";
                 //Database content before executing Students' code
-                if (feedbackLevel >= 3) {
-                    feedback += "<br/><br/><details><summary><strong>" + messageSource.getMessage("text.databasebefore", new Object[]{}, locale) + "</strong></summary>";
-                    feedback += renderTableDumps(testResult.getDatabaseBefore());
-                    feedback += "</details><br/><hr>";
-                }
+
+                feedback += "<br/><br/><details><summary><strong>" + messageSource.getMessage("text.databasebefore", new Object[]{}, locale) + "</strong></summary>";
+                feedback += renderTableDumps(testResult.getDatabaseBefore());
+                feedback += "</details><br/><hr>";
+
                 //Output
                 feedback += "<br/><strong>" + messageSource.getMessage("text.output", new Object[]{}, locale) + "</strong><br/><br/>";
                 feedback += testResult.getStudentOutput() != null ? testResult.getStudentOutput().replaceAll("\n", "<br/>"): "";
