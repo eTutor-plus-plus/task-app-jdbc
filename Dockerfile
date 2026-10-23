@@ -6,7 +6,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # Build final image
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jdk
 EXPOSE 8081
 
 # Copy layered JAR
